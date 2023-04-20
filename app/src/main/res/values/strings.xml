@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">Chess</string>
+    <string name="app_name">pobo</string>
+    <string name="app_name_jp">ポボ</string>
+
+    <string name="human_game_en">Two Players</string>
+    <string name="human_game_fr">Deux joueurs</string>
+
+    <string name="ai_game_en">vs Computer</string>
+    <string name="ai_game_fr">Contre une IA</string>
 </resources>

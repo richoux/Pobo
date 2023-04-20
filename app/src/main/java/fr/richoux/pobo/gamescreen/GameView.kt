@@ -1,4 +1,4 @@
-package com.bentrengrove.chess.gamescreen
+package fr.richoux.pobo.gamescreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,23 +25,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bentrengrove.chess.engine.Game
-import com.bentrengrove.chess.engine.MoveResult
-import com.bentrengrove.chess.engine.PieceColor
-import com.bentrengrove.chess.engine.PieceType
-import com.bentrengrove.chess.engine.Position
+import fr.richoux.pobo.engine.Game
+import fr.richoux.pobo.engine.MoveResult
+import fr.richoux.pobo.engine.PieceColor
+import fr.richoux.pobo.engine.PieceType
+import fr.richoux.pobo.engine.Position
 
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
     val canGoBack by viewModel.canGoBack.collectAsState(initial = false)
     IconButton(onClick = { viewModel.goBackMove() }, enabled = canGoBack) {
-    Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
-}
+        Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
+    }
 
     val canGoForward by viewModel.canGoForward.collectAsState(initial = false)
     IconButton(onClick = { viewModel.goForwardMove() }, enabled = canGoForward) {
-    Icon(Icons.Filled.ArrowForward, contentDescription = "Redo Move")
-}
+        Icon(Icons.Filled.ArrowForward, contentDescription = "Redo Move")
+    }
 }
 
 @Composable
@@ -60,7 +60,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 onDismissRequest = {},
                 buttons = {
                     Button({ onButtonClicked(PieceType.Queen) }) { Text(text = "Queen") }
-                    Button({ onButtonClicked(PieceType.Rook) }) { Text(text = "Rook") }
+                    //Button({ onButtonClicked(PieceType.Rook) }) { Text(text = "Rook") }
                     Button({ onButtonClicked(PieceType.Knight) }) { Text(text = "Knight") }
                     Button({ onButtonClicked(PieceType.Bishop) }) { Text(text = "Bishop") }
                 },
@@ -78,6 +78,8 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             val onSelect: (Position) -> Unit = {
                 val sel = selection
                 if (game.canSelect(it)) {
+
+                    var i = 0
                     selection = it
                 } else if (sel != null && game.canMove(sel, it)) {
                     viewModel.updateResult(game.doMove(sel, it))

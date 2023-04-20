@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.bentrengrove.chess">
+    package="fr.richoux.pobo">
 
     <application
         android:allowBackup="true"
@@ -8,11 +8,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Chess">
+        android:theme="@style/Theme.Pobo">
         <activity
-            android:name=".MainActivity"
+            android:name="fr.richoux.pobo.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Chess.NoActionBar"
+            android:theme="@style/Theme.Pobo.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,4 +1,4 @@
-package com.bentrengrove.chess.titlescreen
+package fr.richoux.pobo.titlescreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -13,29 +13,32 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.bentrengrove.chess.Screen
-import com.bentrengrove.chess.gamescreen.GameViewModel
-import com.bentrengrove.chess.ui.ChessTheme
+import fr.richoux.pobo.Screen
+import fr.richoux.pobo.gamescreen.GameViewModel
+import fr.richoux.pobo.ui.PoboTheme
+import fr.richoux.pobo.R
 
 @Composable
 fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.primaryVariant).padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Chess", style = MaterialTheme.typography.h2, color = MaterialTheme.colors.onPrimary)
+        Text(text = context.getResources().getString(R.string.app_name_jp), style = MaterialTheme.typography.h2, color = MaterialTheme.colors.onPrimary)
         Spacer(modifier = Modifier.height(32.dp))
         GameButton(
             onClick = { newGame(navController, gameViewModel, aiEnabled = false) },
-            text = "Two Players"
+            text = context.getResources().getString(R.string.human_game_fr)
         )
         Spacer(modifier = Modifier.height(16.dp))
         GameButton(
             onClick = { newGame(navController, gameViewModel, aiEnabled = true) },
-            text = "vs Computer"
+            text = context.getResources().getString(R.string.ai_game_fr)
         )
     }
 }
@@ -53,7 +56,7 @@ private fun GameButton(onClick: () -> Unit, text: String) {
 @Preview
 @Composable
 private fun GameButtonPreview() {
-    ChessTheme {
+    PoboTheme {
         GameButton(onClick = { }, text = "Two Players")
     }
 }

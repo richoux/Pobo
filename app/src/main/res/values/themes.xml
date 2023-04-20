@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.Chess" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.Pobo" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#1565c0</item>
         <item name="colorPrimaryVariant">#003b8e</item>
@@ -14,12 +14,12 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="Theme.Chess.NoActionBar">
+    <style name="Theme.Pobo.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Chess.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Pobo.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="Theme.Chess.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.Pobo.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

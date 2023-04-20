@@ -1,4 +1,4 @@
-package com.bentrengrove.chess.gamescreen
+package fr.richoux.pobo.gamescreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -8,7 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.bentrengrove.chess.engine.Piece
+import fr.richoux.pobo.engine.Piece
 
 private val CAPTURED_PIECE_SIZE = 32.dp
 @Composable
@@ -20,7 +20,9 @@ fun CapturedView(pieces: List<Piece>, modifier: Modifier = Modifier) {
             .then(modifier)
     ) {
         pieces.forEach {
-            PieceView(piece = it, modifier = Modifier.width(CAPTURED_PIECE_SIZE).height(CAPTURED_PIECE_SIZE))
+            PieceView(piece = it, modifier = Modifier.width(CAPTURED_PIECE_SIZE).height(
+                CAPTURED_PIECE_SIZE
+            ))
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.bentrengrove.chess
+package fr.richoux.pobo
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -8,22 +8,18 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.bentrengrove.chess.gamescreen.GameActions
-import com.bentrengrove.chess.gamescreen.GameView
-import com.bentrengrove.chess.gamescreen.GameViewModel
-import com.bentrengrove.chess.titlescreen.TitleView
-import com.bentrengrove.chess.ui.ChessTheme
+import fr.richoux.pobo.gamescreen.GameActions
+import fr.richoux.pobo.gamescreen.GameView
+import fr.richoux.pobo.gamescreen.GameViewModel
+import fr.richoux.pobo.titlescreen.TitleView
+import fr.richoux.pobo.ui.PoboTheme
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -33,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ChessTheme {
+            PoboTheme {
                 val navController = rememberAnimatedNavController()
                 val gameViewModel: GameViewModel = viewModel()
 
@@ -61,6 +57,7 @@ class MainActivity : AppCompatActivity() {
                                     }
                                 }
                             },
+                            backgroundColor = MaterialTheme.colors.primary,
                             actions = actions
                         )
                     }

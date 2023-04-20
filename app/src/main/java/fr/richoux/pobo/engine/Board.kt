@@ -1,13 +1,13 @@
-package com.bentrengrove.chess.engine
+package fr.richoux.pobo.engine
 
 import androidx.annotation.DrawableRes
-import com.bentrengrove.chess.R
+import fr.richoux.pobo.R
 
 sealed class PieceType(val value: Int) {
     object Pawn : PieceType(1)
     object Knight : PieceType(3)
     object Bishop : PieceType(3)
-    object Rook : PieceType(5)
+    //object Rook : PieceType(5)
     object Queen : PieceType(8)
     object King : PieceType(0)
 }
@@ -33,7 +33,7 @@ private fun pieceTypeFromId(id: String): Pair<PieceType, PieceColor> {
         'P' -> PieceType.Pawn
         'N' -> PieceType.Knight
         'B' -> PieceType.Bishop
-        'R' -> PieceType.Rook
+        //'R' -> PieceType.Rook
         'Q' -> PieceType.Queen
         'K' -> PieceType.King
         else -> throw IllegalStateException("Second character should be a piece type")
@@ -60,7 +60,7 @@ data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
             PieceType.Pawn -> if (color is PieceColor.White) R.drawable.w_pawn_2x_ns else R.drawable.b_pawn_2x_ns
             PieceType.Knight -> if (color is PieceColor.White) R.drawable.w_knight_2x_ns else R.drawable.b_knight_2x_ns
             PieceType.Bishop -> if (color is PieceColor.White) R.drawable.w_bishop_2x_ns else R.drawable.b_bishop_2x_ns
-            PieceType.Rook -> if (color is PieceColor.White) R.drawable.w_rook_2x_ns else R.drawable.b_rook_2x_ns
+            //PieceType.Rook -> if (color is PieceColor.White) R.drawable.w_rook_2x_ns else R.drawable.b_rook_2x_ns
             PieceType.Queen -> if (color is PieceColor.White) R.drawable.w_queen_2x_ns else R.drawable.b_queen_2x_ns
             PieceType.King -> if (color is PieceColor.White) R.drawable.w_king_2x_ns else R.drawable.b_king_2x_ns
         }
@@ -83,21 +83,27 @@ data class Position(val x: Int, val y: Int) {
 }
 
 private val INITIAL_BOARD = listOf(
-    listOf("BR0", "BN1", "BB2", "BQ3", "BK4", "BB5", "BN6", "BR7").map { Piece.pieceOrNullFromString(it) },
-    listOf("BP0", "BP1", "BP2", "BP3", "BP4", "BP5", "BP6", "BP7").map { Piece.pieceOrNullFromString(it) },
-    listOf(null, null, null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
-    listOf(null, null, null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
-    listOf(null, null, null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
-    listOf(null, null, null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
-    listOf("WP0", "WP1", "WP2", "WP3", "WP4", "WP5", "WP6", "WP7").map { Piece.pieceOrNullFromString(it) },
-    listOf("WR0", "WN1", "WB2", "WQ3", "WK4", "WB5", "WN6", "WR7").map { Piece.pieceOrNullFromString(it) }
+    listOf("BN0", "BB1", "BQ2", "BK3", "BB4", "BN5").map {
+        Piece.pieceOrNullFromString( it )
+    },
+    listOf("BP0", "BP1", "BP2", "BP3", "BP4", "BP5").map {
+        Piece.pieceOrNullFromString( it )
+    },
+    listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
+    listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
+    listOf("WP0", "WP1", "WP2", "WP3", "WP4", "WP5").map {
+        Piece.pieceOrNullFromString( it )
+    },
+    listOf("WN0", "WB1", "WQ2", "WK3", "WB4", "WN5").map {
+        Piece.pieceOrNullFromString( it )
+    }
 )
 val STARTING_PIECES = INITIAL_BOARD.flatten().filterNotNull()
 
 data class Board(val pieces: List<List<Piece?>> = INITIAL_BOARD) {
     companion object {
-        private val ALL_POSITIONS = (0 until 8).flatMap { y ->
-            (0 until 8).map { x -> Position(x, y) }
+        private val ALL_POSITIONS = (0 until 6).flatMap { y ->
+            (0 until 6).map { x -> Position(x, y) }
         }
 
         fun fromHistory(history: List<Move>): Board {

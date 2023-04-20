@@ -1,15 +1,15 @@
-package com.bentrengrove.chess.gamescreen
+package fr.richoux.pobo.gamescreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bentrengrove.chess.engine.AI
-import com.bentrengrove.chess.engine.Board
-import com.bentrengrove.chess.engine.Game
-import com.bentrengrove.chess.engine.GameState
-import com.bentrengrove.chess.engine.Move
-import com.bentrengrove.chess.engine.MoveResult
-import com.bentrengrove.chess.engine.PieceColor
-import com.bentrengrove.chess.engine.PieceType
+import fr.richoux.pobo.engine.AI
+import fr.richoux.pobo.engine.Board
+import fr.richoux.pobo.engine.Game
+import fr.richoux.pobo.engine.GameState
+import fr.richoux.pobo.engine.Move
+import fr.richoux.pobo.engine.MoveResult
+import fr.richoux.pobo.engine.PieceColor
+import fr.richoux.pobo.engine.PieceType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -21,23 +21,27 @@ class GameViewModel : ViewModel() {
 
     private var forwardHistory = MutableStateFlow<List<Move>>(listOf())
 
-    val canGoBack = moveResult.map {
-        val game = (_moveResult.value as? MoveResult.Success)?.game ?: return@map false
-        return@map game.history.isNotEmpty()
-    }
-    val canGoForward = forwardHistory.map { it.isNotEmpty() }
-
     private val ai = AI(PieceColor.Black)
     private var aiEnabled = true
 
-    fun updateResult(result: MoveResult) {
+    val canGoBack = moveResult.map {
+        val game = (_moveResult.value as? MoveResult.Success)?.game ?: return@map false
+        if(aiEnabled)
+            return@map game.history.size > 1
+        else
+            return@map game.history.isNotEmpty()
+    }
+    val canGoForward = forwardHistory.map { it.isNotEmpty() }
+
+    fun updateResult(result: MoveResult, aiCanPlay: Boolean = true) {
         _moveResult.tryEmit(result)
 
         val game = (result as? MoveResult.Success)?.game ?: return
-        if (aiEnabled && game.turn == PieceColor.Black &&
-            listOf(GameState.CHECK, GameState.IDLE).contains(game.gameState)
+        if (aiEnabled
+            && aiCanPlay
+            && game.turn == PieceColor.Black
+            && listOf(GameState.CHECK, GameState.IDLE).contains(game.gameState)
         ) {
-
             viewModelScope.launch {
                 val nextMove = ai.calculateNextMove(game, PieceColor.Black)
                 if (nextMove != null) {
@@ -67,17 +71,36 @@ class GameViewModel : ViewModel() {
         val game = (_moveResult.value as? MoveResult.Success)?.game ?: return
 
         val lastMove = game.history.last()
-        val newHistory = game.history.subList(0, game.history.size - 1)
+        val newHistory =
+            if(aiEnabled)
+                game.history.subList(0, game.history.size - 2)
+            else
+                game.history.subList(0, game.history.size - 1)
         val newBoard = Board.fromHistory(newHistory)
         updateResult(MoveResult.Success(Game(newBoard, newHistory)))
-        forwardHistory.tryEmit(forwardHistory.value + listOf(lastMove))
+        if(aiEnabled) {
+            val previousLastMove = game.history[game.history.size - 2]
+            forwardHistory.tryEmit(forwardHistory.value + listOf(lastMove, previousLastMove))
+        }
+        else
+            forwardHistory.tryEmit(forwardHistory.value + listOf(lastMove))
     }
 
     fun goForwardMove() {
-        val game = (_moveResult.value as? MoveResult.Success)?.game ?: return
+        var game = (_moveResult.value as? MoveResult.Success)?.game ?: return
 
         val move = forwardHistory.value.last()
-        forwardHistory.tryEmit(forwardHistory.value.subList(0, forwardHistory.value.size - 1))
-        updateResult(game.doMove(move.from, move.to))
+        updateResult(game.doMove(move.from, move.to), false)
+
+        if(aiEnabled) {
+            game = (_moveResult.value as? MoveResult.Success)?.game ?: return
+            val previousMove = forwardHistory.value[forwardHistory.value.size - 2]
+            updateResult(game.doMove(previousMove.from, previousMove.to))
+        }
+
+        if(aiEnabled)
+            forwardHistory.tryEmit(forwardHistory.value.subList(0, forwardHistory.value.size - 2))
+        else
+            forwardHistory.tryEmit(forwardHistory.value.subList(0, forwardHistory.value.size - 1))
     }
 }

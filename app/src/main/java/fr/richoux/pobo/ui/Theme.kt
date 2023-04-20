@@ -1,4 +1,4 @@
-package com.bentrengrove.chess.ui
+package fr.richoux.pobo.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -23,7 +23,7 @@ private val LightColorPalette = lightColors(
 )
 
 @Composable
-fun ChessTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
+fun PoboTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {

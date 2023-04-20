@@ -1,4 +1,4 @@
-package com.bentrengrove.chess.engine
+package fr.richoux.pobo.engine
 
 class AI(val color: PieceColor) {
     // This AI doesn't work at all currently

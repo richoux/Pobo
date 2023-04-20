@@ -1,4 +1,4 @@
-package com.bentrengrove.chess.engine
+package fr.richoux.pobo.engine
 
 import kotlin.math.abs
 
@@ -115,9 +115,9 @@ data class Game(val board: Board = Board(), val history: List<Move> = listOf()) 
                     }
                 }
             }
-            is PieceType.Rook -> {
-                return (delta.x == 0 || delta.y == 0) && !board.piecesExist(from, to)
-            }
+//            is PieceType.Rook -> {
+//                return (delta.x == 0 || delta.y == 0) && !board.piecesExist(from, to)
+//            }
             is PieceType.Bishop -> {
                 return abs(delta.x) == abs(delta.y) && !board.piecesExist(from, to)
             }

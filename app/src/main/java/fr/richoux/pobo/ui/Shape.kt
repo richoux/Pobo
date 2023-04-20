@@ -1,4 +1,4 @@
-package com.bentrengrove.chess.ui
+package fr.richoux.pobo.ui
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes
