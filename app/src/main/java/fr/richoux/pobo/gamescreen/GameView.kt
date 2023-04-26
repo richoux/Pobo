@@ -1,5 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -25,11 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import fr.richoux.pobo.engine.Game
-import fr.richoux.pobo.engine.MoveResult
-import fr.richoux.pobo.engine.PieceColor
-import fr.richoux.pobo.engine.PieceType
-import fr.richoux.pobo.engine.Position
+import fr.richoux.pobo.engine.*
+
+private const val TAG = "pobotag GameView"
 
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
@@ -45,71 +44,170 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 }
 
 @Composable
+fun MainView(game: Game, selection: Position? = null, didTap: (Position) -> Unit = {_ -> Unit}) {
+    Log.d(TAG, "MainView call")
+    Column(Modifier.fillMaxHeight()) {
+        BoardView(
+            game = game,
+            selection = selection,
+            didTap = didTap
+        )
+        PiecesStocksView(
+            pool = getPlayerPool(PieceColor.Blue),
+            reserve = getPlayerReserve(PieceColor.Blue),
+            Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        PiecesStocksView(
+            pool = getPlayerPool(PieceColor.Red),
+            reserve = getPlayerReserve(PieceColor.Red),
+            Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = game.displayGameState,
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+    }
+}
+
+@Composable
 fun GameView(viewModel: GameViewModel = viewModel()) {
-    var selection: Position? by remember { mutableStateOf(null) }
+    Log.d(TAG, "GameView call")
+    var pieceSelection: PieceType? by remember { mutableStateOf(null) }
+    var positionSelection: Position? by remember { mutableStateOf(null) }
 
-    val moveResult by viewModel.moveResult.collectAsState(initial = MoveResult.Success(Game()))
+    val gameLoopStep by viewModel.gameLoopStep.collectAsState(initial = GameLoopStep.Init(Game()))
 
-    when (val moveResult = moveResult) {
-        is MoveResult.Promotion -> {
-            val onPieceSelection = moveResult.onPieceSelection
+    when (val loopStep = gameLoopStep) {
+        is GameLoopStep.Init -> {
+            Log.d(TAG, "In GameLoopStep.Init")
+            val game = loopStep.game
+            viewModel.updateLoop(game.nextGameLoopStep(loopStep, fakeMove), game)
+
+            MainView(game)
+        }
+
+        is GameLoopStep.Play -> {
+            Log.d(TAG, "In GameLoopStep.Play")
+            val game = loopStep.game
+
+            if (hasTwoTypesInPool(game.turn))
+                viewModel.updateLoop(GameLoopStep.SelectPiece(game), game)
+            else
+                viewModel.updateLoop(GameLoopStep.SelectPosition(game), game)
+
+            MainView(game)
+        }
+
+        is GameLoopStep.SelectPiece -> {
+            Log.d(TAG, "In GameLoopStep.SelectPiece")
+            val game = loopStep.game
+            val onSelectPiece = loopStep.onSelectPiece
+
+//            val onSelect: (PieceType) -> Unit = {
+//                val sel = pieceSelection
+//                if (game.board.hasPieceInPool(game.turn, it))
+//                    pieceSelection = it
+//                else if(sel != null && game.board.hasPieceInPool(game.turn, sel)) {
+//                    viewModel.updateLoop(onSelectPiece(sel))
+//                    pieceSelection = null
+//                    viewModel.clearForwardHistory()
+//                }
+//            }
             val onButtonClicked: (PieceType) -> Unit = {
-                viewModel.updateResult(onPieceSelection(it))
+                viewModel.updateLoop(onSelectPiece(it), game)
             }
             AlertDialog(
                 onDismissRequest = {},
                 buttons = {
-                    Button({ onButtonClicked(PieceType.Queen) }) { Text(text = "Queen") }
-                    //Button({ onButtonClicked(PieceType.Rook) }) { Text(text = "Rook") }
-                    Button({ onButtonClicked(PieceType.Knight) }) { Text(text = "Knight") }
-                    Button({ onButtonClicked(PieceType.Bishop) }) { Text(text = "Bishop") }
+                    Button({ onButtonClicked(PieceType.Po) }) { Text(text = "Po") }
+                    Button({ onButtonClicked(PieceType.Bo) }) { Text(text = "Bo") }
                 },
                 title = {
-                    Text(text = "Promote to")
+                    Text(text = "Piece selection")
                 },
                 text = {
-                    Text(text = "Please choose a piece type to promote the pawn to")
+                    Text(text = "Choose if you want to play a Po or a Bo")
                 }
             )
+
+            MainView(game)
         }
-        is MoveResult.Success -> {
-            val game = moveResult.game
+
+        is GameLoopStep.SelectPosition -> {
+            Log.d(TAG, "In GameLoopStep.SelectPosition")
+            val game = loopStep.game
+            val onSelectPosition = loopStep.onSelectPosition
 
             val onSelect: (Position) -> Unit = {
-                val sel = selection
-                if (game.canSelect(it)) {
-
-                    var i = 0
-                    selection = it
-                } else if (sel != null && game.canMove(sel, it)) {
-                    viewModel.updateResult(game.doMove(sel, it))
-                    selection = null
+                val sel = positionSelection
+                Log.d(TAG, "GameLoopStep.SelectPosition: positionSelection=(${positionSelection?.x},${positionSelection?.y})")
+                if (game.canPlayAt(it))
+                    positionSelection = it
+                else if(sel != null && game.canPlayAt(sel)) {
+                    viewModel.updateLoop(onSelectPosition(sel), game)
+                    Log.d(TAG, "GameLoopStep.SelectPosition: play sel=(${sel.x},${sel.y}) and got ${onSelectPosition(sel)}")
+                    pieceSelection = null
                     viewModel.clearForwardHistory()
                 }
             }
-
-            Column(Modifier.fillMaxHeight()) {
-                GameView(
-                    game = game,
-                    selection = selection,
-                    moves = game.movesForPieceAt(selection),
-                    didTap = onSelect
-                )
-                CapturedView(
-                    pieces = game.capturedPiecesFor(PieceColor.White),
-                    Modifier.fillMaxWidth()
-                )
-                CapturedView(
-                    pieces = game.capturedPiecesFor(PieceColor.Black),
-                    Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = game.displayGameState,
-                    style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(horizontal = 8.dp).align(Alignment.CenterHorizontally)
-                )
+            val onButtonClicked: (Position) -> Unit = {
+                Log.d(TAG, "GameLoopStep.SelectPosition: button clicked on (${it.x},${it.y})")
+                viewModel.updateLoop(onSelectPosition(it), game)
             }
+
+            MainView(game, positionSelection, onSelect)
+        }
+
+        is GameLoopStep.CheckGraduationCriteria -> {
+            Log.d(TAG, "In GameLoopStep.CheckGraduationCriteria")
+            val game = loopStep.game
+            val graduation = loopStep.positions
+
+            if (graduation.isEmpty())
+                viewModel.updateLoop(GameLoopStep.Play(game), game)
+            else if(graduation.size == 1) {
+                for (position in graduation[0]) {
+                    //viewModel.updateLoop(game.nextGameLoopStep())
+                }
+            }
+//            else
+//                viewModel.updateLoop(GameLoopStep.SelectPiecesToRemove(game, ...)
+
+            MainView(game)
+        }
+
+        is GameLoopStep.SelectPiecesToRemove -> {
+            Log.d(TAG, "In GameLoopStep.SelectPiecesToRemove")
+            val game = loopStep.game
+            val onSelectPiece = loopStep.onSelectPiece
+
+//            if(graduableList.size == 1)
+//                viewModel.updateLoop(GameLoopStep.Play(Game()))
+//            else {
+//                val onButtonClicked: (PieceType) -> Unit = {
+//                    viewModel.updateResult(onPieceSelection(it))
+//                }
+//                AlertDialog(
+//                    onDismissRequest = {},
+//                    buttons = {
+//                        Button({ onButtonClicked(PieceType.Queen) }) { Text(text = "Queen") }
+//                        //Button({ onButtonClicked(PieceType.Rook) }) { Text(text = "Rook") }
+//                        Button({ onButtonClicked(PieceType.Knight) }) { Text(text = "Knight") }
+//                        Button({ onButtonClicked(PieceType.Bishop) }) { Text(text = "Bishop") }
+//                    },
+//                    title = {
+//                        Text(text = "Promote to")
+//                    },
+//                    text = {
+//                        Text(text = "Please choose a piece type to promote the pawn to")
+//                    }
+//                )
+            MainView(game)
         }
     }
 }

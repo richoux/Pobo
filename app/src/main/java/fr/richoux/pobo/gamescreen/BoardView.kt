@@ -1,9 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,14 +10,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
@@ -28,77 +22,29 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
-import fr.richoux.pobo.engine.Board
 import fr.richoux.pobo.engine.Game
 import fr.richoux.pobo.engine.Move
 import fr.richoux.pobo.engine.Piece
-import fr.richoux.pobo.engine.PieceColor
 import fr.richoux.pobo.engine.Position
 import fr.richoux.pobo.ui.BoardColors
 
 @Composable
-fun GameView(
+fun BoardView(
     modifier: Modifier = Modifier,
     game: Game,
     selection: Position?,
-    moves: List<Position>,
     didTap: (Position) -> Unit
 ){
     Box(modifier) {
         val board = game.board
 
-        // Highlight king in check, could potentially highlight other things here
-        val dangerPositions = listOf(PieceColor.White, PieceColor.Black).mapNotNull {
-            if (game.kingIsInCheck(it))
-                game.kingPosition(it)
-            else
-                null
-        }
-
-        BoardBackground(game.history.lastOrNull(), selection, dangerPositions, didTap)
+        BoardBackground(game.history.lastOrNull(), selection, didTap)
         BoardLayout(
             pieces = board.allPieces,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1.0f)
         )
-        MovesView(board, moves)
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun MovesView(board: Board, moves: List<Position>) {
-    Column {
-        for (y in 0 until 6) {
-            Row {
-                for (x in 0 until 6) {
-                    val position = Position(x, y)
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1.0f)
-                    ) {
-                        val piece = board.pieceAt(position)
-                        val selected = moves.contains(position)
-                        androidx.compose.animation.AnimatedVisibility(
-                            visible = selected,
-                            modifier = Modifier.matchParentSize(),
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ){
-                            val color = if (piece != null) BoardColors.attackColor else BoardColors.moveColor
-                            Box(
-                                Modifier
-                                    .clip(CircleShape)
-                                    .background(color)
-                                    .size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -106,7 +52,6 @@ private fun MovesView(board: Board, moves: List<Position>) {
 fun BoardBackground(
     lastMove: Move?,
     selection: Position?,
-    dangerPositions: List<Position>,
     didTap: (Position) -> Unit
 ){
     Column {
@@ -115,10 +60,8 @@ fun BoardBackground(
                 for (x in 0 until 6) {
                     val position = Position(x, y)
                     val white = y % 2 == x % 2
-                    val color = if (lastMove?.contains(position) == true || position == selection) {
+                    val color = if (lastMove?.to?.isSame(position) == true || position.isSame(selection)) {
                         BoardColors.lastMoveColor
-                    } else if (dangerPositions.contains(position)) {
-                        BoardColors.checkColor
                     } else {
                         if (white) BoardColors.lightSquare else BoardColors.darkSquare
                     }
@@ -141,7 +84,7 @@ fun BoardBackground(
                         }
                         if (x == 0) {
                             Text(
-                                text = "${8 - y}",
+                                text = "${6 - y}",
                                 modifier = Modifier.align(Alignment.TopStart),
                                 style = MaterialTheme.typography.caption,
                                 color = Color.Black.copy(0.5f)

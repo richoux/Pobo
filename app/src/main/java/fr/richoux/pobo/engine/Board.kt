@@ -4,42 +4,39 @@ import androidx.annotation.DrawableRes
 import fr.richoux.pobo.R
 
 sealed class PieceType(val value: Int) {
-    object Pawn : PieceType(1)
-    object Knight : PieceType(3)
-    object Bishop : PieceType(3)
-    //object Rook : PieceType(5)
-    object Queen : PieceType(8)
-    object King : PieceType(0)
+    object Po : PieceType(1) // small ones
+    object Bo : PieceType(2) // big ones
+
+    operator fun compareTo( other: PieceType ): Int {
+        return this.value - other.value
+    }
 }
 
 sealed class PieceColor {
-    object White : PieceColor()
-    object Black : PieceColor()
+    object Blue : PieceColor()
+    object Red : PieceColor()
 
     fun other(): PieceColor {
-        return if (this == White) Black else White
+        return if (this == Blue) Red else Blue
     }
 }
 
 private fun pieceTypeFromId(id: String): Pair<PieceType, PieceColor> {
     val chars = id.toCharArray()
-    if (chars.size != 3) throw IllegalStateException("Piece id should be 3 characters")
+    if (chars.size != 2) throw IllegalStateException("Piece id should be 2 characters")
     val pieceColor = when (chars[0]) {
-        'W' -> PieceColor.White
-        'B' -> PieceColor.Black
-        else -> throw IllegalStateException("First character should be W or B")
+        'B' -> PieceColor.Blue
+        'R' -> PieceColor.Red
+        else -> throw IllegalStateException("First character should be B or R")
     }
     val pieceType = when (chars[1]) {
-        'P' -> PieceType.Pawn
-        'N' -> PieceType.Knight
-        'B' -> PieceType.Bishop
-        //'R' -> PieceType.Rook
-        'Q' -> PieceType.Queen
-        'K' -> PieceType.King
+        'P' -> PieceType.Po
+        'B' -> PieceType.Bo
         else -> throw IllegalStateException("Second character should be a piece type")
     }
     return pieceType to pieceColor
 }
+
 data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
     companion object {
         fun pieceOrNullFromString(id: String?): Piece? {
@@ -57,12 +54,8 @@ data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
     @DrawableRes
     fun imageResource(): Int {
         return when (type) {
-            PieceType.Pawn -> if (color is PieceColor.White) R.drawable.w_pawn_2x_ns else R.drawable.b_pawn_2x_ns
-            PieceType.Knight -> if (color is PieceColor.White) R.drawable.w_knight_2x_ns else R.drawable.b_knight_2x_ns
-            PieceType.Bishop -> if (color is PieceColor.White) R.drawable.w_bishop_2x_ns else R.drawable.b_bishop_2x_ns
-            //PieceType.Rook -> if (color is PieceColor.White) R.drawable.w_rook_2x_ns else R.drawable.b_rook_2x_ns
-            PieceType.Queen -> if (color is PieceColor.White) R.drawable.w_queen_2x_ns else R.drawable.b_queen_2x_ns
-            PieceType.King -> if (color is PieceColor.White) R.drawable.w_king_2x_ns else R.drawable.b_king_2x_ns
+            PieceType.Po -> if (color is PieceColor.Blue) R.drawable.small_circle else R.drawable.small_cross
+            PieceType.Bo -> if (color is PieceColor.Blue) R.drawable.big_circle else R.drawable.big_cross
         }
     }
 }
@@ -80,25 +73,67 @@ data class Position(val x: Int, val y: Int) {
     operator fun plus(other: Delta): Position {
         return Position(this.x + other.x, this.y + other.y)
     }
+    fun isSame(other: Position?): Boolean {
+        return this === other || ( this.x == other?.x && this.y == other?.y )
+    }
+
+//    override fun equals(other: Any?): Boolean {
+//        return this === other || ( this.x == other?.x && this.y == other?.y )
+//    }
 }
 
 private val INITIAL_BOARD = listOf(
-    listOf("BN0", "BB1", "BQ2", "BK3", "BB4", "BN5").map {
-        Piece.pieceOrNullFromString( it )
-    },
-    listOf("BP0", "BP1", "BP2", "BP3", "BP4", "BP5").map {
-        Piece.pieceOrNullFromString( it )
-    },
     listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
     listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
-    listOf("WP0", "WP1", "WP2", "WP3", "WP4", "WP5").map {
-        Piece.pieceOrNullFromString( it )
-    },
-    listOf("WN0", "WB1", "WQ2", "WK3", "WB4", "WN5").map {
-        Piece.pieceOrNullFromString( it )
-    }
+    listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
+    listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
+    listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
+    listOf(null, null, null, null, null, null).map { Piece.pieceOrNullFromString(it) },
 )
-val STARTING_PIECES = INITIAL_BOARD.flatten().filterNotNull()
+
+val bluePool = MutableList(8){ Piece.pieceFromString("BP") }
+val blueReserve = MutableList(8){ Piece.pieceFromString("BB") }
+
+val redPool = MutableList(8){ Piece.pieceFromString("RP") }
+val redReserve = MutableList(8){ Piece.pieceFromString("RB") }
+
+fun getPlayerPool(color: PieceColor): MutableList<Piece> {
+    return when(color) {
+        PieceColor.Blue -> bluePool
+        else -> redPool
+    }
+}
+
+fun getPlayerReserve(color: PieceColor): MutableList<Piece> {
+    return when(color) {
+        PieceColor.Blue -> blueReserve
+        else -> redReserve
+    }
+}
+
+fun hasTwoTypesInPool(color: PieceColor): Boolean {
+    val pool = getPlayerPool(color)
+    var hasPo = false
+    var hasBo = false
+    for (piece in pool) {
+        if(piece.type == PieceType.Po)
+            hasPo = true
+        else
+            hasBo = true
+    }
+    return hasPo && hasBo
+}
+
+//private val INITIAL_PIECES = listOf(
+//    listOf("BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP", ).map { Piece.pieceOrNullFromString(it) },
+//    listOf("RP", "RP", "RP", "RP", "RP", "RP", "RP", "RP", ).map { Piece.pieceOrNullFromString(it) }
+//)
+
+private val INITIAL_PIECES = listOf(
+    bluePool,
+    redPool
+)
+val STARTING_PIECES = INITIAL_PIECES.flatten()
 
 data class Board(val pieces: List<List<Piece?>> = INITIAL_BOARD) {
     companion object {
@@ -109,7 +144,7 @@ data class Board(val pieces: List<List<Piece?>> = INITIAL_BOARD) {
         fun fromHistory(history: List<Move>): Board {
             var board = Board()
             history.forEach {
-                board = board.movePiece(it.from, it.to)
+                board = board.playAt(it)
             }
 
             return board
@@ -117,39 +152,135 @@ data class Board(val pieces: List<List<Piece?>> = INITIAL_BOARD) {
     }
 
     val allPositions = ALL_POSITIONS
-    val allPieces: List<Pair<Position, Piece>> = allPositions.mapNotNull { position -> pieces[position.y][position.x]?.let { position to it } }
+    val allPieces: List<Pair<Position, Piece>> =
+        allPositions.mapNotNull { position -> pieces[position.y][position.x]?.let { position to it } }
+
+    fun getAllEmptyPositions(): List<Position> {
+        val allEmptyPositions = mutableListOf<Position>()
+        for (position in allPositions) {
+            if(pieces[position.y][position.x] == null)
+                allEmptyPositions.add(position)
+        }
+        return allEmptyPositions.toList()
+    }
 
     fun pieceAt(position: Position): Piece? {
+        if(!isPositionOnTheBoard(position)) return null
         return pieces.getOrNull(position.y)?.getOrNull(position.x)
     }
 
-    fun movePiece(from: Position, to: Position): Board {
-        val piece = pieceAt(from)
-        val newPieces = pieces.map { it.toMutableList() }.toMutableList()
-
-        newPieces[to.y][to.x] = piece
+    // remove a piece from its position, but not necessary from the board
+    fun removePieceFrom(from: Position): Board {
+        var newPieces = pieces.map { it.toMutableList() }.toMutableList()
         newPieces[from.y][from.x] = null
-
         return Board(newPieces.map { it.toList() }.toList())
     }
 
-    fun firstPosition(where: (Piece) -> Boolean): Position? {
-        return allPieces.firstOrNull { where(it.second) }?.first
-    }
-
-    fun promotePiece(at: Position, to: PieceType): Board {
-        val oldPiece = pieceAt(at) ?: return this
-        val newPieces = pieces.map { it.toMutableList() }.toMutableList()
-        newPieces[at.y][at.x] = oldPiece.copy(type = to)
-
+    // place a piece at a position, but not necessary a new piece from pool
+    fun placePieceAt(piece: Piece, at: Position): Board {
+        if(!isPositionOnTheBoard(at)) return this
+        var newPieces = pieces.map { it.toMutableList() }.toMutableList()
+        newPieces[at.y][at.x] = piece
         return Board(newPieces.map { it.toList() }.toList())
     }
 
-    fun removePiece(at: Position): Board {
-        val oldPiece = pieceAt(at) ?: return this
-        val newPieces = pieces.map { it.toMutableList() }.toMutableList()
-        newPieces[at.y][at.x] = null
+    // place a piece at a position, but not necessary a new piece from pool
+    fun placePieceAt(move: Move): Board {
+        return placePieceAt(move.piece, move.to)
+    }
 
-        return Board(newPieces.map { it.toList() }.toList())
+    // push a piece on the board (or outside the board)
+    // do nothing if 'from' is invalid
+    fun moveFromTo(from: Position, to: Position): Board {
+        if(!isPositionOnTheBoard(to)) {
+            return removePieceFromBoard(from)
+        }
+        else {
+            val piece = pieceAt(from) ?: return this
+            var newPieces = pieces.map { it.toMutableList() }.toMutableList()
+            newPieces[from.y][from.x] = null
+            newPieces[to.y][to.x] = piece
+            return Board(newPieces.map { it.toList() }.toList())
+        }
+    }
+
+    fun removePieceFromBoard(position: Position): Board {
+        val piece = (pieceAt(position) ?: return this).also {
+            putInPool(it)
+        }
+        return removePieceFrom(position)
+    }
+
+    fun playAt(piece: Piece, at: Position): Board {
+        takeFromPool(piece)
+        return placePieceAt(piece, at)
+    }
+
+    fun playAt(move: Move): Board = playAt(move.piece, move.to)
+
+    fun takeFromPool(piece: Piece) {
+        val pool = getPlayerPool(piece.color)
+        if (piece.type == PieceType.Po)
+            pool.removeLast()
+        else
+            pool.removeFirst()
+    }
+
+    fun putInPool(piece: Piece) {
+        val pool = getPlayerPool(piece.color)
+        if (piece.type == PieceType.Po)
+            pool.add(piece)
+        else
+            pool.add(0, piece)
+    }
+
+    fun isPoolEmpty(player: PieceColor): Boolean = getPlayerPool(player).isEmpty()
+
+    fun hasPieceInPool(color: PieceColor, type: PieceType): Boolean
+            = getPlayerPool(color).find { it -> it.type == type } != null
+
+    fun hasPieceInPool(piece: Piece): Boolean = hasPieceInPool(piece.color, piece.type)
+
+    fun hasPieceInReserve(color: PieceColor, type: PieceType): Boolean
+            = getPlayerReserve(color).find { it -> it.type == type } != null
+
+    fun hasPieceInReserve(piece: Piece): Boolean = hasPieceInReserve(piece.color, piece.type)
+
+//    fun removeLine(position: Position, direction: Direction, player: PieceColor): Board {
+//        var countPo = 0
+//        val currentPiece = pieceAt(position)
+//        val nextPosition = getPositionTowards(position, direction)
+//        val nextPiece = pieceAt(nextPosition)
+//        val nextNextPosition = getPositionTowards(nextPosition, direction)
+//        val nextNextPiece = pieceAt(nextNextPosition)
+//
+//        //if(currentPiece != null && currentPiece.type == PieceType.Po)
+//        if(currentPiece?.type == PieceType.Po) countPo++
+//        if(nextPiece?.type == PieceType.Po) countPo++
+//        if(nextNextPiece?.type == PieceType.Po) countPo++
+//
+//        var newBoard = removePieceFromBoard(position)
+//        newBoard = newBoard.removePieceFromBoard(nextPosition)
+//        newBoard = newBoard.removePieceFromBoard(nextNextPosition)
+//        graduatePieces(countPo, player)
+//        return newBoard
+//    }
+
+    fun graduatePieces(number: Int, color: PieceColor) {
+        (0 until number).map { i ->
+            if (color == PieceColor.Blue) {
+                bluePool.add(0, Piece.pieceFromString("BB") )
+                bluePool.removeLast()
+
+                blueReserve.add(Piece.pieceFromString("BP"))
+                blueReserve.removeFirst()
+            } else {
+                redPool.add(0, Piece.pieceFromString("RB") )
+                redPool.removeLast()
+
+                redReserve.add(Piece.pieceFromString("RP"))
+                redReserve.removeFirst()
+            }
+        }
     }
 }
