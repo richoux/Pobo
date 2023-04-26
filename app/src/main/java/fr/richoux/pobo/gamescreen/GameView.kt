@@ -1,12 +1,7 @@
 package fr.richoux.pobo.gamescreen
 
 import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
@@ -16,6 +11,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,6 +29,14 @@ private const val TAG = "pobotag GameView"
 
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
+    val mustSelectPiece by viewModel.mustSelectPiece.collectAsState(initial = false)
+    IconButton(onClick = { viewModel.selectPo() }, enabled = mustSelectPiece) {
+        Icon(Icons.Filled.Phone, contentDescription = "Select Po")
+    }
+    IconButton(onClick = { viewModel.selectBo() }, enabled = mustSelectPiece) {
+        Icon(Icons.Filled.Email, contentDescription = "Select Bo")
+    }
+    Spacer(modifier = Modifier.width(48.dp))
     val canGoBack by viewModel.canGoBack.collectAsState(initial = false)
     IconButton(onClick = { viewModel.goBackMove() }, enabled = canGoBack) {
         Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
