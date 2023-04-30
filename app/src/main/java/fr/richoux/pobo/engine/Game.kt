@@ -47,11 +47,11 @@ fun isPositionOnTheBoard(at: Position): Boolean {
 }
 
 data class Game(
-    val board: Board = Board(),
+    var board: Board = Board(),
     //val history: List<Move> = listOf(),
-    val gameState: GameState = GameState.INIT,
+    var gameState: GameState = GameState.INIT,
+    var victory: Boolean = false,
     val isPlayout: Boolean = false, // true if the game is a simulation for decision-making
-    val victory: Boolean = false
 ) {
     val displayGameState: String
         get() {
@@ -99,13 +99,13 @@ data class Game(
         return newBoard
     }
 
-    fun play(move: Move): Game {
-        if(!canPlay(move)) return this
+    fun play(move: Move) {
+        if(!canPlay(move)) return
 
         var newBoard = board.playAt(move)
         newBoard = doPush(newBoard.playAt(move), move)
 
-        val victory = checkVictory(newBoard)
+        victory = checkVictory(newBoard)
         if(!victory) {
             val graduable = getGraduations(newBoard)
             if( !graduable.isEmpty() ) {
@@ -120,10 +120,12 @@ data class Game(
                 }
             }
         }
-        return Game(newBoard, history + listOf(move), nextGameState(newBoard), victory)
+
+        board = newBoard
+        gameState = nextGameState()
     }
 
-    fun nextGameState(board: Board): GameState {
+    fun nextGameState(): GameState {
         if(victory)
             return GameState.END
 

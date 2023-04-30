@@ -9,10 +9,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,21 +26,47 @@ private const val TAG = "pobotag GameView"
 
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
-    val mustSelectPiece by viewModel.mustSelectPiece.collectAsState(initial = false)
-    IconButton(onClick = { viewModel.selectPo() }, enabled = mustSelectPiece) {
+    IconButton(
+        onClick = { viewModel.selectPo() },
+        enabled = viewModel.getGameState() == GameState.SELECTPIECE
+    ) {
         Icon(Icons.Filled.Phone, contentDescription = "Select Po")
     }
-    IconButton(onClick = { viewModel.selectBo() }, enabled = mustSelectPiece) {
+    IconButton(
+        onClick = { viewModel.selectBo() },
+        enabled = viewModel.getGameState() == GameState.SELECTPIECE
+    ) {
         Icon(Icons.Filled.Email, contentDescription = "Select Bo")
     }
+
+    val completeSelectionForRemoval =
+        viewModel.getGameState() == GameState.SELECTREMOVAL
+                && ( ( viewModel.action == Action.SELECT3 && viewModel.selectedPieces.size == 3)
+                       || (viewModel.action == Action.SELECT1 && viewModel.selectedPieces.size == 1) )
+    IconButton(
+        onClick = { viewModel.validate() },
+        enabled = completeSelectionForRemoval
+    ) {
+        Icon(Icons.Filled.Done, contentDescription = "OK")
+    }
+    IconButton(
+        onClick = { viewModel.cancelPieceSelection() },
+        enabled = viewModel.getGameState() == GameState.SELECTPIECE
+    ) {
+        Icon(Icons.Filled.Delete, contentDescription = "Cancel")
+    }
     Spacer(modifier = Modifier.width(48.dp))
-    val canGoBack by viewModel.canGoBack.collectAsState(initial = false)
-    IconButton(onClick = { viewModel.goBackMove() }, enabled = canGoBack) {
+    IconButton(
+        onClick = { viewModel.goBackMove() },
+        enabled = viewModel.canGoBack
+    ) {
         Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
     }
 
-    val canGoForward by viewModel.canGoForward.collectAsState(initial = false)
-    IconButton(onClick = { viewModel.goForwardMove() }, enabled = canGoForward) {
+    IconButton(
+        onClick = { viewModel.goForwardMove() },
+        enabled = viewModel.canGoForward
+    ) {
         Icon(Icons.Filled.ArrowForward, contentDescription = "Redo Move")
     }
 }
@@ -83,7 +106,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
     var pieceSelection: PieceType? by remember { mutableStateOf(null) }
     var positionSelection: Position? by remember { mutableStateOf(null) }
 
-    val gameLoopStep by viewModel.gameLoopStep.collectAsState(initial = GameLoopStep.Init(Game()))
+    val gameLoopStep by viewModel.actions.collectAsState(initial = GameLoopStep.Init(Game()))
 
     when (val loopStep = gameLoopStep) {
         is GameLoopStep.Init -> {

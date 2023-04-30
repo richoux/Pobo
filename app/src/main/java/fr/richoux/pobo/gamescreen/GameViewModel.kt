@@ -5,108 +5,130 @@ import androidx.lifecycle.viewModelScope
 import fr.richoux.pobo.engine.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
+enum class Action {
+    IDLE, SELECT1, SELECT3, CANCEL, OK
+}
+
 class GameViewModel : ViewModel() {
-    private var _gameLoopStep = MutableStateFlow<GameLoopStep>(GameLoopStep.Play(Game()))
-    val gameLoopStep: Flow<GameLoopStep> get() = _gameLoopStep
+    private var _actions = MutableStateFlow<Action>(Action.IDLE)
+    val actions: Flow<Action> get() = _actions
+    val action = Action.IDLE
 
-    private var forwardHistory = MutableStateFlow<List<Move>>(listOf())
+    private val _history: MutableList<Board> = mutableListOf<Board>()
+    private val _forwardHistory: MutableList<Board> = mutableListOf<Board>()
 
-    private val ai = AI(PieceColor.Red)
-    private var aiEnabled = true
+    private val _ai = AI(PieceColor.Red)
+    private var _aiEnabled = true
 
-    private var selectedPiece: PieceType = PieceType.Po
+    var selectedPieces: List<Position> = listOf()
+        private set
 
-    val canGoBack = gameLoopStep.map {
-        val game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return@map false
-        if (aiEnabled)
-            return@map game.history.size > 1
-        else
-            return@map game.history.isNotEmpty()
+    private var _game: Game = Game()
+
+    val canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+//    val canGoBack = actions.map {
+//        if (_aiEnabled)
+//            return@map _history.size > 1
+//        else
+//            return@map _history.isNotEmpty()
+//    }
+
+    val canGoForward = _forwardHistory.isNotEmpty()
+//    val mustSelectPiece = actions.map {
+//        return@map _actions.value is GameLoopStep.SelectPiece
+//    }
+
+    fun
+    fun getGameState(): GameState {
+        return _game.gameState
     }
-    val canGoForward = forwardHistory.map { it.isNotEmpty() }
-    val mustSelectPiece = gameLoopStep.map {
-        return@map _gameLoopStep.value is GameLoopStep.SelectPiece
-    }
 
-    fun updateLoop(loopStep: GameLoopStep, game: Game, aiCanPlay: Boolean = true) {
-        _gameLoopStep.tryEmit(loopStep)
-        if (aiEnabled
+    fun updateLoop(aiCanPlay: Boolean = true) {
+        if (_aiEnabled
             && aiCanPlay
-            && game.turn == PieceColor.Red
-            && game.gameState == GameState.CONTINUE
+            && _game.turn == PieceColor.Red
+            && _game.gameState == GameState.PLAY
         ) {
             viewModelScope.launch {
-                val nextMove = ai.calculateNextMove(game, PieceColor.Red)
+                val nextMove = _ai.calculateNextMove(_game, PieceColor.Red)
                 if (nextMove != null) {
-                    val aiResult = game.nextGameLoopStep(nextMove)
+                    val aiResult = _game.nextGameLoopStep(nextMove)
 //                    val finalAiResult = when (aiResult) {
 //                        is MoveResult.Played -> aiResult
 //                        is MoveResult.Promotion -> aiResult.onPieceSelection(PieceType.Queen)
 //                    }
-                    updateLoop(aiResult)
+                    //updateLoop(aiResult)
                 }
             }
         }
     }
 
-    fun newGame(aiEnabled: Boolean) {
-        this.aiEnabled = aiEnabled
-
-        updateLoop(GameLoopStep.Play(Game()))
-        forwardHistory.tryEmit(listOf())
-    }
+//    fun newGame(aiEnabled: Boolean) {
+//        this._aiEnabled = aiEnabled
+//
+//        updateLoop()
+//        _forwardHistory.tryEmit(listOf())
+//    }
 
     fun clearForwardHistory() {
-        forwardHistory.tryEmit(listOf())
+        _forwardHistory.clear()
     }
 
     fun selectPo() {
-        val game = (_gameLoopStep.value as? GameLoopStep.SelectPiece)?.game ?: return
-        selectedPiece = PieceType.Po
+        val game = (_actions.value as? GameLoopStep.SelectPiece)?.game ?: return
     }
 
     fun selectBo() {
-        val game = (_gameLoopStep.value as? GameLoopStep.SelectPiece)?.game ?: return
-        selectedPiece = PieceType.Bo
+        val game = (_actions.value as? GameLoopStep.SelectPiece)?.game ?: return
     }
 
     fun goBackMove() {
-        val game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return
+        val game = (_actions.value as? GameLoopStep.Play)?.game ?: return
 
         val lastMove = game.history.last()
         val newHistory =
-            if (aiEnabled)
+            if (_aiEnabled)
                 game.history.subList(0, game.history.size - 2)
             else
                 game.history.subList(0, game.history.size - 1)
         val newBoard = Board.fromHistory(newHistory)
         updateLoop(GameLoopStep.Play(Game(newBoard, newHistory)))
-        if (aiEnabled) {
+        if (_aiEnabled) {
             val previousLastMove = game.history[game.history.size - 2]
-            forwardHistory.tryEmit(forwardHistory.value + listOf(lastMove, previousLastMove))
+            _forwardHistory.tryEmit(_forwardHistory.value + listOf(lastMove, previousLastMove))
         } else
-            forwardHistory.tryEmit(forwardHistory.value + listOf(lastMove))
+            _forwardHistory.tryEmit(_forwardHistory.value + listOf(lastMove))
     }
 
     fun goForwardMove() {
-        var game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return
+        var game = (_actions.value as? GameLoopStep.Play)?.game ?: return
 
-        val move = forwardHistory.value.last()
+        val move = _forwardHistory.value.last()
         updateLoop(game.nextGameLoopStep(move), false)
 
-        if (aiEnabled) {
-            game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return
-            val previousMove = forwardHistory.value[forwardHistory.value.size - 2]
+        if (_aiEnabled) {
+            game = (_actions.value as? GameLoopStep.Play)?.game ?: return
+            val previousMove = _forwardHistory.value[_forwardHistory.value.size - 2]
             updateLoop(game.nextGameLoopStep(previousMove))
         }
 
-        if (aiEnabled)
-            forwardHistory.tryEmit(forwardHistory.value.subList(0, forwardHistory.value.size - 2))
+        if (_aiEnabled)
+            _forwardHistory.tryEmit(_forwardHistory.value.subList(0, _forwardHistory.value.size - 2))
         else
-            forwardHistory.tryEmit(forwardHistory.value.subList(0, forwardHistory.value.size - 1))
+            _forwardHistory.tryEmit(_forwardHistory.value.subList(0, _forwardHistory.value.size - 1))
     }
-}
+
+    fun validate() {
+        if (_game.gameState == GameState.SELECTPIECE) {
+
+        }
+    }
+
+    fun cancelPieceSelection() {
+        if (_game.gameState == GameState.SELECTPOSITION) {
+            _game.gameState = GameState.SELECTPIECE
+        }
+    }
 }
