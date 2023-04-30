@@ -58,14 +58,12 @@ fun MainView(game: Game, selection: Position? = null, didTap: (Position) -> Unit
             didTap = didTap
         )
         PiecesStocksView(
-            pool = getPlayerPool(PieceColor.Blue),
-            reserve = getPlayerReserve(PieceColor.Blue),
+            pool = game.board.getPlayerPool(PieceColor.Blue),
             Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
         PiecesStocksView(
-            pool = getPlayerPool(PieceColor.Red),
-            reserve = getPlayerReserve(PieceColor.Red),
+            pool = game.board.getPlayerPool(PieceColor.Red),
             Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))

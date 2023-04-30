@@ -92,7 +92,7 @@ data class Game(
             val victim = getPositionTowards(move.to, it)
             if(canBePushed(newBoard, move.piece.type, victim, it)) {
                 val target = getPositionTowards(victim, it)
-                newBoard = newBoard.moveFromTo(victim, target)
+                newBoard = newBoard.slideFromTo(victim, target)
             }
         }
         return newBoard
@@ -102,18 +102,16 @@ data class Game(
         if(!canPlay(move)) return this
 
         var newBoard = board.playAt(move)
-        newBoard = doPush(newBoard.placePieceAt(move), move)
+        newBoard = doPush(newBoard.playAt(move), move)
 
         val victory = checkVictory(newBoard)
         if(!victory) {
             val graduable = getGraduations(newBoard)
             if( !graduable.isEmpty() ) {
                 if(graduable.size == 1 ) {
-                    val numberPo = 3 - countBoInAlignment(newBoard, graduable[0])
                     graduable[0].forEach {
-                        newBoard = newBoard.removePieceFromBoard(it)
+                        newBoard = newBoard.removePieceAndPromoteIt(it)
                     }
-                    newBoard.graduatePieces(numberPo, turn)
                 }
                 else {
                     // ???
@@ -131,7 +129,7 @@ data class Game(
         return when(gameState) {
             GameState.INIT -> GameState.PLAY
             GameState.PLAY -> {
-                if(hasTwoTypesInPool(turn))
+                if(board.hasTwoTypesInPool(turn))
                     GameState.SELECTPIECE
                 else
                     GameState.SELECTPOSITION
@@ -152,22 +150,22 @@ data class Game(
     }
 
     fun nextGameLoopStep(move: Move): GameLoopStep {
-        when(gameState) {
-            GameState.INIT ->
-            GameState.PLAY ->
-            GameState.SELECTPIECE ->
-            GameState.SELECTPOSITION ->
-            GameState.CHECKGRADUATION ->
-            GameState.SELECTREMOVAL ->
-            else -> { //GameState.END
-
-            }
-        }
-
-        val nextStep = when(loopStep) {
-            GameLoopStep.Init() -> GameLoopStep.Play(this)
-                else -> GameLoopStep.Play(this)
-        }
+//        when(gameState) {
+//            GameState.INIT ->
+//            GameState.PLAY ->
+//            GameState.SELECTPIECE ->
+//            GameState.SELECTPOSITION ->
+//            GameState.CHECKGRADUATION ->
+//            GameState.SELECTREMOVAL ->
+//            else -> { //GameState.END
+//
+//            }
+//        }
+//
+//        val nextStep = when(loopStep) {
+//            GameLoopStep.Init() -> GameLoopStep.Play(this)
+//                else -> GameLoopStep.Play(this)
+//        }
 
         val oldGame = this.copy()
         val newGame = play(move)
@@ -176,7 +174,7 @@ data class Game(
 
         if(!canPlay(move))
             return when {
-                hasTwoTypesInPool(turn) -> GameLoopStep.SelectPiece(this) {
+                board.hasTwoTypesInPool(turn) -> GameLoopStep.SelectPiece(this) {
                     GameLoopStep.SelectPosition(
                         this
                     )
@@ -260,7 +258,7 @@ data class Game(
 
     fun checkVictory(board: Board): Boolean {
         // check if current player has 8 Bo on the board
-        if(board.isPoolEmpty(turn) && !board.hasPieceInReserve(turn, PieceType.Bo))
+        if(board.isPoolEmpty(turn) && board.getPlayerNumberBo(turn) == 8)
             return true
         else { // check if current player has at least 3 Bo in line
             (0 until 6).map { y ->
