@@ -48,8 +48,9 @@ fun isPositionOnTheBoard(at: Position): Boolean {
 
 data class Game(
     val board: Board = Board(),
-    val history: List<Move> = listOf(),
+    //val history: List<Move> = listOf(),
     val gameState: GameState = GameState.INIT,
+    val isPlayout: Boolean = false, // true if the game is a simulation for decision-making
     val victory: Boolean = false
 ) {
     val displayGameState: String
