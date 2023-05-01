@@ -2,25 +2,11 @@ package fr.richoux.pobo.engine
 
 import java.util.*
 
-data class Move(val piece: Piece, val to: Position) {
-}
-
-val fakeMove: Move = Move( Piece.pieceFromString("BP"), Position(-1,-1))
+data class Move(val piece: Piece, val to: Position) {}
+data class History(val board: Board, val gameState: GameState, val player: PieceColor) {}
 
 enum class GameState {
     INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, SELECTREMOVAL, END
-}
-
-sealed class GameLoopStep {
-    data class Init(val game: Game) : GameLoopStep()
-    data class Play(val game: Game) : GameLoopStep()
-    data class SelectPiece(val game: Game, val onSelectPiece: (PieceType) -> GameLoopStep
-                = { _ -> GameLoopStep.SelectPosition(Game()) }) : GameLoopStep()
-    data class SelectPosition(val game: Game, val onSelectPosition: (Position) -> GameLoopStep
-                = { _ -> GameLoopStep.CheckGraduationCriteria(Game(), listOf()) }) : GameLoopStep()
-    data class CheckGraduationCriteria(val game: Game, val positions: List<List<Position>>): GameLoopStep()
-    data class SelectPiecesToRemove(val game: Game, val onSelectPiece: (PieceType) -> GameLoopStep
-                = { _ -> GameLoopStep.Play(Game()) }) : GameLoopStep()
 }
 
 enum class Direction {
@@ -48,14 +34,14 @@ fun isPositionOnTheBoard(at: Position): Boolean {
 
 data class Game(
     var board: Board = Board(),
-    //val history: List<Move> = listOf(),
     var gameState: GameState = GameState.INIT,
+    var currentPlayer: PieceColor = PieceColor.Blue,
     var victory: Boolean = false,
     val isPlayout: Boolean = false, // true if the game is a simulation for decision-making
 ) {
     val displayGameState: String
         get() {
-            val turnString = if (turn == PieceColor.Blue) "Blue Player's Turn" else "Red Player's Turn"
+            val turnString = if (this.currentPlayer == PieceColor.Blue) "Blue Player's Turn" else "Red Player's Turn"
             return when (gameState) {
                 GameState.INIT -> "Initialization, $turnString"
                 GameState.PLAY -> "Play, $turnString"
@@ -63,12 +49,9 @@ data class Game(
                 GameState.SELECTPOSITION -> "Select position, $turnString"
                 GameState.CHECKGRADUATION -> "Check graduation, $turnString"
                 GameState.SELECTREMOVAL -> "Select pieces to remove, $turnString"
-                GameState.END -> "End - " + if (turn == PieceColor.Blue) "Red Player Wins" else "Blue Player Wins"
+                GameState.END -> "End - " + if (this.currentPlayer == PieceColor.Blue) "Red Player Wins" else "Blue Player Wins"
             }
         }
-
-    val turn: PieceColor
-        get() = history.lastOrNull()?.let { board.pieceAt(it.to)?.color?.other() } ?: PieceColor.Blue
 
     fun canPlayAt(to: Position): Boolean = board.pieceAt(to) == null
 
@@ -105,7 +88,7 @@ data class Game(
         var newBoard = board.playAt(move)
         newBoard = doPush(newBoard.playAt(move), move)
 
-        victory = checkVictory(newBoard)
+        checkVictory(newBoard)
         if(!victory) {
             val graduable = getGraduations(newBoard)
             if( !graduable.isEmpty() ) {
@@ -125,14 +108,21 @@ data class Game(
         gameState = nextGameState()
     }
 
+    fun changePlayer() {
+        currentPlayer = when(currentPlayer) {
+            PieceColor.Blue -> PieceColor.Red
+            PieceColor.Red -> PieceColor.Blue
+        }
+    }
+
     fun nextGameState(): GameState {
         if(victory)
             return GameState.END
 
         return when(gameState) {
-            GameState.INIT -> GameState.PLAY
+            GameState.INIT -> GameState.SELECTPOSITION
             GameState.PLAY -> {
-                if(board.hasTwoTypesInPool(turn))
+                if(board.hasTwoTypesInPool(this.currentPlayer))
                     GameState.SELECTPIECE
                 else
                     GameState.SELECTPOSITION
@@ -140,7 +130,7 @@ data class Game(
             GameState.SELECTPIECE -> GameState.SELECTPOSITION
             GameState.SELECTPOSITION -> GameState.CHECKGRADUATION
             GameState.CHECKGRADUATION -> {
-                if(getGraduations(board).size < 2)
+                if(getGraduations(board).size <= 1)
                     GameState.PLAY
                 else
                     GameState.SELECTREMOVAL
@@ -151,54 +141,6 @@ data class Game(
             }
         }
     }
-
-    fun nextGameLoopStep(move: Move): GameLoopStep {
-//        when(gameState) {
-//            GameState.INIT ->
-//            GameState.PLAY ->
-//            GameState.SELECTPIECE ->
-//            GameState.SELECTPOSITION ->
-//            GameState.CHECKGRADUATION ->
-//            GameState.SELECTREMOVAL ->
-//            else -> { //GameState.END
-//
-//            }
-//        }
-//
-//        val nextStep = when(loopStep) {
-//            GameLoopStep.Init() -> GameLoopStep.Play(this)
-//                else -> GameLoopStep.Play(this)
-//        }
-
-        val oldGame = this.copy()
-        val newGame = play(move)
-
-
-
-        if(!canPlay(move))
-            return when {
-                board.hasTwoTypesInPool(turn) -> GameLoopStep.SelectPiece(this) {
-                    GameLoopStep.SelectPosition(
-                        this
-                    )
-                }
-                else -> GameLoopStep.SelectPosition(this) {
-                    GameLoopStep.Play(
-                        this
-                    )
-                }
-            }
-
-//        if(!newGame.getGraduations(board).isEmpty()) {
-//            return MoveResult.Promotion { promoteTo ->
-//                MoveResult.Success(newGame.promotePieceAt(to, promoteTo))
-//            }
-//        }
-
-        return GameLoopStep.Play(newGame)
-    }
-
-    fun nextGameLoopStep(piece: Piece, position: Position): GameLoopStep = nextGameLoopStep(Move(piece, position))
 
     fun getAlignedPositionsInDirection(board: Board, player: PieceColor, position: Position, direction: Direction): List<Position> {
         val alignedPieces: MutableList<Position> = mutableListOf()
@@ -236,20 +178,21 @@ data class Game(
 
     fun getGraduations(board: Board): List<List<Position>> {
         val graduable: MutableList<List<Position>> = mutableListOf()
-        val hasAllPiecesOnTheBoard = board.isPoolEmpty(turn)
+        val hasAllPiecesOnTheBoard = board.isPoolEmpty(this.currentPlayer)
 
         (0 until 6).map { y ->
             (0 until 6).map { x ->
                 val position = Position(x,y)
                 val piece = board.pieceAt(position)
-                if(piece?.color == turn){
-                    // check for Po if we have 8 pieces on the board
-                    if(hasAllPiecesOnTheBoard && piece.type == PieceType.Po)
+                if(piece?.color == this.currentPlayer){
+                    // check if we have 8 pieces on the board
+                    if(hasAllPiecesOnTheBoard)
                         graduable.add(listOf(position))
 
                     // check 3-in-a-row
                     scanDirection.forEach {
-                        val alignment = getAlignedPositionsInDirection(board, turn, position, it)
+                        val alignment = getAlignedPositionsInDirection(board,
+                            this.currentPlayer, position, it)
                         if(isValidAlignedPositions(alignment))
                            graduable.add(alignment)
                     }
@@ -259,25 +202,47 @@ data class Game(
         return graduable.toList()
     }
 
+    fun promoteOrRemovePieces(toPromote: List<Position>) {
+        var newBoard: Board = board
+        for( position in toPromote) {
+            newBoard = newBoard.removePieceAndPromoteIt( position )
+        }
+        board = newBoard
+    }
+
     fun checkVictory(board: Board): Boolean {
         // check if current player has 8 Bo on the board
-        if(board.isPoolEmpty(turn) && board.getPlayerNumberBo(turn) == 8)
-            return true
+        victory = false
+        if(board.isPoolEmpty(this.currentPlayer) && board.getPlayerNumberBo(this.currentPlayer) == 8) {
+            victory =  true
+        }
         else { // check if current player has at least 3 Bo in line
             (0 until 6).map { y ->
                 (0 until 6).map { x ->
                     val position = Position(x,y)
                     val piece = board.pieceAt(position)
-                    if(piece?.color == turn && piece.type == PieceType.Bo ) {
+                    if(piece?.color == this.currentPlayer && piece.type == PieceType.Bo ) {
                         scanDirection.forEach {
-                            val alignment = getAlignedPositionsInDirection(board, turn, position, it)
-                            if(isValidAlignedPositions(alignment) && containsBoOnly(board, alignment))
+                            val alignment = getAlignedPositionsInDirection(board,
+                                this.currentPlayer, position, it)
+                            if(isValidAlignedPositions(alignment) && containsBoOnly(board, alignment)) {
+                                victory = true
                                 return true
+                            }
                         }
                     }
                 }
             }
         }
-        return false
+        return victory
+    }
+
+    fun checkVictory(): Boolean = checkVictory(board)
+
+    fun changeWithHistory(history: History) {
+        board = history.board
+        gameState = history.gameState
+        currentPlayer = history.player
+        checkVictory()
     }
 }

@@ -50,6 +50,15 @@ data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
             return Piece(id, types.first, types.second)
         }
 
+        fun createPo(color: PieceColor): Piece {
+            val id: String = when(color) {
+                PieceColor.Blue -> "BP"
+                PieceColor.Red -> "RP"
+            }
+
+            return Piece(id, PieceType.Po, color)
+        }
+
         fun createBo(color: PieceColor): Piece {
             val id: String = when(color) {
                 PieceColor.Blue -> "BB"
