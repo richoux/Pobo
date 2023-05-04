@@ -1,8 +1,15 @@
 package fr.richoux.pobo.engine
 
+import android.util.Log
 import java.util.*
 
-data class Move(val piece: Piece, val to: Position) {}
+private const val TAG = "pobotag Game"
+
+data class Move(val piece: Piece, val to: Position) {
+    override fun toString(): String {
+        return "$piece at $to"
+    }
+}
 data class History(val board: Board, val gameState: GameState, val player: PieceColor) {}
 
 enum class GameState {
@@ -71,6 +78,7 @@ data class Game(
     }
 
     fun doPush(board: Board, move: Move): Board {
+        Log.d(TAG, "Game.doPush call, player ${currentPlayer}")
         var newBoard = board
         enumValues<Direction>().forEach {
             val victim = getPositionTowards(move.to, it)
@@ -83,15 +91,24 @@ data class Game(
     }
 
     fun play(move: Move) {
-        if(!canPlay(move)) return
+        Log.d(TAG, "Game.play call, player ${currentPlayer}, move is ${move}")
+        if(!canPlay(move)) {
+            Log.d(TAG, "Game.play: player ${currentPlayer}, can't play ${move}")
+            return
+        }
 
+        Log.d(TAG, "Game.play, player ${currentPlayer}, play move on board")
         var newBoard = board.playAt(move)
-        newBoard = doPush(newBoard.playAt(move), move)
+        Log.d(TAG, "Game.play, player ${currentPlayer}, compute push")
+        newBoard = doPush(newBoard, move)
 
         checkVictory(newBoard)
         if(!victory) {
+            Log.d(TAG, "Game.play, player ${currentPlayer}, not a victory yet")
             val graduable = getGraduations(newBoard)
             if( !graduable.isEmpty() ) {
+                Log.d(TAG, "Game.play, player ${currentPlayer}, there is promotion in the air!")
+                Log.d(TAG, "Game.play, player ${currentPlayer}, graduable.size=${graduable.size}")
                 if(graduable.size == 1 ) {
                     graduable[0].forEach {
                         newBoard = newBoard.removePieceAndPromoteIt(it)
@@ -109,40 +126,62 @@ data class Game(
     }
 
     fun changePlayer() {
-        currentPlayer = when(currentPlayer) {
-            PieceColor.Blue -> PieceColor.Red
-            PieceColor.Red -> PieceColor.Blue
-        }
+        Log.d(TAG, "Game.changePlayer call, player ${currentPlayer}")
+        currentPlayer = currentPlayer.other()
     }
 
     fun nextGameState(): GameState {
-        if(victory)
+        Log.d(TAG, "Game.nextGameState call, player ${currentPlayer}")
+        if(victory) {
+            Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, victory -> GameState.END")
             return GameState.END
-
+        }
         return when(gameState) {
-            GameState.INIT -> GameState.SELECTPOSITION
+            GameState.INIT -> {
+                Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.INIT -> GameState.SELECTPOSITION")
+                GameState.SELECTPOSITION
+            }
             GameState.PLAY -> {
-                if(board.hasTwoTypesInPool(this.currentPlayer))
+                if(board.hasTwoTypesInPool(this.currentPlayer)) {
+                    Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.PLAY -> GameState.SELECTPIECE")
                     GameState.SELECTPIECE
-                else
+                }
+                else {
+                    Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.PLAY -> GameState.SELECTPOSITION")
                     GameState.SELECTPOSITION
+                }
             }
-            GameState.SELECTPIECE -> GameState.SELECTPOSITION
-            GameState.SELECTPOSITION -> GameState.CHECKGRADUATION
+            GameState.SELECTPIECE -> {
+                Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.SELECTPIECE -> GameState.SELECTPOSITION")
+                GameState.SELECTPOSITION
+            }
+            GameState.SELECTPOSITION -> {
+                Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.SELECTPOSITION -> GameState.CHECKGRADUATION")
+                GameState.CHECKGRADUATION
+            }
             GameState.CHECKGRADUATION -> {
-                if(getGraduations(board).size <= 1)
+                if(getGraduations(board).size <= 1) {
+                    Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.CHECKGRADUATION -> GameState.PLAY")
                     GameState.PLAY
-                else
+                }
+                else {
+                    Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.CHECKGRADUATION -> GameState.SELECTREMOVAL")
                     GameState.SELECTREMOVAL
+                }
             }
-            GameState.SELECTREMOVAL -> GameState.PLAY
+            GameState.SELECTREMOVAL -> {
+                Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.SELECTREMOVAL -> GameState.PLAY")
+                GameState.PLAY
+            }
             else -> { //GameState.END, but it should be caught before the when
+                Log.d(TAG, "Game.nextGameState: player ${currentPlayer}, GameState.END -> GameState.END")
                 GameState.END
             }
         }
     }
 
     fun getAlignedPositionsInDirection(board: Board, player: PieceColor, position: Position, direction: Direction): List<Position> {
+        Log.d(TAG, "Game.getAlignedPositionsInDirection call, player ${currentPlayer}")
         val alignedPieces: MutableList<Position> = mutableListOf()
 
         val currentPiece = board.pieceAt(position)
@@ -165,6 +204,7 @@ data class Game(
     fun isValidAlignedPositions(positions: List<Position>): Boolean = positions.size == 3
 
     fun countBoInAlignment(board: Board, positions: List<Position>): Int {
+        Log.d(TAG, "Game.countBoInAlignment call, player ${currentPlayer}")
         var countBo = 0
         positions.forEach {
             if(board.pieceAt(it)?.type == PieceType.Bo)
@@ -177,6 +217,7 @@ data class Game(
             = countBoInAlignment(board, positions) == 3
 
     fun getGraduations(board: Board): List<List<Position>> {
+        Log.d(TAG, "Game.getGraduations call, player ${currentPlayer}")
         val graduable: MutableList<List<Position>> = mutableListOf()
         val hasAllPiecesOnTheBoard = board.isPoolEmpty(this.currentPlayer)
 
@@ -203,6 +244,7 @@ data class Game(
     }
 
     fun promoteOrRemovePieces(toPromote: List<Position>) {
+        Log.d(TAG, "Game.promoteOrRemovePieces call, player ${currentPlayer}")
         var newBoard: Board = board
         for( position in toPromote) {
             newBoard = newBoard.removePieceAndPromoteIt( position )
@@ -211,6 +253,7 @@ data class Game(
     }
 
     fun checkVictory(board: Board): Boolean {
+        Log.d(TAG, "Game.checkVictory call, player ${currentPlayer}")
         // check if current player has 8 Bo on the board
         victory = false
         if(board.isPoolEmpty(this.currentPlayer) && board.getPlayerNumberBo(this.currentPlayer) == 8) {
@@ -240,6 +283,7 @@ data class Game(
     fun checkVictory(): Boolean = checkVictory(board)
 
     fun changeWithHistory(history: History) {
+        Log.d(TAG, "Game.changeWithHistory call, player ${currentPlayer}")
         board = history.board
         gameState = history.gameState
         currentPlayer = history.player

@@ -1,5 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
+import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +26,8 @@ import androidx.constraintlayout.compose.Dimension
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
 
+private const val TAG = "pobotag BoardView"
+
 @Composable
 fun BoardView(
     modifier: Modifier = Modifier,
@@ -34,6 +37,7 @@ fun BoardView(
 ){
     Box(modifier) {
         BoardBackground(lastMove, onTap)
+        Log.d(TAG, "BoardView call")
         BoardLayout(
             pieces = board.allPieces,
             modifier = Modifier
@@ -54,7 +58,7 @@ fun BoardBackground(
                 for (x in 0 until 6) {
                     val position = Position(x, y)
                     val white = y % 2 == x % 2
-                    val color = if (lastMove?.isSame(position) == true || position.isSame(lastMove)) {
+                    val color = if (position.isSame(lastMove)) {
                         BoardColors.lastMoveColor
                     } else {
                         if (white) BoardColors.lightSquare else BoardColors.darkSquare
@@ -105,7 +109,9 @@ private fun BoardLayout(
     modifier: Modifier = Modifier,
     pieces: List<Pair<Position, Piece>>
 ) {
+    Log.d(TAG, "BoardView: BoardLayout")
     val constraints: ConstraintSet = constraintsFor(pieces)
+    Log.d(TAG, "BoardView: BoardLayout")
 
     ConstraintLayout(
         modifier = modifier,
@@ -115,6 +121,7 @@ private fun BoardLayout(
     ) {
         pieces.forEach { (_, piece) ->
             PieceView(piece = piece, modifier = Modifier.layoutId(piece.id))
+            Log.d(TAG, "BoardView, PieceView call for ${piece.id}")
         }
     }
 }
@@ -123,8 +130,10 @@ private fun constraintsFor(pieces: List<Pair<Position, Piece>>): ConstraintSet {
     return ConstraintSet {
         val horizontalGuidelines = (0..6).map { createGuidelineFromAbsoluteLeft(it.toFloat() / 6f) }
         val verticalGuidelines = (0..6).map { createGuidelineFromTop(it.toFloat() / 6f) }
+        Log.d(TAG, "BoardView, number of pieces = ${pieces.size}")
         pieces.forEach { (position, piece) ->
             val pieceRef = createRefFor(piece.id)
+            Log.d(TAG, "BoardView, pieceRef=${pieceRef} at ${position}")
             constrain(pieceRef) {
                 top.linkTo(verticalGuidelines[position.y])
                 bottom.linkTo(verticalGuidelines[position.y + 1])

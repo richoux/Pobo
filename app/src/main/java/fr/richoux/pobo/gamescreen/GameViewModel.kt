@@ -1,11 +1,14 @@
 package fr.richoux.pobo.gamescreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.richoux.pobo.engine.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
+private const val TAG = "pobotag GameViewModel"
 
 enum class GameViewModelState {
     IDLE, SELECT1, SELECT3, CANCEL, OK
@@ -27,8 +30,10 @@ class GameViewModel : ViewModel() {
         private set
 
     private var _game: Game = Game()
-    val currentBoard: Board = _game.board
-    val currentPlayer: PieceColor = _game.currentPlayer
+    var currentBoard: Board = _game.board
+        private set
+    var currentPlayer: PieceColor = _game.currentPlayer
+        private set
 
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
     val gameState = _gameState.asStateFlow()
@@ -63,6 +68,7 @@ class GameViewModel : ViewModel() {
         _forwardHistory.clear()
         _history.clear()
         _game = Game()
+        Log.d(TAG, "GameViewModel.newGame, tryEmit GameState.INIT")
         _gameState.tryEmit(GameState.INIT)
     }
 
@@ -89,14 +95,23 @@ class GameViewModel : ViewModel() {
     fun cancelPieceSelection() {
         val newState = GameState.SELECTPIECE
         _game.gameState = newState
+        Log.d(TAG, "GameViewModel.cancelPieceSelection, tryEmit ${newState}")
         _gameState.tryEmit(newState)
     }
 
     fun goToNextState() {
+        Log.d(TAG, "GameViewModel.goToNextState call")
         val newState = _game.nextGameState()
+        Log.d(TAG, "GameViewModel.goToNextState, old state = ${_game.gameState}, new state = ${newState}")
         _game.gameState = newState
+        Log.d(TAG, "GameViewModel.goToNextState, tryEmit ${newState}")
         _gameState.tryEmit(newState)
     }
+
+//    fun updates() {
+//        currentBoard = _game.board
+//        currentPlayer = _game.currentPlayer
+//    }
 
     fun selectPo() {
         pieceTypeToPlay = PieceType.Po
@@ -116,7 +131,39 @@ class GameViewModel : ViewModel() {
             PieceType.Po -> Piece.createPo(currentPlayer)
             PieceType.Bo -> Piece.createBo(currentPlayer)
         }
-        _game.play(Move(piece, it))
+
+        val move = Move(piece, it)
+
+        if(!_game.canPlay(move)) {
+            Log.d(TAG, "GameViewModel.playAt: player ${currentPlayer}, can't play ${move}")
+            return
+        }
+
+        var newBoard = currentBoard.playAt(move)
+        newBoard = _game.doPush(newBoard, move)
+
+        val victory = _game.checkVictory(newBoard)
+        if(!victory) {
+            Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, not a victory yet")
+            val graduable = _game.getGraduations(newBoard)
+            if( !graduable.isEmpty() ) {
+                Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, there is promotion in the air!")
+                Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, graduable.size=${graduable.size}")
+                if(graduable.size == 1 ) {
+                    graduable[0].forEach {
+                        newBoard = newBoard.removePieceAndPromoteIt(it)
+                    }
+                }
+                else {
+                    // ???
+                    // need to ask the user to select one of these groups
+                }
+            }
+        }
+
+        _game.board = newBoard
+        currentBoard = _game.board
+        goToNextState()
     }
 
     fun selectForRemovalOrCancel(it: Position) {
@@ -164,6 +211,11 @@ class GameViewModel : ViewModel() {
         _promotionListIndexes.clear()
         piecesToPromote.clear()
         goToNextState()
+    }
+
+    fun nextTurn() {
+        _game.changePlayer()
+        currentPlayer = _game.currentPlayer
     }
 
 }
