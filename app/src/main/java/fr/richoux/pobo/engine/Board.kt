@@ -89,8 +89,10 @@ data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
     @DrawableRes
     fun imageResource(): Int {
         return when (type) {
-            PieceType.Po -> if (color is PieceColor.Blue) R.drawable.small_circle else R.drawable.small_cross
-            PieceType.Bo -> if (color is PieceColor.Blue) R.drawable.big_circle else R.drawable.big_cross
+//            PieceType.Po -> if (color is PieceColor.Blue) R.drawable.small_circle else R.drawable.small_cross
+//            PieceType.Bo -> if (color is PieceColor.Blue) R.drawable.big_circle else R.drawable.big_cross
+            PieceType.Po -> if (color is PieceColor.Blue) R.drawable.white_small_death else R.drawable.black_small_angel
+            PieceType.Bo -> if (color is PieceColor.Blue) R.drawable.white_big_death else R.drawable.black_big_angel
         }
     }
 }

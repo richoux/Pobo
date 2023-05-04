@@ -59,7 +59,7 @@ fun BoardBackground(
                     val position = Position(x, y)
                     val white = y % 2 == x % 2
                     val color = if (position.isSame(lastMove)) {
-                        BoardColors.lastMoveColor
+                        if (white) BoardColors.lastMoveLight else BoardColors.lastMoveDark
                     } else {
                         if (white) BoardColors.lightSquare else BoardColors.darkSquare
                     }
