@@ -1,5 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
+import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,23 +23,21 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
-import fr.richoux.pobo.engine.Game
-import fr.richoux.pobo.engine.Move
-import fr.richoux.pobo.engine.Piece
-import fr.richoux.pobo.engine.Position
+import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
+
+private const val TAG = "pobotag BoardView"
 
 @Composable
 fun BoardView(
     modifier: Modifier = Modifier,
-    game: Game,
-    selection: Position?,
-    didTap: (Position) -> Unit
+    board: Board,
+    lastMove: Position?,
+    onTap: (Position) -> Unit
 ){
     Box(modifier) {
-        val board = game.board
-
-        BoardBackground(game.history.lastOrNull(), selection, didTap)
+        BoardBackground(lastMove, onTap)
+        Log.d(TAG, "BoardView call")
         BoardLayout(
             pieces = board.allPieces,
             modifier = Modifier
@@ -50,9 +49,8 @@ fun BoardView(
 
 @Composable
 fun BoardBackground(
-    lastMove: Move?,
-    selection: Position?,
-    didTap: (Position) -> Unit
+    lastMove: Position?,
+    onTap: (Position) -> Unit
 ){
     Column {
         for (y in 0 until 6) {
@@ -60,7 +58,7 @@ fun BoardBackground(
                 for (x in 0 until 6) {
                     val position = Position(x, y)
                     val white = y % 2 == x % 2
-                    val color = if (lastMove?.to?.isSame(position) == true || position.isSame(selection)) {
+                    val color = if (position.isSame(lastMove)) {
                         BoardColors.lastMoveColor
                     } else {
                         if (white) BoardColors.lightSquare else BoardColors.darkSquare
@@ -71,7 +69,7 @@ fun BoardBackground(
                             .background(color)
                             .aspectRatio(1.0f)
                             .clickable(
-                                onClick = { didTap(position) }
+                                onClick = { onTap(position) }
                             )
                     ) {
                         if (y == 5) {
@@ -111,7 +109,9 @@ private fun BoardLayout(
     modifier: Modifier = Modifier,
     pieces: List<Pair<Position, Piece>>
 ) {
+    Log.d(TAG, "BoardView: BoardLayout")
     val constraints: ConstraintSet = constraintsFor(pieces)
+    Log.d(TAG, "BoardView: BoardLayout")
 
     ConstraintLayout(
         modifier = modifier,
@@ -121,6 +121,7 @@ private fun BoardLayout(
     ) {
         pieces.forEach { (_, piece) ->
             PieceView(piece = piece, modifier = Modifier.layoutId(piece.id))
+            Log.d(TAG, "BoardView, PieceView call for ${piece.id}")
         }
     }
 }
@@ -129,8 +130,10 @@ private fun constraintsFor(pieces: List<Pair<Position, Piece>>): ConstraintSet {
     return ConstraintSet {
         val horizontalGuidelines = (0..6).map { createGuidelineFromAbsoluteLeft(it.toFloat() / 6f) }
         val verticalGuidelines = (0..6).map { createGuidelineFromTop(it.toFloat() / 6f) }
+        Log.d(TAG, "BoardView, number of pieces = ${pieces.size}")
         pieces.forEach { (position, piece) ->
             val pieceRef = createRefFor(piece.id)
+            Log.d(TAG, "BoardView, pieceRef=${pieceRef} at ${position}")
             constrain(pieceRef) {
                 top.linkTo(verticalGuidelines[position.y])
                 bottom.linkTo(verticalGuidelines[position.y + 1])

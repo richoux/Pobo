@@ -1,7 +1,11 @@
 package fr.richoux.pobo.engine
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import fr.richoux.pobo.R
+
+private const val TAG = "pobotag Board"
+private var pieceCounter: Int = 0
 
 sealed class PieceType(val value: Int) {
     object Po : PieceType(1) // small ones
@@ -19,11 +23,14 @@ sealed class PieceColor {
     fun other(): PieceColor {
         return if (this == Blue) Red else Blue
     }
+
+    override fun toString(): String {
+        return if (this == Blue) "Blue" else "Red"
+    }
 }
 
 private fun pieceTypeFromId(id: String): Pair<PieceType, PieceColor> {
     val chars = id.toCharArray()
-    if (chars.size != 2) throw IllegalStateException("Piece id should be 2 characters")
     val pieceColor = when (chars[0]) {
         'B' -> PieceColor.Blue
         'R' -> PieceColor.Red
@@ -42,12 +49,26 @@ data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
         fun pieceOrNullFromString(id: String?): Piece? {
             val id = id ?: return null
             val types = pieceTypeFromId(id)
-            return Piece(id, types.first, types.second)
+            pieceCounter++
+            val fullID: String = id + pieceCounter
+            return Piece(fullID, types.first, types.second)
         }
 
         fun pieceFromString(id: String): Piece {
             val types = pieceTypeFromId(id)
-            return Piece(id, types.first, types.second)
+            pieceCounter++
+            val fullID: String = id + pieceCounter
+            return Piece(fullID, types.first, types.second)
+        }
+
+        fun createPo(color: PieceColor): Piece {
+            val id: String = when(color) {
+                PieceColor.Blue -> "BP"
+                PieceColor.Red -> "RP"
+            }
+            pieceCounter++
+            val fullID: String = id + pieceCounter
+            return Piece(fullID, PieceType.Po, color)
         }
 
         fun createBo(color: PieceColor): Piece {
@@ -55,10 +76,14 @@ data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
                 PieceColor.Blue -> "BB"
                 PieceColor.Red -> "RB"
             }
-
-            return Piece(id, PieceType.Bo, color)
+            pieceCounter++
+            val fullID: String = id + pieceCounter
+            return Piece(fullID, PieceType.Bo, color)
         }
+    }
 
+    override fun toString(): String {
+        return id
     }
 
     @DrawableRes
@@ -87,6 +112,9 @@ data class Position(val x: Int, val y: Int) {
         return this === other || ( this.x == other?.x && this.y == other?.y )
     }
 
+    override fun toString(): String {
+        return "(${x},${y})"
+    }
 //    override fun equals(other: Any?): Boolean {
 //        return this === other || ( this.x == other?.x && this.y == other?.y )
 //    }
@@ -140,6 +168,7 @@ data class Board(
         allPositions.mapNotNull { position -> pieces[position.y][position.x]?.let { position to it } }
 
     fun getPlayerNumberBo(color: PieceColor): Int {
+        Log.d(TAG, "Board.getPlayerNumberBo call")
         return when(color) {
             PieceColor.Blue -> numberBlueBo
             else -> numberRedBo
@@ -147,6 +176,7 @@ data class Board(
     }
 
     fun getPlayerPool(color: PieceColor): List<Piece> {
+        Log.d(TAG, "Board.getPlayerPool call")
         return when(color) {
             PieceColor.Blue -> bluePool
             else -> redPool
@@ -154,11 +184,13 @@ data class Board(
     }
 
     fun hasTwoTypesInPool(color: PieceColor): Boolean {
+        Log.d(TAG, "Board.hasTwoTypesInPool call")
         val pool = getPlayerPool(color)
         return pool.first().type != pool.last().type
     }
 
     fun removeFromPool(piece: Piece): List<Piece>{
+        Log.d(TAG, "Board.removeFromPool call")
         val pool = getPlayerPool(piece.color)
         return when (piece.type) {
             PieceType.Po -> pool.subList(0, pool.size - 1) // remove last element
@@ -167,6 +199,7 @@ data class Board(
     }
 
     fun addInPool(piece: Piece): List<Piece> {
+        Log.d(TAG, "Board.addInPool call")
         val pool = getPlayerPool(piece.color)
         return when (piece.type) {
             PieceType.Po -> pool + listOf(piece) // add as last element
@@ -177,6 +210,7 @@ data class Board(
     fun isPoolEmpty(player: PieceColor): Boolean = getPlayerPool(player).isEmpty()
 
     fun hasPieceInPool(color: PieceColor, type: PieceType): Boolean {
+        Log.d(TAG, "Board.hasPieceInPool call")
         val pool = getPlayerPool(color)
         return type == when (type) {
             PieceType.Po -> pool.last().type
@@ -187,6 +221,7 @@ data class Board(
     fun hasPieceInPool(piece: Piece): Boolean = hasPieceInPool(piece.color, piece.type)
 
     fun getAllEmptyPositions(): List<Position> {
+        Log.d(TAG, "Board.getAllEmptyPositions call")
         val allEmptyPositions = mutableListOf<Position>()
         for (position in allPositions) {
             if(pieces[position.y][position.x] == null)
@@ -203,6 +238,7 @@ data class Board(
     // push a piece on the board (or outside the board)
     // do nothing if 'from' is invalid
     fun slideFromTo(from: Position, to: Position): Board {
+        Log.d(TAG, "Board.slideFromTo call")
         if(!isPositionOnTheBoard(to)) {
             return removePieceAndPutInPool(from)
         }
@@ -222,6 +258,7 @@ data class Board(
     }
 
     fun removePieceAndPutInPool(position: Position): Board {
+        Log.d(TAG, "Board.removePieceAndPutInPool call")
         val piece = pieceAt(position) ?: return this
         val newPieces  = pieces.map { it.toMutableList() }.toMutableList()
         newPieces[position.y][position.x] = null
@@ -245,6 +282,7 @@ data class Board(
     }
 
     fun removePieceAndPromoteIt(position: Position): Board {
+        Log.d(TAG, "Board.removePieceAndPromoteIt call")
         val piece = pieceAt(position) ?: return this
         if( piece.type == PieceType.Bo ) return removePieceAndPutInPool(position)
 
@@ -275,7 +313,9 @@ data class Board(
     fun playAt(piece: Piece, at: Position): Board {
         if(!isPositionOnTheBoard(at)) return this
 
+        Log.d(TAG, "Board.playAt, piece ${piece} at ${at}, BEFORE pool size=${getPlayerPool(piece.color).size}")
         val newPool = removeFromPool(piece)
+        Log.d(TAG, "Board.playAt, piece ${piece} at ${at}, AFTER pool size=${newPool.size}")
         var newPieces = pieces.map { it.toMutableList() }.toMutableList()
         newPieces[at.y][at.x] = piece
         return when(piece.color) {

@@ -1,112 +1,221 @@
 package fr.richoux.pobo.gamescreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.richoux.pobo.engine.*
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+private const val TAG = "pobotag GameViewModel"
+
+enum class GameViewModelState {
+    IDLE, SELECT1, SELECT3, CANCEL, OK
+}
+
 class GameViewModel : ViewModel() {
-    private var _gameLoopStep = MutableStateFlow<GameLoopStep>(GameLoopStep.Play(Game()))
-    val gameLoopStep: Flow<GameLoopStep> get() = _gameLoopStep
+    val state = GameViewModelState.IDLE
 
-    private var forwardHistory = MutableStateFlow<List<Move>>(listOf())
+    private val _history: MutableList<History> = mutableListOf<History>()
+    private val _forwardHistory: MutableList<History> = mutableListOf<History>()
 
-    private val ai = AI(PieceColor.Red)
-    private var aiEnabled = true
+    private val _ai = AI(PieceColor.Red)
+    private var _aiEnabled = true
 
-    private var selectedPiece: PieceType = PieceType.Po
+    private var _promotionListIndexes: MutableList<Int> = mutableListOf()
+    var piecesToPromote: MutableList<Position> = mutableListOf()
+        private set
+    var pieceTypeToPlay: PieceType = PieceType.Po
+        private set
 
-    val canGoBack = gameLoopStep.map {
-        val game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return@map false
-        if (aiEnabled)
-            return@map game.history.size > 1
-        else
-            return@map game.history.isNotEmpty()
-    }
-    val canGoForward = forwardHistory.map { it.isNotEmpty() }
-    val mustSelectPiece = gameLoopStep.map {
-        return@map _gameLoopStep.value is GameLoopStep.SelectPiece
-    }
+    private var _game: Game = Game()
+    var currentBoard: Board = _game.board
+        private set
+    var currentPlayer: PieceColor = _game.currentPlayer
+        private set
 
-    fun updateLoop(loopStep: GameLoopStep, game: Game, aiCanPlay: Boolean = true) {
-        _gameLoopStep.tryEmit(loopStep)
-        if (aiEnabled
+    private var _gameState = MutableStateFlow<GameState>(_game.gameState)
+    val gameState = _gameState.asStateFlow()
+
+    val canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+    val canGoForward = _forwardHistory.isNotEmpty()
+
+    val displayGameState: String  = _game.displayGameState
+
+    fun updateState(aiCanPlay: Boolean = true) {
+        if (_aiEnabled
             && aiCanPlay
-            && game.turn == PieceColor.Red
-            && game.gameState == GameState.CONTINUE
+            && _game.currentPlayer == PieceColor.Red
+            && _game.gameState == GameState.PLAY
         ) {
             viewModelScope.launch {
-                val nextMove = ai.calculateNextMove(game, PieceColor.Red)
+                val nextMove = _ai.calculateNextMove(_game, PieceColor.Red)
                 if (nextMove != null) {
-                    val aiResult = game.nextGameLoopStep(nextMove)
 //                    val finalAiResult = when (aiResult) {
 //                        is MoveResult.Played -> aiResult
 //                        is MoveResult.Promotion -> aiResult.onPieceSelection(PieceType.Queen)
 //                    }
-                    updateLoop(aiResult)
+                    //updateLoop(aiResult)
                 }
             }
         }
     }
 
     fun newGame(aiEnabled: Boolean) {
-        this.aiEnabled = aiEnabled
+        this._aiEnabled = aiEnabled
 
-        updateLoop(GameLoopStep.Play(Game()))
-        forwardHistory.tryEmit(listOf())
-    }
-
-    fun clearForwardHistory() {
-        forwardHistory.tryEmit(listOf())
-    }
-
-    fun selectPo() {
-        val game = (_gameLoopStep.value as? GameLoopStep.SelectPiece)?.game ?: return
-        selectedPiece = PieceType.Po
-    }
-
-    fun selectBo() {
-        val game = (_gameLoopStep.value as? GameLoopStep.SelectPiece)?.game ?: return
-        selectedPiece = PieceType.Bo
+        _forwardHistory.clear()
+        _history.clear()
+        _game = Game()
+        Log.d(TAG, "GameViewModel.newGame, tryEmit GameState.INIT")
+        _gameState.tryEmit(GameState.INIT)
     }
 
     fun goBackMove() {
-        val game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return
-
-        val lastMove = game.history.last()
-        val newHistory =
-            if (aiEnabled)
-                game.history.subList(0, game.history.size - 2)
-            else
-                game.history.subList(0, game.history.size - 1)
-        val newBoard = Board.fromHistory(newHistory)
-        updateLoop(GameLoopStep.Play(Game(newBoard, newHistory)))
-        if (aiEnabled) {
-            val previousLastMove = game.history[game.history.size - 2]
-            forwardHistory.tryEmit(forwardHistory.value + listOf(lastMove, previousLastMove))
-        } else
-            forwardHistory.tryEmit(forwardHistory.value + listOf(lastMove))
+        var last = _history.removeLast()
+        _forwardHistory.add(last)
+        if (_aiEnabled) {
+            last = _history.removeLast()
+            _forwardHistory.add(last)
+        }
+        _game.changeWithHistory(last)
     }
 
     fun goForwardMove() {
-        var game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return
+        var last = _forwardHistory.removeLast()
+        _history.add(last)
+        if (_aiEnabled) {
+            last = _forwardHistory.removeLast()
+            _history.add(last)
+        }
+        _game.changeWithHistory(last)
+    }
 
-        val move = forwardHistory.value.last()
-        updateLoop(game.nextGameLoopStep(move), false)
+    fun cancelPieceSelection() {
+        val newState = GameState.SELECTPIECE
+        _game.gameState = newState
+        Log.d(TAG, "GameViewModel.cancelPieceSelection, tryEmit ${newState}")
+        _gameState.tryEmit(newState)
+    }
 
-        if (aiEnabled) {
-            game = (_gameLoopStep.value as? GameLoopStep.Play)?.game ?: return
-            val previousMove = forwardHistory.value[forwardHistory.value.size - 2]
-            updateLoop(game.nextGameLoopStep(previousMove))
+    fun goToNextState() {
+        Log.d(TAG, "GameViewModel.goToNextState call")
+        val newState = _game.nextGameState()
+        Log.d(TAG, "GameViewModel.goToNextState, old state = ${_game.gameState}, new state = ${newState}")
+        _game.gameState = newState
+        Log.d(TAG, "GameViewModel.goToNextState, tryEmit ${newState}")
+        _gameState.tryEmit(newState)
+    }
+
+//    fun updates() {
+//        currentBoard = _game.board
+//        currentPlayer = _game.currentPlayer
+//    }
+
+    fun selectPo() {
+        pieceTypeToPlay = PieceType.Po
+        goToNextState()
+    }
+
+    fun selectBo() {
+        pieceTypeToPlay = PieceType.Bo
+        goToNextState()
+    }
+
+    fun canPlayAt(it: Position): Boolean = _game.canPlayAt(it)
+
+    fun playAt(it: Position) {
+        _forwardHistory.clear()
+        val piece = when(pieceTypeToPlay) {
+            PieceType.Po -> Piece.createPo(currentPlayer)
+            PieceType.Bo -> Piece.createBo(currentPlayer)
         }
 
-        if (aiEnabled)
-            forwardHistory.tryEmit(forwardHistory.value.subList(0, forwardHistory.value.size - 2))
-        else
-            forwardHistory.tryEmit(forwardHistory.value.subList(0, forwardHistory.value.size - 1))
+        val move = Move(piece, it)
+
+        if(!_game.canPlay(move)) {
+            Log.d(TAG, "GameViewModel.playAt: player ${currentPlayer}, can't play ${move}")
+            return
+        }
+
+        var newBoard = currentBoard.playAt(move)
+        newBoard = _game.doPush(newBoard, move)
+
+        val victory = _game.checkVictory(newBoard)
+        if(!victory) {
+            Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, not a victory yet")
+            val graduable = _game.getGraduations(newBoard)
+            if( !graduable.isEmpty() ) {
+                Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, there is promotion in the air!")
+                Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, graduable.size=${graduable.size}")
+                if(graduable.size == 1 ) {
+                    graduable[0].forEach {
+                        newBoard = newBoard.removePieceAndPromoteIt(it)
+                    }
+                }
+                else {
+                    // ???
+                    // need to ask the user to select one of these groups
+                }
+            }
+        }
+
+        _game.board = newBoard
+        currentBoard = _game.board
+        goToNextState()
     }
-}
+
+    fun selectForRemovalOrCancel(it: Position) {
+        val removable = _game.getGraduations(currentBoard)
+
+        // if the player taps a selected piece, unselect it
+        if(piecesToPromote.contains(it)) {
+            // sure it compares the position content, not its address?
+            piecesToPromote.remove(it)
+            return
+        }
+
+        if(_promotionListIndexes.isEmpty()) {
+            for( (index, list) in removable.withIndex() ) {
+                if(list.contains(it)) {
+                    _promotionListIndexes.add(index)
+                }
+            }
+            if(_promotionListIndexes.isEmpty())
+                return
+            else {
+                piecesToPromote.add(it)
+            }
+        }
+        else {
+            for( (index, list) in removable.withIndex() ) {
+                if(list.contains(it)) {
+                    if(_promotionListIndexes.contains(index)) {
+                        piecesToPromote.add(it)
+                        if (_promotionListIndexes.size > 1) {
+                            _promotionListIndexes.clear()
+                            _promotionListIndexes.add(index)
+                        }
+                    }
+                }
+            }
+        }
+
+        // need to emit GameState.SelectPiecesToRemove again?
+    }
+
+    fun validateRemoval() {
+        _game.promoteOrRemovePieces(piecesToPromote)
+        _game.checkVictory()
+        _promotionListIndexes.clear()
+        piecesToPromote.clear()
+        goToNextState()
+    }
+
+    fun nextTurn() {
+        _game.changePlayer()
+        currentPlayer = _game.currentPlayer
+    }
+
 }
