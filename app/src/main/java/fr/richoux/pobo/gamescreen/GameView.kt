@@ -12,9 +12,15 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.engine.*
+import fr.richoux.pobo.ui.blue300
 import kotlinx.coroutines.flow.count
 
 private const val TAG = "pobotag GameView"
@@ -71,6 +77,7 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 @Composable
 fun MainView(
     board: Board,
+    player: PieceColor,
     lastMove: Position? = null,
     onTap: (Position) -> Unit = { _ -> },
     displayGameState: String =  ""
@@ -81,21 +88,45 @@ fun MainView(
             lastMove = lastMove,
             onTap = onTap
         )
+        Spacer(modifier = Modifier.height(8.dp))
         PiecesStocksView(
             pool = board.getPlayerPool(PieceColor.Blue),
             Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         PiecesStocksView(
             pool = board.getPlayerPool(PieceColor.Red),
             Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(32.dp))
+        Row(
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text(
+                text = "Player's turn: ",
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+            )
+            val style = TextStyle(
+                color = if(player == PieceColor.Blue) Color.Blue else Color.Red,
+                fontSize = MaterialTheme.typography.body1.fontSize,
+                fontWeight = FontWeight.Bold,
+                fontStyle = MaterialTheme.typography.body1.fontStyle
+            )
+            Text(
+                text = player.toString(),
+                style = style,
+                modifier = Modifier
+                    .padding(horizontal = 2.dp)
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = displayGameState,
             style = MaterialTheme.typography.body1,
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 2.dp)
                 .align(Alignment.CenterHorizontally)
         )
     }
@@ -110,18 +141,18 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 
     when (gameState) {
         GameState.INIT -> {
-            MainView(board, displayGameState = viewModel.displayGameState)
+            MainView(board, player, displayGameState = viewModel.displayGameState)
             viewModel.goToNextState()
         }
         GameState.PLAY -> {
             if(viewModel.historyCall)
                 lastMove = null
-            MainView(board, lastMove = lastMove, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, displayGameState = viewModel.displayGameState)
             viewModel.nextTurn()
             viewModel.goToNextState()
         }
         GameState.SELECTPIECE -> {
-            MainView(board, lastMove = lastMove, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, displayGameState = viewModel.displayGameState)
         }
         GameState.SELECTPOSITION -> {
             val onSelect: (Position) -> Unit = {
@@ -130,17 +161,17 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                     viewModel.playAt(it)
                 }
             }
-            MainView(board, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)
         }
         GameState.CHECKGRADUATION -> {
-            MainView(board, displayGameState = viewModel.displayGameState)
+            MainView(board, player, displayGameState = viewModel.displayGameState)
             viewModel.goToNextState()
         }
         GameState.SELECTREMOVAL -> {
             val onSelect: (Position) -> Unit = {
                 viewModel.selectForRemovalOrCancel(it)
             }
-            MainView(board, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)
         }
         GameState.END -> {
             AlertDialog(

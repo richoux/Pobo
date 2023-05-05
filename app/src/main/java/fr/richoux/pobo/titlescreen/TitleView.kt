@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import fr.richoux.pobo.Screen
 import fr.richoux.pobo.gamescreen.GameViewModel
@@ -32,6 +33,12 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
         Text(text = context.getResources().getString(R.string.app_name_jp), style = MaterialTheme.typography.h2, color = MaterialTheme.colors.onPrimary)
         Spacer(modifier = Modifier.height(32.dp))
         GameButton(
+            onClick = { resume(navController, gameViewModel) },
+            enabled = gameViewModel.hasStarted,
+            text = "Resume"
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        GameButton(
             onClick = { newGame(navController, gameViewModel, aiEnabled = false) },
             text = context.getResources().getString(R.string.human_game_fr)
         )
@@ -44,9 +51,10 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
 }
 
 @Composable
-private fun GameButton(onClick: () -> Unit, text: String) {
+private fun GameButton(onClick: () -> Unit, text: String, enabled: Boolean = true) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = text, style = MaterialTheme.typography.h4)
@@ -67,5 +75,13 @@ private fun newGame(
     aiEnabled: Boolean
 ) {
     gameViewModel.newGame(aiEnabled)
+    navController.navigate(Screen.Game.route)
+}
+
+private fun resume(
+    navController: NavController,
+    gameViewModel: GameViewModel
+) {
+    gameViewModel.resume()
     navController.navigate(Screen.Game.route)
 }

@@ -37,12 +37,13 @@ class GameViewModel : ViewModel() {
         private set
 
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
-    val gameState = _gameState.asStateFlow()
+    var gameState = _gameState.asStateFlow()
 
     var canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
     var canGoForward = _forwardHistory.isNotEmpty()
 
-    val displayGameState: String  = _game.displayGameState
+    var displayGameState: String  = _game.displayGameState
+    var hasStarted: Boolean = false
 
     fun newGame(aiEnabled: Boolean) {
         this._aiEnabled = aiEnabled
@@ -50,7 +51,12 @@ class GameViewModel : ViewModel() {
         _forwardHistory.clear()
         _history.clear()
         _game = Game()
+        currentBoard = _game.board
+        currentPlayer = _game.currentPlayer
+        hasStarted = false
         _gameState.tryEmit(GameState.INIT)
+        displayGameState  = _game.displayGameState
+        gameState = _gameState.asStateFlow()
     }
 
     fun goBackMove() {
@@ -67,6 +73,7 @@ class GameViewModel : ViewModel() {
 
         canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
         canGoForward = _forwardHistory.isNotEmpty()
+        displayGameState  = _game.displayGameState
         _gameState.tryEmit(GameState.PLAY)
     }
 
@@ -84,20 +91,24 @@ class GameViewModel : ViewModel() {
 
         canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
         canGoForward = _forwardHistory.isNotEmpty()
+        displayGameState  = _game.displayGameState
         _gameState.tryEmit(GameState.PLAY)
     }
 
     fun cancelPieceSelection() {
         val newState = GameState.SELECTPIECE
         _game.gameState = newState
+        displayGameState  = _game.displayGameState
         _gameState.tryEmit(newState)
     }
 
     fun goToNextState() {
         val newState = _game.nextGameState()
+        hasStarted = true
         _game.gameState = newState
         canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
         canGoForward = _forwardHistory.isNotEmpty()
+        displayGameState  = _game.displayGameState
         _gameState.tryEmit(newState)
     }
 
@@ -186,7 +197,6 @@ class GameViewModel : ViewModel() {
                 }
             }
         }
-
         // need to emit GameState.SelectPiecesToRemove again?
     }
 
@@ -204,4 +214,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun twoTypesInPool(): Boolean = currentBoard.hasTwoTypesInPool(currentPlayer)
+
+    fun resume() = _gameState.tryEmit(_game.gameState)
 }
+

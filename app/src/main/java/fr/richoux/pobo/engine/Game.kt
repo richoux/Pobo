@@ -48,15 +48,14 @@ data class Game(
 ) {
     val displayGameState: String
         get() {
-            val turnString = if (currentPlayer == PieceColor.Blue) "Blue Player's Turn" else "Red Player's Turn"
             return when (gameState) {
-                GameState.INIT -> "Initialization, $turnString"
-                GameState.PLAY -> "Play, $turnString"
-                GameState.SELECTPIECE -> "Select piece, $turnString"
-                GameState.SELECTPOSITION -> "Select position, $turnString"
-                GameState.CHECKGRADUATION -> "Check graduation, $turnString"
-                GameState.SELECTREMOVAL -> "Select pieces to remove, $turnString"
-                GameState.END -> "End - " + if (currentPlayer == PieceColor.Blue) "Red Player Wins" else "Blue Player Wins"
+                GameState.INIT -> ""
+                GameState.PLAY -> ""
+                GameState.SELECTPIECE -> "Select a small or a large piece"
+                GameState.SELECTPOSITION -> ""
+                GameState.CHECKGRADUATION -> ""
+                GameState.SELECTREMOVAL -> "Select pieces to remove"
+                GameState.END -> ""
             }
         }
 
