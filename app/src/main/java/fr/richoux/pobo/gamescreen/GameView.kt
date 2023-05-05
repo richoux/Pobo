@@ -18,23 +18,20 @@ import fr.richoux.pobo.engine.*
 import kotlinx.coroutines.flow.count
 
 private const val TAG = "pobotag GameView"
-private var countGameActions: Int = 0
-private var countGameView: Int = 0
 
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
-    Log.d(TAG, "GameActions call")
-    countGameActions++
     val gameState by viewModel.gameState.collectAsState()
+    val hasChoiceOfPiece = gameState == GameState.SELECTPIECE && viewModel.twoTypesInPool()
     IconButton(
         onClick = { viewModel.selectPo() },
-        enabled = gameState == GameState.SELECTPIECE
+        enabled = hasChoiceOfPiece
     ) {
         Icon(Icons.Filled.Face, contentDescription = "Select Po")
     }
     IconButton(
         onClick = { viewModel.selectBo() },
-        enabled = gameState == GameState.SELECTPIECE
+        enabled = hasChoiceOfPiece
     ) {
         Icon(Icons.Filled.Person, contentDescription = "Select Bo")
     }
@@ -51,7 +48,7 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
     }
     IconButton(
         onClick = { viewModel.cancelPieceSelection() },
-        enabled = gameState == GameState.SELECTPOSITION
+        enabled = gameState == GameState.SELECTPOSITION && viewModel.twoTypesInPool()
     ) {
         Icon(Icons.Filled.Clear, contentDescription = "Return to piece selection")
     }
@@ -78,7 +75,6 @@ fun MainView(
     onTap: (Position) -> Unit = { _ -> },
     displayGameState: String =  ""
 ) {
-    Log.d(TAG, "MainView call")
     Column(Modifier.fillMaxHeight()) {
         BoardView(
             board = board,
@@ -107,49 +103,41 @@ fun MainView(
 
 @Composable
 fun GameView(viewModel: GameViewModel = viewModel()) {
-    Log.d(TAG, "GameView call")
     val gameState by viewModel.gameState.collectAsState()
-    countGameView++
     val board = viewModel.currentBoard
     val player = viewModel.currentPlayer
     var lastMove: Position? by remember { mutableStateOf(null) }
 
     when (gameState) {
         GameState.INIT -> {
-            Log.d(TAG, "GameState.Init, player $player")
             MainView(board, displayGameState = viewModel.displayGameState)
             viewModel.goToNextState()
         }
         GameState.PLAY -> {
-            Log.d(TAG, "GameState.Play, player $player")
+            if(viewModel.historyCall)
+                lastMove = null
             MainView(board, lastMove = lastMove, displayGameState = viewModel.displayGameState)
             viewModel.nextTurn()
             viewModel.goToNextState()
         }
         GameState.SELECTPIECE -> {
-            Log.d(TAG, "GameState.SelectPiece, player $player")
             MainView(board, lastMove = lastMove, displayGameState = viewModel.displayGameState)
         }
         GameState.SELECTPOSITION -> {
-            Log.d(TAG, "GameState.SelectPosition, player $player")
             val onSelect: (Position) -> Unit = {
                 if (viewModel.canPlayAt(it)) {
                     lastMove = it
-                    Log.d(TAG, "GameState.SelectPosition: player $player, position=$it")
                     viewModel.playAt(it)
                 }
             }
             MainView(board, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)
         }
         GameState.CHECKGRADUATION -> {
-            Log.d(TAG, "GameState.CheckGraduation, player $player")
             MainView(board, displayGameState = viewModel.displayGameState)
             viewModel.goToNextState()
         }
         GameState.SELECTREMOVAL -> {
-            Log.d(TAG, "GameState.SelectPiecesToRemove, player $player")
             val onSelect: (Position) -> Unit = {
-                Log.d(TAG, "GameState.SelectPiecesToRemove: player $player, position=$it")
                 viewModel.selectForRemovalOrCancel(it)
             }
             MainView(board, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)

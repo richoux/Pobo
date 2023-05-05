@@ -37,7 +37,6 @@ fun BoardView(
 ){
     Box(modifier) {
         BoardBackground(lastMove, onTap)
-        Log.d(TAG, "BoardView call")
         BoardLayout(
             pieces = board.allPieces,
             modifier = Modifier
@@ -109,9 +108,7 @@ private fun BoardLayout(
     modifier: Modifier = Modifier,
     pieces: List<Pair<Position, Piece>>
 ) {
-    Log.d(TAG, "BoardView: BoardLayout")
     val constraints: ConstraintSet = constraintsFor(pieces)
-    Log.d(TAG, "BoardView: BoardLayout")
 
     ConstraintLayout(
         modifier = modifier,
@@ -121,7 +118,6 @@ private fun BoardLayout(
     ) {
         pieces.forEach { (_, piece) ->
             PieceView(piece = piece, modifier = Modifier.layoutId(piece.id))
-            Log.d(TAG, "BoardView, PieceView call for ${piece.id}")
         }
     }
 }
@@ -130,10 +126,8 @@ private fun constraintsFor(pieces: List<Pair<Position, Piece>>): ConstraintSet {
     return ConstraintSet {
         val horizontalGuidelines = (0..6).map { createGuidelineFromAbsoluteLeft(it.toFloat() / 6f) }
         val verticalGuidelines = (0..6).map { createGuidelineFromTop(it.toFloat() / 6f) }
-        Log.d(TAG, "BoardView, number of pieces = ${pieces.size}")
         pieces.forEach { (position, piece) ->
             val pieceRef = createRefFor(piece.id)
-            Log.d(TAG, "BoardView, pieceRef=${pieceRef} at ${position}")
             constrain(pieceRef) {
                 top.linkTo(verticalGuidelines[position.y])
                 bottom.linkTo(verticalGuidelines[position.y + 1])

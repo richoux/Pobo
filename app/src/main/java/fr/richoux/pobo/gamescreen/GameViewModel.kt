@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 private const val TAG = "pobotag GameViewModel"
 
 enum class GameViewModelState {
-    IDLE, SELECT1, SELECT3, CANCEL, OK
+    IDLE, SELECT1, SELECT3
 }
 
 class GameViewModel : ViewModel() {
@@ -19,6 +19,7 @@ class GameViewModel : ViewModel() {
 
     private val _history: MutableList<History> = mutableListOf<History>()
     private val _forwardHistory: MutableList<History> = mutableListOf<History>()
+    var historyCall = false
 
     private val _ai = AI(PieceColor.Red)
     private var _aiEnabled = true
@@ -26,7 +27,7 @@ class GameViewModel : ViewModel() {
     private var _promotionListIndexes: MutableList<Int> = mutableListOf()
     var piecesToPromote: MutableList<Position> = mutableListOf()
         private set
-    var pieceTypeToPlay: PieceType = PieceType.Po
+    var pieceTypeToPlay: PieceType? = null
         private set
 
     private var _game: Game = Game()
@@ -38,29 +39,10 @@ class GameViewModel : ViewModel() {
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
     val gameState = _gameState.asStateFlow()
 
-    val canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
-    val canGoForward = _forwardHistory.isNotEmpty()
+    var canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+    var canGoForward = _forwardHistory.isNotEmpty()
 
     val displayGameState: String  = _game.displayGameState
-
-    fun updateState(aiCanPlay: Boolean = true) {
-        if (_aiEnabled
-            && aiCanPlay
-            && _game.currentPlayer == PieceColor.Red
-            && _game.gameState == GameState.PLAY
-        ) {
-            viewModelScope.launch {
-                val nextMove = _ai.calculateNextMove(_game, PieceColor.Red)
-                if (nextMove != null) {
-//                    val finalAiResult = when (aiResult) {
-//                        is MoveResult.Played -> aiResult
-//                        is MoveResult.Promotion -> aiResult.onPieceSelection(PieceType.Queen)
-//                    }
-                    //updateLoop(aiResult)
-                }
-            }
-        }
-    }
 
     fun newGame(aiEnabled: Boolean) {
         this._aiEnabled = aiEnabled
@@ -68,50 +50,56 @@ class GameViewModel : ViewModel() {
         _forwardHistory.clear()
         _history.clear()
         _game = Game()
-        Log.d(TAG, "GameViewModel.newGame, tryEmit GameState.INIT")
         _gameState.tryEmit(GameState.INIT)
     }
 
     fun goBackMove() {
+        _forwardHistory.add(History(currentBoard,currentPlayer))
         var last = _history.removeLast()
-        _forwardHistory.add(last)
         if (_aiEnabled) {
             last = _history.removeLast()
             _forwardHistory.add(last)
         }
         _game.changeWithHistory(last)
+        currentBoard = last.board
+        currentPlayer = last.player
+        historyCall = true
+
+        canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+        canGoForward = _forwardHistory.isNotEmpty()
+        _gameState.tryEmit(GameState.PLAY)
     }
 
     fun goForwardMove() {
+        _history.add(History(currentBoard,currentPlayer))
         var last = _forwardHistory.removeLast()
-        _history.add(last)
         if (_aiEnabled) {
             last = _forwardHistory.removeLast()
             _history.add(last)
         }
         _game.changeWithHistory(last)
+        currentBoard = last.board
+        currentPlayer = last.player
+        historyCall = true
+
+        canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+        canGoForward = _forwardHistory.isNotEmpty()
+        _gameState.tryEmit(GameState.PLAY)
     }
 
     fun cancelPieceSelection() {
         val newState = GameState.SELECTPIECE
         _game.gameState = newState
-        Log.d(TAG, "GameViewModel.cancelPieceSelection, tryEmit ${newState}")
         _gameState.tryEmit(newState)
     }
 
     fun goToNextState() {
-        Log.d(TAG, "GameViewModel.goToNextState call")
         val newState = _game.nextGameState()
-        Log.d(TAG, "GameViewModel.goToNextState, old state = ${_game.gameState}, new state = ${newState}")
         _game.gameState = newState
-        Log.d(TAG, "GameViewModel.goToNextState, tryEmit ${newState}")
+        canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+        canGoForward = _forwardHistory.isNotEmpty()
         _gameState.tryEmit(newState)
     }
-
-//    fun updates() {
-//        currentBoard = _game.board
-//        currentPlayer = _game.currentPlayer
-//    }
 
     fun selectPo() {
         pieceTypeToPlay = PieceType.Po
@@ -127,28 +115,26 @@ class GameViewModel : ViewModel() {
 
     fun playAt(it: Position) {
         _forwardHistory.clear()
+        historyCall = false
+
         val piece = when(pieceTypeToPlay) {
             PieceType.Po -> Piece.createPo(currentPlayer)
             PieceType.Bo -> Piece.createBo(currentPlayer)
+            null -> Piece.createFromType(currentPlayer, currentBoard.getPlayerPool(currentPlayer).first().type)
         }
-
+        pieceTypeToPlay = null
         val move = Move(piece, it)
 
-        if(!_game.canPlay(move)) {
-            Log.d(TAG, "GameViewModel.playAt: player ${currentPlayer}, can't play ${move}")
-            return
-        }
+        if(!_game.canPlay(move)) return
 
+        _history.add(History(currentBoard, currentPlayer))
         var newBoard = currentBoard.playAt(move)
         newBoard = _game.doPush(newBoard, move)
 
         val victory = _game.checkVictory(newBoard)
         if(!victory) {
-            Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, not a victory yet")
             val graduable = _game.getGraduations(newBoard)
             if( !graduable.isEmpty() ) {
-                Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, there is promotion in the air!")
-                Log.d(TAG, "GameViewModel.playAt, player ${currentPlayer}, graduable.size=${graduable.size}")
                 if(graduable.size == 1 ) {
                     graduable[0].forEach {
                         newBoard = newBoard.removePieceAndPromoteIt(it)
@@ -171,7 +157,6 @@ class GameViewModel : ViewModel() {
 
         // if the player taps a selected piece, unselect it
         if(piecesToPromote.contains(it)) {
-            // sure it compares the position content, not its address?
             piecesToPromote.remove(it)
             return
         }
@@ -218,4 +203,5 @@ class GameViewModel : ViewModel() {
         currentPlayer = _game.currentPlayer
     }
 
+    fun twoTypesInPool(): Boolean = currentBoard.hasTwoTypesInPool(currentPlayer)
 }
