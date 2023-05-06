@@ -1,21 +1,19 @@
 package fr.richoux.pobo.gamescreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import fr.richoux.pobo.engine.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 private const val TAG = "pobotag GameViewModel"
 
 enum class GameViewModelState {
-    IDLE, SELECT1, SELECT3
+    IDLE, SELECT1, SELECT3, SELECT1OR3
 }
 
 class GameViewModel : ViewModel() {
-    val state = GameViewModelState.IDLE
+    var state = GameViewModelState.IDLE
+        private set
 
     private val _history: MutableList<History> = mutableListOf<History>()
     private val _forwardHistory: MutableList<History> = mutableListOf<History>()
@@ -103,6 +101,9 @@ class GameViewModel : ViewModel() {
     }
 
     fun goToNextState() {
+        if(_game.victory)
+            _gameState.tryEmit(GameState.END)
+
         val newState = _game.nextGameState()
         hasStarted = true
         _game.gameState = newState
@@ -142,29 +143,48 @@ class GameViewModel : ViewModel() {
         var newBoard = currentBoard.playAt(move)
         newBoard = _game.doPush(newBoard, move)
 
-        val victory = _game.checkVictory(newBoard)
-        if(!victory) {
-            val graduable = _game.getGraduations(newBoard)
-            if( !graduable.isEmpty() ) {
-                if(graduable.size == 1 ) {
-                    graduable[0].forEach {
-                        newBoard = newBoard.removePieceAndPromoteIt(it)
-                    }
-                }
-                else {
-                    // ???
-                    // need to ask the user to select one of these groups
-                }
-            }
-        }
-
+        _game.checkVictory(newBoard)
         _game.board = newBoard
         currentBoard = _game.board
         goToNextState()
     }
 
-    fun selectForRemovalOrCancel(it: Position) {
-        val removable = _game.getGraduations(currentBoard)
+    fun checkGraduation() {
+        val groups = _game.getGraduations(currentBoard)
+        var groupOfAtLeast3 = false
+        if(groups.isEmpty()) {
+            state = GameViewModelState.IDLE
+        }
+        else {
+            if(groups.size >= 8) {
+                for( group in groups ) {
+                    if(group.size >= 3)
+                        groupOfAtLeast3 = true
+                }
+                if(groupOfAtLeast3)
+                    state = GameViewModelState.SELECT1OR3
+                else
+                    state = GameViewModelState.SELECT1
+            }
+            else
+                state = GameViewModelState.SELECT3
+        }
+        goToNextState()
+    }
+
+    fun autograduation() {
+        val graduable = _game.getGraduations(currentBoard)
+            if (graduable.size == 1) {
+                graduable[0].forEach {
+                    currentBoard = currentBoard.removePieceAndPromoteIt(it)
+                }
+            }
+        _game.board = currentBoard
+        goToNextState()
+    }
+
+    fun selectForGraduationOrCancel(it: Position) {
+
 
         // if the player taps a selected piece, unselect it
         if(piecesToPromote.contains(it)) {
@@ -172,6 +192,11 @@ class GameViewModel : ViewModel() {
             return
         }
 
+        val removable = _game.getGraduations(currentBoard)
+
+        // _promotionListIndexes is a tedious way to check if a selected piece (in particular the 1st one)
+        // belongs to different graduable groups, to make sure we don't select pieces from different groups
+        // TODO: to simplify
         if(_promotionListIndexes.isEmpty()) {
             for( (index, list) in removable.withIndex() ) {
                 if(list.contains(it)) {
@@ -197,11 +222,17 @@ class GameViewModel : ViewModel() {
                 }
             }
         }
-        // need to emit GameState.SelectPiecesToRemove again?
+
+        // no more than 1 or 3 selections, regarding the situation
+        if(piecesToPromote.size == 3 || (state == GameViewModelState.SELECT1 && piecesToPromote.size == 1)) {
+            validateGraduationSelection()
+            return
+        }
     }
 
-    fun validateRemoval() {
+    fun validateGraduationSelection() {
         _game.promoteOrRemovePieces(piecesToPromote)
+        currentBoard = _game.board
         _game.checkVictory()
         _promotionListIndexes.clear()
         piecesToPromote.clear()

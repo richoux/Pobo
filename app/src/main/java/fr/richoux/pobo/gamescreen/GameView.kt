@@ -1,6 +1,5 @@
 package fr.richoux.pobo.gamescreen
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
@@ -14,14 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.engine.*
-import fr.richoux.pobo.ui.blue300
-import kotlinx.coroutines.flow.count
 
 private const val TAG = "pobotag GameView"
 
@@ -43,11 +38,11 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
     }
 
     val completeSelectionForRemoval =
-        gameState == GameState.SELECTREMOVAL
-                && ( ( viewModel.state == GameViewModelState.SELECT3 && viewModel.piecesToPromote.size == 3)
-                       || (viewModel.state == GameViewModelState.SELECT1 && viewModel.piecesToPromote.size == 1) )
+        gameState == GameState.SELECTGRADUATION
+                && ( ( (viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
+                       || ( (viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1) )
     IconButton(
-        onClick = { viewModel.validateRemoval() },
+        onClick = { viewModel.validateGraduationSelection() },
         enabled = completeSelectionForRemoval
     ) {
         Icon(Icons.Filled.Done, contentDescription = "OK")
@@ -80,13 +75,15 @@ fun MainView(
     player: PieceColor,
     lastMove: Position? = null,
     onTap: (Position) -> Unit = { _ -> },
+    selected: MutableList<Position>,
     displayGameState: String =  ""
 ) {
     Column(Modifier.fillMaxHeight()) {
         BoardView(
             board = board,
             lastMove = lastMove,
-            onTap = onTap
+            onTap = onTap,
+            selected = selected
         )
         Spacer(modifier = Modifier.height(8.dp))
         PiecesStocksView(
@@ -141,18 +138,18 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 
     when (gameState) {
         GameState.INIT -> {
-            MainView(board, player, displayGameState = viewModel.displayGameState)
+            MainView(board, player, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
             viewModel.goToNextState()
         }
         GameState.PLAY -> {
             if(viewModel.historyCall)
                 lastMove = null
-            MainView(board, player, lastMove = lastMove, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
             viewModel.nextTurn()
             viewModel.goToNextState()
         }
         GameState.SELECTPIECE -> {
-            MainView(board, player, lastMove = lastMove, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
         }
         GameState.SELECTPOSITION -> {
             val onSelect: (Position) -> Unit = {
@@ -161,17 +158,21 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                     viewModel.playAt(it)
                 }
             }
-            MainView(board, player, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, onTap = onSelect, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
         }
         GameState.CHECKGRADUATION -> {
-            MainView(board, player, displayGameState = viewModel.displayGameState)
-            viewModel.goToNextState()
+            MainView(board, player, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            viewModel.checkGraduation()
         }
-        GameState.SELECTREMOVAL -> {
+        GameState.AUTOGRADUATION -> {
+            MainView(board, player, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            viewModel.autograduation()
+        }
+        GameState.SELECTGRADUATION -> {
             val onSelect: (Position) -> Unit = {
-                viewModel.selectForRemovalOrCancel(it)
+                viewModel.selectForGraduationOrCancel(it)
             }
-            MainView(board, player, lastMove = lastMove, onTap = onSelect, displayGameState = viewModel.displayGameState)
+            MainView(board, player, lastMove = lastMove, onTap = onSelect, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
         }
         GameState.END -> {
             AlertDialog(

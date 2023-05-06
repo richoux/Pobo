@@ -11,6 +11,7 @@ val lightGreen = Color(0xFFeafce3)
 object BoardColors {
     val lastMoveLight = lightGreen.copy(alpha = 0.3f)
     val lastMoveDark = blue800.copy(alpha = 0.3f)
+    val selected = Color.Red
     val lightSquare = Color(0xFFebefff)
     val darkSquare = Color(0xFFcce0ff)
 //    val lastMoveColor = blueVariant.copy(alpha = 0.5f)

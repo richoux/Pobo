@@ -33,10 +33,11 @@ fun BoardView(
     modifier: Modifier = Modifier,
     board: Board,
     lastMove: Position?,
-    onTap: (Position) -> Unit
+    onTap: (Position) -> Unit,
+    selected: MutableList<Position>
 ){
     Box(modifier) {
-        BoardBackground(lastMove, onTap)
+        BoardBackground(lastMove, onTap, selected)
         BoardLayout(
             pieces = board.allPieces,
             modifier = Modifier
@@ -49,7 +50,8 @@ fun BoardView(
 @Composable
 fun BoardBackground(
     lastMove: Position?,
-    onTap: (Position) -> Unit
+    onTap: (Position) -> Unit,
+    selected: MutableList<Position>
 ){
     Column {
         for (y in 0 until 6) {
@@ -60,7 +62,10 @@ fun BoardBackground(
                     val color = if (position.isSame(lastMove)) {
                         if (white) BoardColors.lastMoveLight else BoardColors.lastMoveDark
                     } else {
-                        if (white) BoardColors.lightSquare else BoardColors.darkSquare
+                        if(selected.contains(position))
+                            BoardColors.selected
+                        else
+                            if (white) BoardColors.lightSquare else BoardColors.darkSquare
                     }
                     Box(
                         modifier = Modifier

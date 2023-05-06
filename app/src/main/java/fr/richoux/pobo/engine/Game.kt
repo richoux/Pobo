@@ -1,6 +1,5 @@
 package fr.richoux.pobo.engine
 
-import android.util.Log
 import java.util.*
 
 private const val TAG = "pobotag Game"
@@ -13,7 +12,7 @@ data class Move(val piece: Piece, val to: Position) {
 data class History(val board: Board, val player: PieceColor) {}
 
 enum class GameState {
-    INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, SELECTREMOVAL, END
+    INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, END
 }
 
 enum class Direction {
@@ -54,7 +53,8 @@ data class Game(
                 GameState.SELECTPIECE -> "Select a small or a large piece"
                 GameState.SELECTPOSITION -> ""
                 GameState.CHECKGRADUATION -> ""
-                GameState.SELECTREMOVAL -> "Select pieces to remove"
+                GameState.AUTOGRADUATION -> ""
+                GameState.SELECTGRADUATION -> "Select small pieces to graduate or large pieces to remove"
                 GameState.END -> ""
             }
         }
@@ -112,17 +112,27 @@ data class Game(
                 GameState.SELECTPOSITION
             }
             GameState.SELECTPOSITION -> {
-                GameState.CHECKGRADUATION
+                checkVictory()
+                if(victory)
+                    GameState.END
+                else
+                    GameState.CHECKGRADUATION
             }
             GameState.CHECKGRADUATION -> {
-                if(getGraduations(board).size <= 1) {
+                if(getGraduations(board).isEmpty()) {
                     GameState.PLAY
                 }
                 else {
-                    GameState.SELECTREMOVAL
+                    if(getGraduations(board).size == 1)
+                        GameState.AUTOGRADUATION
+                    else
+                        GameState.SELECTGRADUATION
                 }
             }
-            GameState.SELECTREMOVAL -> {
+            GameState.AUTOGRADUATION -> {
+                GameState.PLAY
+            }
+            GameState.SELECTGRADUATION -> {
                 GameState.PLAY
             }
             else -> { //GameState.END, but it should be caught before the when
