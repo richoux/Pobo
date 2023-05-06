@@ -34,10 +34,11 @@ fun BoardView(
     board: Board,
     lastMove: Position?,
     onTap: (Position) -> Unit,
-    selected: MutableList<Position>
+    promotionable: List<Position>,
+    selected: List<Position>
 ){
     Box(modifier) {
-        BoardBackground(lastMove, onTap, selected)
+        BoardBackground(lastMove, onTap, promotionable, selected)
         BoardLayout(
             pieces = board.allPieces,
             modifier = Modifier
@@ -51,7 +52,8 @@ fun BoardView(
 fun BoardBackground(
     lastMove: Position?,
     onTap: (Position) -> Unit,
-    selected: MutableList<Position>
+    promotionable: List<Position>,
+    selected: List<Position>
 ){
     Column {
         for (y in 0 until 6) {
@@ -64,8 +66,12 @@ fun BoardBackground(
                     } else {
                         if(selected.contains(position))
                             BoardColors.selected
-                        else
-                            if (white) BoardColors.lightSquare else BoardColors.darkSquare
+                        else {
+                            if (promotionable.contains(position))
+                                BoardColors.promotionable
+                            else
+                                if (white) BoardColors.lightSquare else BoardColors.darkSquare
+                        }
                     }
                     Box(
                         modifier = Modifier

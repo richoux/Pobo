@@ -20,7 +20,8 @@ class GameViewModel : ViewModel() {
     var historyCall = false
 
     private val _ai = AI(PieceColor.Red)
-    private var _aiEnabled = true
+    var aiEnabled = true
+        private set
 
     private var _promotionListIndexes: MutableList<Int> = mutableListOf()
     var piecesToPromote: MutableList<Position> = mutableListOf()
@@ -37,14 +38,14 @@ class GameViewModel : ViewModel() {
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
     var gameState = _gameState.asStateFlow()
 
-    var canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+    var canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
     var canGoForward = _forwardHistory.isNotEmpty()
 
     var displayGameState: String  = _game.displayGameState
     var hasStarted: Boolean = false
 
     fun newGame(aiEnabled: Boolean) {
-        this._aiEnabled = aiEnabled
+        this.aiEnabled = aiEnabled
 
         _forwardHistory.clear()
         _history.clear()
@@ -60,7 +61,7 @@ class GameViewModel : ViewModel() {
     fun goBackMove() {
         _forwardHistory.add(History(currentBoard,currentPlayer))
         var last = _history.removeLast()
-        if (_aiEnabled) {
+        if (aiEnabled) {
             last = _history.removeLast()
             _forwardHistory.add(last)
         }
@@ -69,16 +70,17 @@ class GameViewModel : ViewModel() {
         currentPlayer = last.player
         historyCall = true
 
-        canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
         canGoForward = _forwardHistory.isNotEmpty()
         displayGameState  = _game.displayGameState
+
         _gameState.tryEmit(GameState.PLAY)
     }
 
     fun goForwardMove() {
         _history.add(History(currentBoard,currentPlayer))
         var last = _forwardHistory.removeLast()
-        if (_aiEnabled) {
+        if (aiEnabled) {
             last = _forwardHistory.removeLast()
             _history.add(last)
         }
@@ -87,7 +89,7 @@ class GameViewModel : ViewModel() {
         currentPlayer = last.player
         historyCall = true
 
-        canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
         canGoForward = _forwardHistory.isNotEmpty()
         displayGameState  = _game.displayGameState
         _gameState.tryEmit(GameState.PLAY)
@@ -101,13 +103,15 @@ class GameViewModel : ViewModel() {
     }
 
     fun goToNextState() {
-        if(_game.victory)
+        if(_game.victory) {
             _gameState.tryEmit(GameState.END)
+            return
+        }
 
         val newState = _game.nextGameState()
         hasStarted = true
         _game.gameState = newState
-        canGoBack = if (_aiEnabled) _history.size > 1 else _history.isNotEmpty()
+        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
         canGoForward = _forwardHistory.isNotEmpty()
         displayGameState  = _game.displayGameState
         _gameState.tryEmit(newState)
@@ -149,6 +153,8 @@ class GameViewModel : ViewModel() {
         goToNextState()
     }
 
+    fun getFlatPromotionable(): List<Position> = _game.getGraduations(currentBoard).flatten()
+
     fun checkGraduation() {
         val groups = _game.getGraduations(currentBoard)
         var groupOfAtLeast3 = false
@@ -174,11 +180,11 @@ class GameViewModel : ViewModel() {
 
     fun autograduation() {
         val graduable = _game.getGraduations(currentBoard)
-            if (graduable.size == 1) {
-                graduable[0].forEach {
-                    currentBoard = currentBoard.removePieceAndPromoteIt(it)
-                }
+        if (graduable.size == 1) {
+            graduable[0].forEach {
+                currentBoard = currentBoard.removePieceAndPromoteIt(it)
             }
+        }
         _game.board = currentBoard
         goToNextState()
     }

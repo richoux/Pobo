@@ -1,20 +1,19 @@
 package fr.richoux.pobo.gamescreen
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.engine.*
 
@@ -60,7 +59,6 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
     ) {
         Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
     }
-
     IconButton(
         onClick = { viewModel.goForwardMove() },
         enabled = viewModel.canGoForward
@@ -75,7 +73,8 @@ fun MainView(
     player: PieceColor,
     lastMove: Position? = null,
     onTap: (Position) -> Unit = { _ -> },
-    selected: MutableList<Position>,
+    promotionable: List<Position>,
+    selected: List<Position>,
     displayGameState: String =  ""
 ) {
     Column(Modifier.fillMaxHeight()) {
@@ -83,6 +82,7 @@ fun MainView(
             board = board,
             lastMove = lastMove,
             onTap = onTap,
+            promotionable = promotionable,
             selected = selected
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -138,18 +138,39 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 
     when (gameState) {
         GameState.INIT -> {
-            MainView(board, player, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            MainView(
+                board,
+                player,
+                promotionable = viewModel.getFlatPromotionable(),
+                selected = viewModel.piecesToPromote.toList(),
+                displayGameState = viewModel.displayGameState
+            )
             viewModel.goToNextState()
         }
         GameState.PLAY -> {
             if(viewModel.historyCall)
                 lastMove = null
-            MainView(board, player, lastMove = lastMove, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
-            viewModel.nextTurn()
+
+            MainView(
+                board,
+                player,
+                lastMove = lastMove,
+                promotionable = viewModel.getFlatPromotionable(),
+                selected = viewModel.piecesToPromote.toList(),
+                displayGameState = viewModel.displayGameState
+            )
+            if(!viewModel.historyCall)
+                viewModel.nextTurn()
             viewModel.goToNextState()
         }
         GameState.SELECTPIECE -> {
-            MainView(board, player, lastMove = lastMove, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            MainView(
+                board,
+                player,
+                lastMove = lastMove,
+                promotionable = viewModel.getFlatPromotionable(),
+                selected = viewModel.piecesToPromote.toList(),
+                displayGameState = viewModel.displayGameState)
         }
         GameState.SELECTPOSITION -> {
             val onSelect: (Position) -> Unit = {
@@ -158,31 +179,104 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                     viewModel.playAt(it)
                 }
             }
-            MainView(board, player, lastMove = lastMove, onTap = onSelect, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            MainView(
+                board,
+                player,
+                lastMove = lastMove,
+                onTap = onSelect,
+                promotionable = viewModel.getFlatPromotionable(),
+                selected = viewModel.piecesToPromote.toList(),
+                displayGameState = viewModel.displayGameState
+            )
         }
         GameState.CHECKGRADUATION -> {
-            MainView(board, player, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            MainView(
+                board,
+                player,
+                promotionable = viewModel.getFlatPromotionable(),
+                selected = viewModel.piecesToPromote.toList(),
+                displayGameState = viewModel.displayGameState
+            )
             viewModel.checkGraduation()
         }
         GameState.AUTOGRADUATION -> {
-            MainView(board, player, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            MainView(
+                board,
+                player,
+                promotionable = viewModel.getFlatPromotionable(),
+                selected = viewModel.piecesToPromote.toList(),
+                displayGameState = viewModel.displayGameState
+            )
             viewModel.autograduation()
         }
         GameState.SELECTGRADUATION -> {
             val onSelect: (Position) -> Unit = {
                 viewModel.selectForGraduationOrCancel(it)
             }
-            MainView(board, player, lastMove = lastMove, onTap = onSelect, selected = viewModel.piecesToPromote, displayGameState = viewModel.displayGameState)
+            MainView(
+                board,
+                player,
+                lastMove = lastMove,
+                onTap = onSelect,
+                promotionable = viewModel.getFlatPromotionable(),
+                selected = viewModel.piecesToPromote.toList(),
+                displayGameState = viewModel.displayGameState
+            )
         }
         GameState.END -> {
+//            Dialog(
+//                onDismissRequest = {},
+//            ) {
+//                (LocalView.current.parent as DialogWindowProvider)?.window?.setDimAmount(0f)
+//                Text(
+//                    text = "$player wins!"
+//                )
+//            }
+            val style = TextStyle(
+                color = if(player == PieceColor.Blue) Color.Blue else Color.Red,
+                fontSize = MaterialTheme.typography.body1.fontSize,
+                fontWeight = FontWeight.Bold,
+                fontStyle = MaterialTheme.typography.body1.fontStyle
+            )
+            val acceptNewGame: () -> Unit = {
+                viewModel.newGame(viewModel.aiEnabled)
+            }
+            val declineNewGame: () -> Unit = {
+                viewModel.resume()
+            }
             AlertDialog(
                 onDismissRequest = {},
-                buttons = {},
+                buttons = {
+                    Row() {
+                        Button(
+                            { acceptNewGame() }
+                        ) {
+                            Text(text = "Sure!")
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Button(
+                            { declineNewGame() }
+                        ) {
+                            Text(text = "Next time")
+                        }
+                    }
+                },
                 title = {
-                    Text(text = "$player wins!")
+                    Row()
+                    {
+                        Text(
+                            text = "$player",
+                            style = style
+                        )
+                        Text(
+                            text = " wins!"
+                        )
+                    }
                 },
                 text = {
-                    Text(text = "Winner: $player")
+                    Text(
+                        text = "New game?"
+                    )
                 }
             )
         }

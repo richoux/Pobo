@@ -6,12 +6,12 @@ val teal200 = Color(0xFF03DAC5)
 val blue800 = Color(0xFF1565c0)
 val blueVariant = Color(0xFF003b8e)
 val blue300 = Color(0xFF64b5f6)
-val lightGreen = Color(0xFFeafce3)
 
 object BoardColors {
-    val lastMoveLight = lightGreen.copy(alpha = 0.3f)
-    val lastMoveDark = blue800.copy(alpha = 0.3f)
-    val selected = Color.Red
+    val lastMoveLight = Color(0xFFc1c1d6).copy(alpha = 0.8f)
+    val lastMoveDark = blue800.copy(alpha = 0.8f)
+    val promotionable = Color(0xFFfa9e73).copy(alpha = 0.8f)
+    val selected = Color(0xFFe6393c).copy(alpha = 0.8f)
     val lightSquare = Color(0xFFebefff)
     val darkSquare = Color(0xFFcce0ff)
 //    val lastMoveColor = blueVariant.copy(alpha = 0.5f)

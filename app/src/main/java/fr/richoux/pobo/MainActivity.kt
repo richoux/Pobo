@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                                     IconButton(onClick = {
                                         navController.popBackStack()
                                     }) {
-                                        Icon(Icons.Outlined.ArrowBack, contentDescription = "Back")
+                                        Icon(Icons.Outlined.Home, contentDescription = "Home")
                                     }
                                 }
                             },

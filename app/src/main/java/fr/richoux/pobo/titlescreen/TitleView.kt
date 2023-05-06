@@ -1,12 +1,7 @@
 package fr.richoux.pobo.titlescreen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -46,6 +41,14 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
         GameButton(
             onClick = { newGame(navController, gameViewModel, aiEnabled = true) },
             text = context.getResources().getString(R.string.ai_game_fr)
+        )
+        Spacer(
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            "v0.1.0",
+            color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }
 }

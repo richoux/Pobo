@@ -309,12 +309,16 @@ data class Board(
             PieceColor.Blue -> Board(
                 newPieces.map { it.toList() }.toList(),
                 newPool,
-                this.redPool
+                this.redPool,
+                this.numberBlueBo,
+                this.numberRedBo
             )
             PieceColor.Red -> Board(
                 newPieces.map { it.toList() }.toList(),
                 this.bluePool,
-                newPool
+                newPool,
+                this.numberBlueBo,
+                this.numberRedBo
             )
         }
     }
