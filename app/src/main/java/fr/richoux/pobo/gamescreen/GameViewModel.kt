@@ -23,9 +23,12 @@ class GameViewModel : ViewModel() {
     var aiEnabled = true
         private set
 
-    private var _promotionListIndexes: MutableList<Int> = mutableListOf()
+    private var _promotionListIndex: MutableList<Int> = mutableListOf()
+    private var _promotionListMask: MutableList<Boolean> = mutableListOf()
+    private var _piecesToPromoteIndex: HashMap<Position, MutableList<Int>> = hashMapOf()
     var piecesToPromote: MutableList<Position> = mutableListOf()
         private set
+
     var pieceTypeToPlay: PieceType? = null
         private set
 
@@ -44,6 +47,17 @@ class GameViewModel : ViewModel() {
     var displayGameState: String  = _game.displayGameState
     var hasStarted: Boolean = false
 
+    fun reset() {
+        _promotionListIndex = mutableListOf()
+        _promotionListMask = mutableListOf()
+        _piecesToPromoteIndex = hashMapOf()
+        piecesToPromote = mutableListOf()
+        displayGameState  = _game.displayGameState
+        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
+        canGoForward = _forwardHistory.isNotEmpty()
+        pieceTypeToPlay = null
+    }
+
     fun newGame(aiEnabled: Boolean) {
         this.aiEnabled = aiEnabled
 
@@ -52,9 +66,9 @@ class GameViewModel : ViewModel() {
         _game = Game()
         currentBoard = _game.board
         currentPlayer = _game.currentPlayer
+        reset()
         hasStarted = false
         _gameState.tryEmit(GameState.INIT)
-        displayGameState  = _game.displayGameState
         gameState = _gameState.asStateFlow()
     }
 
@@ -68,12 +82,8 @@ class GameViewModel : ViewModel() {
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
+        reset()
         historyCall = true
-
-        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-        canGoForward = _forwardHistory.isNotEmpty()
-        displayGameState  = _game.displayGameState
-
         _gameState.tryEmit(GameState.PLAY)
     }
 
@@ -87,11 +97,8 @@ class GameViewModel : ViewModel() {
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
+        reset()
         historyCall = true
-
-        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-        canGoForward = _forwardHistory.isNotEmpty()
-        displayGameState  = _game.displayGameState
         _gameState.tryEmit(GameState.PLAY)
     }
 
@@ -189,41 +196,64 @@ class GameViewModel : ViewModel() {
         goToNextState()
     }
 
-    fun selectForGraduationOrCancel(it: Position) {
-
-
+    fun selectForGraduationOrCancel(position: Position) {
+        val removable = _game.getGraduations(currentBoard)
         // if the player taps a selected piece, unselect it
-        if(piecesToPromote.contains(it)) {
-            piecesToPromote.remove(it)
+        if(piecesToPromote.contains(position)) {
+            piecesToPromote.remove(position)
+            _promotionListIndex.clear()
+            _piecesToPromoteIndex[position] = mutableListOf()
+            if(piecesToPromote.isEmpty()) {
+                _promotionListMask.clear()
+            }
+            else {
+                _promotionListMask = MutableList(removable.size){false}
+                for (piece in piecesToPromote)
+                    for((index,list) in removable.withIndex())
+                        if(list.contains(piece)) {
+                            _promotionListMask[index] = true
+                            _promotionListIndex.add(index)
+                            _piecesToPromoteIndex[piece]?.add(index)
+                        }
+                for(index in _promotionListIndex)
+                    for (piece in piecesToPromote)
+                        if(_piecesToPromoteIndex[piece]?.contains(index) != true) {
+                            _promotionListIndex.remove(index)
+                            _promotionListMask[index] = false
+                        }
+            }
             return
         }
-
-        val removable = _game.getGraduations(currentBoard)
 
         // _promotionListIndexes is a tedious way to check if a selected piece (in particular the 1st one)
         // belongs to different graduable groups, to make sure we don't select pieces from different groups
         // TODO: to simplify
-        if(_promotionListIndexes.isEmpty()) {
+        if(_promotionListIndex.isEmpty()) {
+            _promotionListMask = MutableList(removable.size){false}
             for( (index, list) in removable.withIndex() ) {
-                if(list.contains(it)) {
-                    _promotionListIndexes.add(index)
+                if(list.contains(position)) {
+                    _promotionListMask[index] = true
+                    _promotionListIndex.add(index)
+                    _piecesToPromoteIndex[position]?.add(index)
                 }
             }
-            if(_promotionListIndexes.isEmpty())
+            if(_promotionListIndex.isEmpty())
                 return
             else {
-                piecesToPromote.add(it)
+                piecesToPromote.add(position)
             }
         }
         else {
             for( (index, list) in removable.withIndex() ) {
-                if(list.contains(it)) {
-                    if(_promotionListIndexes.contains(index)) {
-                        piecesToPromote.add(it)
-                        if (_promotionListIndexes.size > 1) {
-                            _promotionListIndexes.clear()
-                            _promotionListIndexes.add(index)
-                        }
+                if(list.contains(position)) {
+                    if(_promotionListMask[index]) {
+                        piecesToPromote.add(position)
+                        // shrink the index list
+                        for(index in _promotionListIndex)
+                            if(_piecesToPromoteIndex[position]?.contains(index) != true) {
+                                _promotionListIndex.remove(index)
+                                _promotionListMask[index] = false
+                            }
                     }
                 }
             }
@@ -240,7 +270,7 @@ class GameViewModel : ViewModel() {
         _game.promoteOrRemovePieces(piecesToPromote)
         currentBoard = _game.board
         _game.checkVictory()
-        _promotionListIndexes.clear()
+        _promotionListIndex.clear()
         piecesToPromote.clear()
         goToNextState()
     }
