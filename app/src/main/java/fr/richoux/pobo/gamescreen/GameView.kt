@@ -202,6 +202,15 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 displayGameState = viewModel.displayGameState
             )
         }
+        GameState.REFRESHSELECTGRADUATION -> {
+            lastMove = null
+            MainView(
+                viewModel,
+                lastMove = lastMove,
+                displayGameState = viewModel.displayGameState
+            )
+            viewModel.goToNextState()
+        }
         GameState.END -> {
 //            Dialog(
 //                onDismissRequest = {},

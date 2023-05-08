@@ -229,60 +229,64 @@ class GameViewModel : ViewModel() {
                     toRemove.add(key)
             for(removePiece in toRemove)
                 _piecesToPromoteIndex.remove(removePiece)
-
-            return
         }
-
-        // _promotionListIndexes is a tedious way to check if a selected piece (in particular the 1st one)
-        // belongs to different graduable groups, to make sure we don't select pieces from different groups
-        // TODO: to simplify
-        if (_promotionListIndex.isEmpty()) {
-            _promotionListMask = MutableList(removable.size) { false }
-            for ((index, list) in removable.withIndex()) {
-                if (list.contains(position)) {
-                    _promotionListMask[index] = true
-                    _promotionListIndex.add(index)
-                    if(!_piecesToPromoteIndex.containsKey(position))
-                        _piecesToPromoteIndex[position] = mutableListOf()
-                    _piecesToPromoteIndex[position]?.add(index)
-                }
-            }
-            if (_promotionListIndex.isEmpty())
-                return
-            else {
-                piecesToPromote.add(position)
-            }
-        } else {
-            for ((index, list) in removable.withIndex()) {
-                if (list.contains(position)) {
-                    if (_promotionListMask[index]) {
-                        if(!piecesToPromote.contains(position))
-                            piecesToPromote.add(position)
+        else {
+            // _promotionListIndexes is a tedious way to check if a selected piece (in particular the 1st one)
+            // belongs to different graduable groups, to make sure we don't select pieces from different groups
+            // TODO: to simplify
+            if (_promotionListIndex.isEmpty()) {
+                _promotionListMask = MutableList(removable.size) { false }
+                for ((index, list) in removable.withIndex()) {
+                    if (list.contains(position)) {
+                        _promotionListMask[index] = true
+                        _promotionListIndex.add(index)
                         if (!_piecesToPromoteIndex.containsKey(position))
                             _piecesToPromoteIndex[position] = mutableListOf()
                         _piecesToPromoteIndex[position]?.add(index)
                     }
                 }
-            }
-            // shrink the index list
-            val toRemove: MutableList<Int> = mutableListOf()
-            for (indexValue in _promotionListIndex)
-                for (piece in piecesToPromote)
-                    if (_piecesToPromoteIndex[piece]?.contains(indexValue) != true) {
-                        toRemove.add(indexValue)
-                        _promotionListMask[indexValue] = false
-                        for ((key,list) in _piecesToPromoteIndex) {
-                            if(list.isNotEmpty())
-                                list.remove(indexValue)
+                if (_promotionListIndex.isEmpty())
+                    return
+                else {
+                    piecesToPromote.add(position)
+                }
+            } else {
+                for ((index, list) in removable.withIndex()) {
+                    if (list.contains(position)) {
+                        if (_promotionListMask[index]) {
+                            if (!piecesToPromote.contains(position))
+                                piecesToPromote.add(position)
+                            if (!_piecesToPromoteIndex.containsKey(position))
+                                _piecesToPromoteIndex[position] = mutableListOf()
+                            _piecesToPromoteIndex[position]?.add(index)
                         }
                     }
-            for(indexValue in toRemove)
-                _promotionListIndex.remove(indexValue)
+                }
+                // shrink the index list
+                val toRemove: MutableList<Int> = mutableListOf()
+                for (indexValue in _promotionListIndex)
+                    for (piece in piecesToPromote)
+                        if (_piecesToPromoteIndex[piece]?.contains(indexValue) != true) {
+                            toRemove.add(indexValue)
+                            _promotionListMask[indexValue] = false
+                            for ((key, list) in _piecesToPromoteIndex) {
+                                if (list.isNotEmpty())
+                                    list.remove(indexValue)
+                            }
+                        }
+                for (indexValue in toRemove)
+                    _promotionListIndex.remove(indexValue)
+            }
         }
 
         // no more than 1 or 3 selections, regarding the situation
         if (piecesToPromote.size == 3 || (state == GameViewModelState.SELECT1 && piecesToPromote.size == 1)) {
+            _game.finishSelection()
             validateGraduationSelection()
+        }
+        else {
+            _game.unfinishSelection()
+            goToNextState()
         }
     }
 

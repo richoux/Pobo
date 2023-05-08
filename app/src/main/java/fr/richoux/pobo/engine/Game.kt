@@ -12,7 +12,7 @@ data class Move(val piece: Piece, val to: Position) {
 data class History(val board: Board, val player: PieceColor) {}
 
 enum class GameState {
-    INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, END
+    INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
 }
 
 enum class Direction {
@@ -55,9 +55,17 @@ data class Game(
                 GameState.CHECKGRADUATION -> ""
                 GameState.AUTOGRADUATION -> ""
                 GameState.SELECTGRADUATION -> "Select small pieces to graduate or large pieces to remove"
+                GameState.REFRESHSELECTGRADUATION -> ""
                 GameState.END -> ""
             }
         }
+    private var _finishPieceSelection: Boolean = false
+    fun finishSelection() {
+        _finishPieceSelection = true
+    }
+    fun unfinishSelection() {
+        _finishPieceSelection = false
+    }
 
     fun canPlayAt(to: Position): Boolean = board.pieceAt(to) == null
 
@@ -133,7 +141,13 @@ data class Game(
                 GameState.PLAY
             }
             GameState.SELECTGRADUATION -> {
-                GameState.PLAY
+                if(_finishPieceSelection)
+                    GameState.PLAY
+                else
+                    GameState.REFRESHSELECTGRADUATION
+            }
+            GameState.REFRESHSELECTGRADUATION -> {
+                GameState.SELECTGRADUATION
             }
             else -> { //GameState.END, but it should be caught before the when
                 GameState.END
