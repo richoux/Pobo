@@ -223,9 +223,13 @@ class GameViewModel : ViewModel() {
                             }
                 }
             }
+            val toRemove: MutableList<Position> = mutableListOf()
             for((key, list) in _piecesToPromoteIndex)
                 if(list == null || list.isEmpty())
-                    _piecesToPromoteIndex.remove(key)
+                    toRemove.add(key)
+            for(removePiece in toRemove)
+                _piecesToPromoteIndex.remove(removePiece)
+
             return
         }
 
@@ -238,7 +242,8 @@ class GameViewModel : ViewModel() {
                 if (list.contains(position)) {
                     _promotionListMask[index] = true
                     _promotionListIndex.add(index)
-                    _piecesToPromoteIndex[position] = mutableListOf()
+                    if(!_piecesToPromoteIndex.containsKey(position))
+                        _piecesToPromoteIndex[position] = mutableListOf()
                     _piecesToPromoteIndex[position]?.add(index)
                 }
             }
@@ -251,8 +256,9 @@ class GameViewModel : ViewModel() {
             for ((index, list) in removable.withIndex()) {
                 if (list.contains(position)) {
                     if (_promotionListMask[index]) {
-                        piecesToPromote.add(position)
-                        if (_piecesToPromoteIndex[position] == null)
+                        if(!piecesToPromote.contains(position))
+                            piecesToPromote.add(position)
+                        if (!_piecesToPromoteIndex.containsKey(position))
                             _piecesToPromoteIndex[position] = mutableListOf()
                         _piecesToPromoteIndex[position]?.add(index)
                     }
@@ -277,7 +283,6 @@ class GameViewModel : ViewModel() {
         // no more than 1 or 3 selections, regarding the situation
         if (piecesToPromote.size == 3 || (state == GameViewModelState.SELECT1 && piecesToPromote.size == 1)) {
             validateGraduationSelection()
-            return
         }
     }
 

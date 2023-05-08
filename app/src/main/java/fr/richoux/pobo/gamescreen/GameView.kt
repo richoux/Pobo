@@ -69,14 +69,15 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 
 @Composable
 fun MainView(
-    board: Board,
-    player: PieceColor,
+    viewModel: GameViewModel,
     lastMove: Position? = null,
     onTap: (Position) -> Unit = { _ -> },
-    promotionable: List<Position>,
-    selected: List<Position>,
     displayGameState: String =  ""
 ) {
+    val board = viewModel.currentBoard
+    val player = viewModel.currentPlayer
+    val promotionable = viewModel.getFlatPromotionable()
+    val selected = viewModel.piecesToPromote.toList()
     Column(Modifier.fillMaxHeight()) {
         BoardView(
             board = board,
@@ -132,17 +133,13 @@ fun MainView(
 @Composable
 fun GameView(viewModel: GameViewModel = viewModel()) {
     val gameState by viewModel.gameState.collectAsState()
-    val board = viewModel.currentBoard
     val player = viewModel.currentPlayer
     var lastMove: Position? by remember { mutableStateOf(null) }
 
     when (gameState) {
         GameState.INIT -> {
             MainView(
-                board,
-                player,
-                promotionable = viewModel.getFlatPromotionable(),
-                selected = viewModel.piecesToPromote.toList(),
+                viewModel,
                 displayGameState = viewModel.displayGameState
             )
             viewModel.goToNextState()
@@ -152,11 +149,8 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 lastMove = null
 
             MainView(
-                board,
-                player,
+                viewModel,
                 lastMove = lastMove,
-                promotionable = viewModel.getFlatPromotionable(),
-                selected = viewModel.piecesToPromote.toList(),
                 displayGameState = viewModel.displayGameState
             )
             if(!viewModel.historyCall)
@@ -165,11 +159,8 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         }
         GameState.SELECTPIECE -> {
             MainView(
-                board,
-                player,
+                viewModel,
                 lastMove = lastMove,
-                promotionable = viewModel.getFlatPromotionable(),
-                selected = viewModel.piecesToPromote.toList(),
                 displayGameState = viewModel.displayGameState)
         }
         GameState.SELECTPOSITION -> {
@@ -180,31 +171,22 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 }
             }
             MainView(
-                board,
-                player,
+                viewModel,
                 lastMove = lastMove,
                 onTap = onSelect,
-                promotionable = viewModel.getFlatPromotionable(),
-                selected = viewModel.piecesToPromote.toList(),
                 displayGameState = viewModel.displayGameState
             )
         }
         GameState.CHECKGRADUATION -> {
             MainView(
-                board,
-                player,
-                promotionable = viewModel.getFlatPromotionable(),
-                selected = viewModel.piecesToPromote.toList(),
+                viewModel,
                 displayGameState = viewModel.displayGameState
             )
             viewModel.checkGraduation()
         }
         GameState.AUTOGRADUATION -> {
             MainView(
-                board,
-                player,
-                promotionable = viewModel.getFlatPromotionable(),
-                selected = viewModel.piecesToPromote.toList(),
+                viewModel,
                 displayGameState = viewModel.displayGameState
             )
             viewModel.autograduation()
@@ -214,12 +196,9 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 viewModel.selectForGraduationOrCancel(it)
             }
             MainView(
-                board,
-                player,
+                viewModel,
                 lastMove = lastMove,
                 onTap = onSelect,
-                promotionable = viewModel.getFlatPromotionable(),
-                selected = viewModel.piecesToPromote.toList(),
                 displayGameState = viewModel.displayGameState
             )
         }
