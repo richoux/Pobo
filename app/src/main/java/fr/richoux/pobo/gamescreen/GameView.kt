@@ -136,6 +136,48 @@ fun MainView(
         }
         Configuration.ORIENTATION_LANDSCAPE -> {
             Row(Modifier.fillMaxHeight()) {
+                Column(Modifier.fillMaxHeight().width(IntrinsicSize.Min)) {
+                    PiecesStocksView(
+                        pool = board.getPlayerPool(PieceColor.Blue),
+                        Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    PiecesStocksView(
+                        pool = board.getPlayerPool(PieceColor.Red),
+                        Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text(
+                            text = "Player's turn: ",
+                            style = MaterialTheme.typography.body1,
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                        )
+                        val style = TextStyle(
+                            color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
+                            fontSize = MaterialTheme.typography.body1.fontSize,
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = MaterialTheme.typography.body1.fontStyle
+                        )
+                        Text(
+                            text = player.toString(),
+                            style = style,
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = displayGameState,
+                        style = MaterialTheme.typography.body1,
+                        modifier = Modifier
+                            .padding(horizontal = 2.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
                 BoardView(
                     board = board,
                     lastMove = lastMove,
