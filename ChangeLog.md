@@ -1,5 +1,8 @@
 # ChangeLog
 
+## [0.1.2] - 2023-06-09
+- Landscape mode
+
 ## [0.1.1] - 2023-06-08
 - New app icon
 - Fix bugs when selecting piece for promotion

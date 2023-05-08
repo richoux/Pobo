@@ -1,5 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -72,61 +74,119 @@ fun MainView(
     viewModel: GameViewModel,
     lastMove: Position? = null,
     onTap: (Position) -> Unit = { _ -> },
-    displayGameState: String =  ""
+    displayGameState: String = ""
 ) {
     val board = viewModel.currentBoard
     val player = viewModel.currentPlayer
     val promotionable = viewModel.getFlatPromotionable()
     val selected = viewModel.piecesToPromote.toList()
-    Column(Modifier.fillMaxHeight()) {
-        BoardView(
-            board = board,
-            lastMove = lastMove,
-            onTap = onTap,
-            promotionable = promotionable,
-            selected = selected
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        PiecesStocksView(
-            pool = board.getPlayerPool(PieceColor.Blue),
-            Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        PiecesStocksView(
-            pool = board.getPlayerPool(PieceColor.Red),
-            Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        Row(
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text(
-                text = "Player's turn: ",
-                style = MaterialTheme.typography.body1,
-                modifier = Modifier
-                    .padding(horizontal = 2.dp)
-            )
-            val style = TextStyle(
-                color = if(player == PieceColor.Blue) Color.Blue else Color.Red,
-                fontSize = MaterialTheme.typography.body1.fontSize,
-                fontWeight = FontWeight.Bold,
-                fontStyle = MaterialTheme.typography.body1.fontStyle
-            )
-            Text(
-                text = player.toString(),
-                style = style,
-                modifier = Modifier
-                    .padding(horizontal = 2.dp)
-            )
+    val configuration = LocalConfiguration.current
+    when (configuration.orientation) {
+        Configuration.ORIENTATION_PORTRAIT -> {
+            Column(Modifier.fillMaxHeight()) {
+                BoardView(
+                    board = board,
+                    lastMove = lastMove,
+                    onTap = onTap,
+                    promotionable = promotionable,
+                    selected = selected
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                PiecesStocksView(
+                    pool = board.getPlayerPool(PieceColor.Blue),
+                    Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                PiecesStocksView(
+                    pool = board.getPlayerPool(PieceColor.Red),
+                    Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text(
+                        text = "Player's turn: ",
+                        style = MaterialTheme.typography.body1,
+                        modifier = Modifier
+                            .padding(horizontal = 2.dp)
+                    )
+                    val style = TextStyle(
+                        color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
+                        fontSize = MaterialTheme.typography.body1.fontSize,
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = MaterialTheme.typography.body1.fontStyle
+                    )
+                    Text(
+                        text = player.toString(),
+                        style = style,
+                        modifier = Modifier
+                            .padding(horizontal = 2.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = displayGameState,
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = displayGameState,
-            style = MaterialTheme.typography.body1,
-            modifier = Modifier
-                .padding(horizontal = 2.dp)
-                .align(Alignment.CenterHorizontally)
-        )
+        Configuration.ORIENTATION_LANDSCAPE -> {
+            Row(Modifier.fillMaxHeight()) {
+                BoardView(
+                    board = board,
+                    lastMove = lastMove,
+                    onTap = onTap,
+                    promotionable = promotionable,
+                    selected = selected
+                )
+                Column(Modifier.fillMaxHeight()) {
+                    PiecesStocksView(
+                        pool = board.getPlayerPool(PieceColor.Blue),
+                        Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    PiecesStocksView(
+                        pool = board.getPlayerPool(PieceColor.Red),
+                        Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        Text(
+                            text = "Player's turn: ",
+                            style = MaterialTheme.typography.body1,
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                        )
+                        val style = TextStyle(
+                            color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
+                            fontSize = MaterialTheme.typography.body1.fontSize,
+                            fontWeight = FontWeight.Bold,
+                            fontStyle = MaterialTheme.typography.body1.fontStyle
+                        )
+                        Text(
+                            text = player.toString(),
+                            style = style,
+                            modifier = Modifier
+                                .padding(horizontal = 2.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = displayGameState,
+                        style = MaterialTheme.typography.body1,
+                        modifier = Modifier
+                            .padding(horizontal = 2.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+        }
     }
 }
 

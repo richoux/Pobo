@@ -5,12 +5,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -36,15 +31,20 @@ fun BoardView(
     lastMove: Position?,
     onTap: (Position) -> Unit,
     promotionable: List<Position>,
-    selected: List<Position>
+    selected: List<Position>,
+    landscapeMode: Boolean = false
 ){
+    var modifier = modifier.aspectRatio(1.0f)
+    if(landscapeMode)
+        modifier = modifier.fillMaxHeight()
+    else
+        modifier = modifier.fillMaxWidth()
+
     Box(modifier) {
         BoardBackground(lastMove, onTap, promotionable, selected)
         BoardLayout(
             pieces = board.allPieces,
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(1.0f)
+            modifier = modifier
         )
     }
 }
