@@ -218,8 +218,8 @@ class GameViewModel : ViewModel() {
                                 _piecesToPromoteIndex[piece]?.add(index)
                             }
                         for (indexValue in _promotionListIndex)
-                            for (piece in piecesToPromote)
-                                if (_piecesToPromoteIndex[piece]?.contains(indexValue) != true) {
+                            for (otherPiece in piecesToPromote)
+                                if (_piecesToPromoteIndex[otherPiece]?.contains(indexValue) != true) {
                                     _promotionListIndex.remove(indexValue)
                                     _promotionListMask[indexValue] = false
                                 }
@@ -227,7 +227,7 @@ class GameViewModel : ViewModel() {
                 }
                 val toRemove: MutableList<Position> = mutableListOf()
                 for ((key, list) in _piecesToPromoteIndex)
-                    if (list == null || list.isEmpty())
+                    if (list.isEmpty())
                         toRemove.add(key)
                 for (removePiece in toRemove)
                     _piecesToPromoteIndex.remove(removePiece)

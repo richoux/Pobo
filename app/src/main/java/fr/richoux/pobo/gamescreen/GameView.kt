@@ -185,7 +185,7 @@ fun MainView(
                     promotionable = promotionable,
                     selected = selected
                 )
-                Column(Modifier.fillMaxHeight()) {
+                Column(Modifier.fillMaxHeight().width(IntrinsicSize.Min)) {
                     PiecesStocksView(
                         pool = board.getPlayerPool(PieceColor.Blue),
                         Modifier.fillMaxWidth()
@@ -294,6 +294,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.autograduation()
         }
         GameState.SELECTGRADUATION -> {
+            lastMove = null
             val onSelect: (Position) -> Unit = {
                 viewModel.selectForGraduationOrCancel(it)
             }

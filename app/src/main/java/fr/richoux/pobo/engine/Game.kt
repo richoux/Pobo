@@ -263,6 +263,7 @@ data class Game(
     fun changeWithHistory(history: History) {
         board = history.board
         currentPlayer = history.player
+        gameState = GameState.PLAY
         checkVictory()
     }
 }
