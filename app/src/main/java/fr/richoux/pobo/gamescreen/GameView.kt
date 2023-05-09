@@ -9,14 +9,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
 
 private const val TAG = "pobotag GameView"
@@ -132,6 +135,96 @@ fun MainView(
                         .padding(horizontal = 2.dp)
                         .align(Alignment.CenterHorizontally)
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                val gameState by viewModel.gameState.collectAsState()
+                //val hasChoiceOfPiece = gameState == GameState.SELECTPIECE && viewModel.twoTypesInPool()
+                val hasChoiceOfPiece = viewModel.twoTypesInPool()
+                if(hasChoiceOfPiece) {
+                    var check_po by remember {mutableStateOf(false)}
+                    var check_bo by remember {mutableStateOf(false)}
+                    val po = when(player) {
+                        PieceColor.Blue -> R.drawable.blue_po
+                        PieceColor.Red -> R.drawable.red_po
+                    }
+                    val bo = when(player) {
+                        PieceColor.Blue -> R.drawable.blue_bo
+                        PieceColor.Red -> R.drawable.red_bo
+                    }
+                    val po_check = when(player) {
+                        PieceColor.Blue -> R.drawable.blue_po_check
+                        PieceColor.Red -> R.drawable.red_po_check
+                    }
+                    val bo_check = when(player) {
+                        PieceColor.Blue -> R.drawable.blue_bo_check
+                        PieceColor.Red -> R.drawable.red_bo_check
+                    }
+                    Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                        if(check_po) {
+                            IconButton(
+                                onClick = {
+                                    check_po = false
+                                    viewModel.cancelPieceSelection()
+                                }
+                                //enabled = hasChoiceOfPiece
+                            ) {
+                                Icon(
+                                    painterResource(po_check),
+                                    contentDescription = "Select Po",
+                                    tint = Color.Unspecified
+                                )
+                            }
+                        }
+                        else {
+                            IconButton(
+                                onClick = {
+                                    check_po = true
+                                    check_bo = false
+                                    viewModel.selectPo()
+                                }
+                                //enabled = hasChoiceOfPiece
+                            ) {
+                                Icon(
+                                    painterResource(po),
+                                    contentDescription = "Select Po",
+                                    tint = Color.Unspecified
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(32.dp))
+                        if(check_bo) {
+                            IconButton(
+                                onClick = {
+                                    check_bo = false
+                                    viewModel.cancelPieceSelection()
+                                }
+                                //enabled = hasChoiceOfPiece
+                            ) {
+                                Icon(
+                                    painterResource(bo_check),
+                                    contentDescription = "Select Bo",
+                                    tint = Color.Unspecified
+                                )
+                            }
+                        }
+                        else {
+                            IconButton(
+                                onClick = {
+                                    check_po = false
+                                    check_bo = true
+                                    viewModel.selectBo()
+                                }
+                                //enabled = hasChoiceOfPiece
+                            ) {
+                                Icon(
+                                    painterResource(bo),
+                                    contentDescription = "Select Bo",
+                                    tint = Color.Unspecified
+                                )
+                            }
+                        }
+                    }
+                }
+
             }
         }
         Configuration.ORIENTATION_LANDSCAPE -> {

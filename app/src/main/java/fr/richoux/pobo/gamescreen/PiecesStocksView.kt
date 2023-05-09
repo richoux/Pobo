@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import fr.richoux.pobo.engine.Piece
 
-private val PIECES_STOCK_SIZE = 32.dp
+private val PIECES_STOCK_SIZE = 48.dp
 @Composable
 fun PiecesStocksView(pool: List<Piece>, modifier: Modifier = Modifier) {
     Column() {
