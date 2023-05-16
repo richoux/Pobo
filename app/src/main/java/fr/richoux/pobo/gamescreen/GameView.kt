@@ -1,7 +1,11 @@
 package fr.richoux.pobo.gamescreen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -9,15 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
@@ -27,19 +28,19 @@ private const val TAG = "pobotag GameView"
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
     val gameState by viewModel.gameState.collectAsState()
-    val hasChoiceOfPiece = gameState == GameState.SELECTPIECE && viewModel.twoTypesInPool()
-    IconButton(
-        onClick = { viewModel.selectPo() },
-        enabled = hasChoiceOfPiece
-    ) {
-        Icon(Icons.Filled.Face, contentDescription = "Select Po")
-    }
-    IconButton(
-        onClick = { viewModel.selectBo() },
-        enabled = hasChoiceOfPiece
-    ) {
-        Icon(Icons.Filled.Person, contentDescription = "Select Bo")
-    }
+//    val hasChoiceOfPiece = gameState == GameState.SELECTPIECE && viewModel.twoTypesInPool()
+//    IconButton(
+//        onClick = { viewModel.selectPo() },
+//        enabled = hasChoiceOfPiece
+//    ) {
+//        Icon(Icons.Filled.Face, contentDescription = "Select Po")
+//    }
+//    IconButton(
+//        onClick = { viewModel.selectBo() },
+//        enabled = hasChoiceOfPiece
+//    ) {
+//        Icon(Icons.Filled.Person, contentDescription = "Select Bo")
+//    }
 
     val completeSelectionForRemoval =
         gameState == GameState.SELECTGRADUATION
@@ -51,12 +52,12 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
     ) {
         Icon(Icons.Filled.Done, contentDescription = "OK")
     }
-    IconButton(
-        onClick = { viewModel.cancelPieceSelection() },
-        enabled = gameState == GameState.SELECTPOSITION && viewModel.twoTypesInPool()
-    ) {
-        Icon(Icons.Filled.Clear, contentDescription = "Return to piece selection")
-    }
+//    IconButton(
+//        onClick = { viewModel.cancelPieceSelection() },
+//        enabled = gameState == GameState.SELECTPOSITION && viewModel.twoTypesInPool()
+//    ) {
+//        Icon(Icons.Filled.Clear, contentDescription = "Return to piece selection")
+//    }
     Spacer(modifier = Modifier.width(48.dp))
     IconButton(
         onClick = { viewModel.goBackMove() },
@@ -136,100 +137,21 @@ fun MainView(
                         .align(Alignment.CenterHorizontally)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                val gameState by viewModel.gameState.collectAsState()
-                //val hasChoiceOfPiece = gameState == GameState.SELECTPIECE && viewModel.twoTypesInPool()
                 val hasChoiceOfPiece = viewModel.twoTypesInPool()
-                if(hasChoiceOfPiece) {
-                    var check_po by remember {mutableStateOf(false)}
-                    var check_bo by remember {mutableStateOf(false)}
-                    val po = when(player) {
-                        PieceColor.Blue -> R.drawable.blue_po
-                        PieceColor.Red -> R.drawable.red_po
-                    }
-                    val bo = when(player) {
-                        PieceColor.Blue -> R.drawable.blue_bo
-                        PieceColor.Red -> R.drawable.red_bo
-                    }
-                    val po_check = when(player) {
-                        PieceColor.Blue -> R.drawable.blue_po_check
-                        PieceColor.Red -> R.drawable.red_po_check
-                    }
-                    val bo_check = when(player) {
-                        PieceColor.Blue -> R.drawable.blue_bo_check
-                        PieceColor.Red -> R.drawable.red_bo_check
-                    }
+                if (hasChoiceOfPiece) {
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        if(check_po) {
-                            IconButton(
-                                onClick = {
-                                    check_po = false
-                                    viewModel.cancelPieceSelection()
-                                }
-                                //enabled = hasChoiceOfPiece
-                            ) {
-                                Icon(
-                                    painterResource(po_check),
-                                    contentDescription = "Select Po",
-                                    tint = Color.Unspecified
-                                )
-                            }
-                        }
-                        else {
-                            IconButton(
-                                onClick = {
-                                    check_po = true
-                                    check_bo = false
-                                    viewModel.selectPo()
-                                }
-                                //enabled = hasChoiceOfPiece
-                            ) {
-                                Icon(
-                                    painterResource(po),
-                                    contentDescription = "Select Po",
-                                    tint = Color.Unspecified
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(32.dp))
-                        if(check_bo) {
-                            IconButton(
-                                onClick = {
-                                    check_bo = false
-                                    viewModel.cancelPieceSelection()
-                                }
-                                //enabled = hasChoiceOfPiece
-                            ) {
-                                Icon(
-                                    painterResource(bo_check),
-                                    contentDescription = "Select Bo",
-                                    tint = Color.Unspecified
-                                )
-                            }
-                        }
-                        else {
-                            IconButton(
-                                onClick = {
-                                    check_po = false
-                                    check_bo = true
-                                    viewModel.selectBo()
-                                }
-                                //enabled = hasChoiceOfPiece
-                            ) {
-                                Icon(
-                                    painterResource(bo),
-                                    contentDescription = "Select Bo",
-                                    tint = Color.Unspecified
-                                )
-                            }
-                        }
+                        RadioButtonPoBo(player, viewModel)
                     }
                 }
-
             }
         }
         Configuration.ORIENTATION_LANDSCAPE -> {
             Row(Modifier.fillMaxHeight()) {
-                Column(Modifier.fillMaxHeight().width(IntrinsicSize.Min)) {
+                Column(
+                    Modifier
+                        .fillMaxHeight()
+                        .width(IntrinsicSize.Min)
+                ) {
                     PiecesStocksView(
                         pool = board.getPlayerPool(PieceColor.Blue),
                         Modifier.fillMaxWidth()
@@ -270,6 +192,12 @@ fun MainView(
                             .padding(horizontal = 2.dp)
                             .align(Alignment.CenterHorizontally)
                     )
+                    val hasChoiceOfPiece = viewModel.twoTypesInPool()
+                    if (hasChoiceOfPiece) {
+                        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                            RadioButtonPoBo(player, viewModel)
+                        }
+                    }
                 }
                 BoardView(
                     board = board,
@@ -278,7 +206,11 @@ fun MainView(
                     promotionable = promotionable,
                     selected = selected
                 )
-                Column(Modifier.fillMaxHeight().width(IntrinsicSize.Min)) {
+                Column(
+                    Modifier
+                        .fillMaxHeight()
+                        .width(IntrinsicSize.Min)
+                ) {
                     PiecesStocksView(
                         pool = board.getPlayerPool(PieceColor.Blue),
                         Modifier.fillMaxWidth()
@@ -319,6 +251,26 @@ fun MainView(
                             .padding(horizontal = 2.dp)
                             .align(Alignment.CenterHorizontally)
                     )
+                    val hasChoiceOfPiece = viewModel.twoTypesInPool()
+                    if (hasChoiceOfPiece) {
+                        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                            RadioButtonPoBo(player, viewModel)
+                        }
+                    } else {
+//                        val gameState by viewModel.gameState.collectAsState()
+//                        val completeSelectionForRemoval =
+//                            gameState == GameState.SELECTGRADUATION
+//                                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
+//                                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
+//                        Button(
+//                            onClick = { viewModel.validateGraduationSelection() },
+//                            enabled = completeSelectionForRemoval
+//                        ) {
+//                            Text(
+//                                text = "Validate"
+//                            )
+//                        }
+                    }
                 }
             }
         }
@@ -463,6 +415,78 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                     )
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun RadioButtonPoBo(player: PieceColor, viewModel: GameViewModel) {
+    MaterialTheme {
+        val icon_po = when (player) {
+            PieceColor.Blue -> R.drawable.blue_po
+            PieceColor.Red -> R.drawable.red_po
+        }
+        val icon_bo = when (player) {
+            PieceColor.Blue -> R.drawable.blue_bo
+            PieceColor.Red -> R.drawable.red_bo
+        }
+
+        val selectedValue by viewModel.selectedValue.collectAsState()
+        val items = listOf("Po", "Bo")
+        Row(Modifier.padding(8.dp)) {
+            items.forEach { item ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .selectable(
+                            selected = (selectedValue == item),
+                            onClick = {
+                                //selectedValue.value = item
+                                viewModel.cancelPieceSelection()
+                                when (item) {
+                                    "Po" -> viewModel.selectPo()
+                                    else -> viewModel.selectBo()
+                                }
+                            },
+                            role = Role.RadioButton
+                        )
+                        .padding(8.dp)
+                ) {
+                    IconToggleButton(
+                        checked = selectedValue == item,
+                        onCheckedChange = {
+                            //selectedValue.value = item
+                            viewModel.cancelPieceSelection()
+                            when(item) {
+                                "Po" -> viewModel.selectPo()
+                                else -> viewModel.selectBo()
+                            }
+                        },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(
+                                if (selectedValue == item) {
+                                    R.drawable.ic_baseline_check_circle_24
+                                } else {
+                                    R.drawable.ic_baseline_circle_24
+                                }
+                            ),
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.primary
+                        )
+                    }
+                    Image(
+                        painter = painterResource(
+                            id = when(item) {
+                                "Po" -> icon_po
+                                else -> icon_bo
+                            }
+                        ),
+                        contentDescription = ""
+                    )
+                }
+            }
         }
     }
 }

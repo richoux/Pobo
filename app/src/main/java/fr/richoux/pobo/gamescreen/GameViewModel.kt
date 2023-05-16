@@ -1,5 +1,9 @@
 package fr.richoux.pobo.gamescreen
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +50,8 @@ class GameViewModel : ViewModel() {
 
     var displayGameState: String  = _game.displayGameState
     var hasStarted: Boolean = false
+
+    var selectedValue = MutableStateFlow<String>("")
 
     fun reset() {
         _promotionListIndex = mutableListOf()
@@ -125,11 +131,13 @@ class GameViewModel : ViewModel() {
     }
 
     fun selectPo() {
+        selectedValue.tryEmit("Po")
         pieceTypeToPlay = PieceType.Po
         goToNextState()
     }
 
     fun selectBo() {
+        selectedValue.tryEmit("Bo")
         pieceTypeToPlay = PieceType.Bo
         goToNextState()
     }
@@ -153,6 +161,7 @@ class GameViewModel : ViewModel() {
         _history.add(History(currentBoard, currentPlayer))
         var newBoard = currentBoard.playAt(move)
         newBoard = _game.doPush(newBoard, move)
+        selectedValue.tryEmit("")
 
         _game.checkVictory(newBoard)
         _game.board = newBoard
