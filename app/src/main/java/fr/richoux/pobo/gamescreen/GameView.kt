@@ -1,6 +1,7 @@
 package fr.richoux.pobo.gamescreen
 
 import android.content.res.Configuration
+import android.graphics.Paint.Align
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
@@ -57,7 +58,10 @@ fun MainView(
     when (configuration.orientation) {
         Configuration.ORIENTATION_PORTRAIT -> {
             landscapeMode = false
-            Column(Modifier.fillMaxHeight()) {
+            Column(
+                Modifier.fillMaxHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 BoardView(
                     board = board,
                     lastMove = lastMove,
@@ -73,14 +77,20 @@ fun MainView(
             landscapeMode = true
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+//                horizontalArrangement = Arrangement.
             ) {
 
-                Column(Modifier.fillMaxHeight()) {
+                Column(
+                    Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     columnAllMode(viewModel, displayGameState, landscapeMode)
                 }
 
                 BoardView(
+                    modifier = Modifier.fillMaxHeight().weight(1f),
                     board = board,
                     lastMove = lastMove,
                     onTap = onTap,
@@ -88,7 +98,12 @@ fun MainView(
                     selected = selected
                 )
 
-                Column(Modifier.fillMaxHeight()) {
+                Column(
+                    Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     columnAllMode(viewModel, displayGameState, landscapeMode)
                 }
             }
