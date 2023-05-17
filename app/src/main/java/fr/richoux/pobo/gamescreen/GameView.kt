@@ -28,15 +28,17 @@ private const val TAG = "pobotag GameView"
 
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
+    val canGoBack by viewModel.canGoBack.collectAsState()
+    val canGoForward by viewModel.canGoForward.collectAsState()
     IconButton(
         onClick = { viewModel.goBackMove() },
-        enabled = viewModel.canGoBack
+        enabled = canGoBack
     ) {
         Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
     }
     IconButton(
         onClick = { viewModel.goForwardMove() },
-        enabled = viewModel.canGoForward
+        enabled = canGoForward
     ) {
         Icon(Icons.Filled.ArrowForward, contentDescription = "Redo Move")
     }

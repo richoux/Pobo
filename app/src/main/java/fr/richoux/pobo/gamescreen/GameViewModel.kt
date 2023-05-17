@@ -45,8 +45,8 @@ class GameViewModel : ViewModel() {
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
     var gameState = _gameState.asStateFlow()
 
-    var canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-    var canGoForward = _forwardHistory.isNotEmpty()
+    var canGoBack = MutableStateFlow<Boolean>(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+    var canGoForward = MutableStateFlow<Boolean>(_forwardHistory.isNotEmpty())
 
     var displayGameState: String  = _game.displayGameState
     var hasStarted: Boolean = false
@@ -59,8 +59,8 @@ class GameViewModel : ViewModel() {
         _piecesToPromoteIndex = hashMapOf()
         piecesToPromote = mutableListOf()
         displayGameState  = _game.displayGameState
-        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-        canGoForward = _forwardHistory.isNotEmpty()
+        canGoBack.tryEmit(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+        canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         pieceTypeToPlay = null
     }
 
@@ -124,8 +124,8 @@ class GameViewModel : ViewModel() {
         val newState = _game.nextGameState()
         hasStarted = true
         _game.gameState = newState
-        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-        canGoForward = _forwardHistory.isNotEmpty()
+        canGoBack.tryEmit(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+        canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         displayGameState  = _game.displayGameState
         _gameState.tryEmit(newState)
     }
