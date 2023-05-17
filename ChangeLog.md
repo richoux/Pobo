@@ -1,15 +1,19 @@
 # ChangeLog
 
-## [0.1.2] - 2023-06-09
+## [0.1.3] - 2023-05-17
+- New interface: piece selection, promotion validation, etc.
+- Fix bugs.
+
+## [0.1.2] - 2023-05-09
 - Landscape mode
 - Fix a bug where undo during a promotion selection let the app stuck into that selection state.
 
-## [0.1.1] - 2023-06-08
+## [0.1.1] - 2023-05-08
 - New app icon
 - Fix bugs when selecting piece for promotion
 - Promotion selection marker
 
-## [0.1.0] - 2023-06-06
+## [0.1.0] - 2023-05-06
 - Starting this changelog
 - Working version (mostly), with small bugs
 - Propose a new game at the end
