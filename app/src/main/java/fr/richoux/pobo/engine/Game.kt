@@ -50,7 +50,7 @@ data class Game(
             return when (gameState) {
                 GameState.INIT -> ""
                 GameState.PLAY -> ""
-                GameState.SELECTPIECE -> "Select a small or a large piece"
+                GameState.SELECTPIECE -> "Select a small or a large piece:"
                 GameState.SELECTPOSITION -> ""
                 GameState.CHECKGRADUATION -> ""
                 GameState.AUTOGRADUATION -> ""

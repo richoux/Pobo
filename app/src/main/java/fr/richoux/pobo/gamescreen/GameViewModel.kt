@@ -1,5 +1,9 @@
 package fr.richoux.pobo.gamescreen
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,11 +45,13 @@ class GameViewModel : ViewModel() {
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
     var gameState = _gameState.asStateFlow()
 
-    var canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-    var canGoForward = _forwardHistory.isNotEmpty()
+    var canGoBack = MutableStateFlow<Boolean>(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+    var canGoForward = MutableStateFlow<Boolean>(_forwardHistory.isNotEmpty())
 
     var displayGameState: String  = _game.displayGameState
     var hasStarted: Boolean = false
+
+    var selectedValue = MutableStateFlow<String>("")
 
     fun reset() {
         _promotionListIndex = mutableListOf()
@@ -53,8 +59,8 @@ class GameViewModel : ViewModel() {
         _piecesToPromoteIndex = hashMapOf()
         piecesToPromote = mutableListOf()
         displayGameState  = _game.displayGameState
-        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-        canGoForward = _forwardHistory.isNotEmpty()
+        canGoBack.tryEmit(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+        canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         pieceTypeToPlay = null
     }
 
@@ -118,18 +124,20 @@ class GameViewModel : ViewModel() {
         val newState = _game.nextGameState()
         hasStarted = true
         _game.gameState = newState
-        canGoBack = if (aiEnabled) _history.size > 1 else _history.isNotEmpty()
-        canGoForward = _forwardHistory.isNotEmpty()
+        canGoBack.tryEmit(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+        canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         displayGameState  = _game.displayGameState
         _gameState.tryEmit(newState)
     }
 
     fun selectPo() {
+        selectedValue.tryEmit("Po")
         pieceTypeToPlay = PieceType.Po
         goToNextState()
     }
 
     fun selectBo() {
+        selectedValue.tryEmit("Bo")
         pieceTypeToPlay = PieceType.Bo
         goToNextState()
     }
@@ -153,6 +161,7 @@ class GameViewModel : ViewModel() {
         _history.add(History(currentBoard, currentPlayer))
         var newBoard = currentBoard.playAt(move)
         newBoard = _game.doPush(newBoard, move)
+        selectedValue.tryEmit("")
 
         _game.checkVictory(newBoard)
         _game.board = newBoard
