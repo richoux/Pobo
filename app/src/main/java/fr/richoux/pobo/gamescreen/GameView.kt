@@ -177,7 +177,7 @@ fun columnAllMode(viewModel: GameViewModel = viewModel(), displayGameState: Stri
                 enabled = completeSelectionForRemoval
             ) {
                 Text(
-                    text = "Validate",
+                    text = "Promotion",
                     style = MaterialTheme.typography.body1
                 )
             }
