@@ -27,38 +27,6 @@ private const val TAG = "pobotag GameView"
 
 @Composable
 fun GameActions(viewModel: GameViewModel = viewModel()) {
-    val gameState by viewModel.gameState.collectAsState()
-//    val hasChoiceOfPiece = gameState == GameState.SELECTPIECE && viewModel.twoTypesInPool()
-//    IconButton(
-//        onClick = { viewModel.selectPo() },
-//        enabled = hasChoiceOfPiece
-//    ) {
-//        Icon(Icons.Filled.Face, contentDescription = "Select Po")
-//    }
-//    IconButton(
-//        onClick = { viewModel.selectBo() },
-//        enabled = hasChoiceOfPiece
-//    ) {
-//        Icon(Icons.Filled.Person, contentDescription = "Select Bo")
-//    }
-
-    val completeSelectionForRemoval =
-        gameState == GameState.SELECTGRADUATION
-                && ( ( (viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
-                       || ( (viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1) )
-    IconButton(
-        onClick = { viewModel.validateGraduationSelection() },
-        enabled = completeSelectionForRemoval
-    ) {
-        Icon(Icons.Filled.Done, contentDescription = "OK")
-    }
-//    IconButton(
-//        onClick = { viewModel.cancelPieceSelection() },
-//        enabled = gameState == GameState.SELECTPOSITION && viewModel.twoTypesInPool()
-//    ) {
-//        Icon(Icons.Filled.Clear, contentDescription = "Return to piece selection")
-//    }
-    Spacer(modifier = Modifier.width(48.dp))
     IconButton(
         onClick = { viewModel.goBackMove() },
         enabled = viewModel.canGoBack
@@ -142,6 +110,24 @@ fun MainView(
                     Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                         RadioButtonPoBo(player, viewModel)
                     }
+                } else {
+                    val gameState by viewModel.gameState.collectAsState()
+                    val completeSelectionForRemoval =
+                        gameState == GameState.SELECTGRADUATION
+                                && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
+                                || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
+                    if(gameState == GameState.SELECTGRADUATION) {
+                        Button(
+                            onClick = { viewModel.validateGraduationSelection() },
+                            enabled = completeSelectionForRemoval,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            Text(
+                                text = "Validate",
+                                style = MaterialTheme.typography.body1
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -196,6 +182,21 @@ fun MainView(
                     if (hasChoiceOfPiece) {
                         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
                             RadioButtonPoBo(player, viewModel)
+                        }
+                    } else {
+                        val gameState by viewModel.gameState.collectAsState()
+                        val completeSelectionForRemoval =
+                            gameState == GameState.SELECTGRADUATION
+                                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
+                                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
+                        Button(
+                            onClick = { viewModel.validateGraduationSelection() },
+                            enabled = completeSelectionForRemoval
+                        ) {
+                            Text(
+                                text = "Validate",
+                                style = MaterialTheme.typography.body1
+                            )
                         }
                     }
                 }
@@ -257,19 +258,20 @@ fun MainView(
                             RadioButtonPoBo(player, viewModel)
                         }
                     } else {
-//                        val gameState by viewModel.gameState.collectAsState()
-//                        val completeSelectionForRemoval =
-//                            gameState == GameState.SELECTGRADUATION
-//                                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
-//                                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
-//                        Button(
-//                            onClick = { viewModel.validateGraduationSelection() },
-//                            enabled = completeSelectionForRemoval
-//                        ) {
-//                            Text(
-//                                text = "Validate"
-//                            )
-//                        }
+                        val gameState by viewModel.gameState.collectAsState()
+                        val completeSelectionForRemoval =
+                            gameState == GameState.SELECTGRADUATION
+                                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
+                                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
+                        Button(
+                            onClick = { viewModel.validateGraduationSelection() },
+                            enabled = completeSelectionForRemoval
+                        ) {
+                            Text(
+                                text = "Validate",
+                                style = MaterialTheme.typography.body1
+                            )
+                        }
                     }
                 }
             }
@@ -360,14 +362,6 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.goToNextState()
         }
         GameState.END -> {
-//            Dialog(
-//                onDismissRequest = {},
-//            ) {
-//                (LocalView.current.parent as DialogWindowProvider)?.window?.setDimAmount(0f)
-//                Text(
-//                    text = "$player wins!"
-//                )
-//            }
             val style = TextStyle(
                 color = if(player == PieceColor.Blue) Color.Blue else Color.Red,
                 fontSize = MaterialTheme.typography.body1.fontSize,
