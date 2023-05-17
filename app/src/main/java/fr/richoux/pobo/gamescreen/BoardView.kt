@@ -116,6 +116,23 @@ fun PieceView(piece: Piece, modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun PieceNumberView(piece: Piece, number: Int, modifier: Modifier = Modifier) {
+    Row()
+    {
+        Image(
+            painter = painterResource(id = piece.imageResource()),
+            modifier = modifier.padding(4.dp),
+            contentDescription = piece.id
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = number.toString(),
+            style = MaterialTheme.typography.h4
+        )
+    }
+}
+
+@Composable
 private fun BoardLayout(
     modifier: Modifier = Modifier,
     pieces: List<Pair<Position, Piece>>

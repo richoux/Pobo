@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 private const val TAG = "pobotag GameView"
 
@@ -66,11 +67,13 @@ fun MainView(
                 Spacer(modifier = Modifier.height(8.dp))
                 PiecesStocksView(
                     pool = board.getPlayerPool(PieceColor.Blue),
+                    PieceColor.Blue,
                     Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 PiecesStocksView(
                     pool = board.getPlayerPool(PieceColor.Red),
+                    PieceColor.Red,
                     Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(32.dp))
@@ -140,11 +143,13 @@ fun MainView(
                 ) {
                     PiecesStocksView(
                         pool = board.getPlayerPool(PieceColor.Blue),
+                        PieceColor.Blue,
                         Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     PiecesStocksView(
                         pool = board.getPlayerPool(PieceColor.Red),
+                        PieceColor.Red,
                         Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(32.dp))
@@ -214,11 +219,13 @@ fun MainView(
                 ) {
                     PiecesStocksView(
                         pool = board.getPlayerPool(PieceColor.Blue),
+                        PieceColor.Blue,
                         Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     PiecesStocksView(
                         pool = board.getPlayerPool(PieceColor.Red),
+                        PieceColor.Red,
                         Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(32.dp))
@@ -415,7 +422,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 
 @Composable
 fun RadioButtonPoBo(player: PieceColor, viewModel: GameViewModel) {
-    MaterialTheme {
+//    MaterialTheme {
         val icon_po = when (player) {
             PieceColor.Blue -> R.drawable.blue_po
             PieceColor.Red -> R.drawable.red_po
@@ -427,7 +434,12 @@ fun RadioButtonPoBo(player: PieceColor, viewModel: GameViewModel) {
 
         val selectedValue by viewModel.selectedValue.collectAsState()
         val items = listOf("Po", "Bo")
-        Row(Modifier.padding(8.dp)) {
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             items.forEach { item ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -482,5 +494,5 @@ fun RadioButtonPoBo(player: PieceColor, viewModel: GameViewModel) {
                 }
             }
         }
-    }
+//    }
 }
