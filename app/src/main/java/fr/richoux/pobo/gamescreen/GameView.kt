@@ -2,8 +2,6 @@ package fr.richoux.pobo.gamescreen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
@@ -22,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 private const val TAG = "pobotag GameView"
 
@@ -56,8 +53,10 @@ fun MainView(
     val promotionable = viewModel.getFlatPromotionable()
     val selected = viewModel.piecesToPromote.toList()
     val configuration = LocalConfiguration.current
+    var landscapeMode: Boolean
     when (configuration.orientation) {
         Configuration.ORIENTATION_PORTRAIT -> {
+            landscapeMode = false
             Column(Modifier.fillMaxHeight()) {
                 BoardView(
                     board = board,
@@ -67,146 +66,20 @@ fun MainView(
                     selected = selected
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                PiecesStocksView(
-                    pool = board.getPlayerPool(PieceColor.Blue),
-                    PieceColor.Blue,
-                    Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                PiecesStocksView(
-                    pool = board.getPlayerPool(PieceColor.Red),
-                    PieceColor.Red,
-                    Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                Row(
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                ) {
-                    Text(
-                        text = "Player's turn: ",
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier
-                            .padding(horizontal = 2.dp)
-                    )
-                    val style = TextStyle(
-                        color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
-                        fontSize = MaterialTheme.typography.body1.fontSize,
-                        fontWeight = FontWeight.Bold,
-                        fontStyle = MaterialTheme.typography.body1.fontStyle
-                    )
-                    Text(
-                        text = player.toString(),
-                        style = style,
-                        modifier = Modifier
-                            .padding(horizontal = 2.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = displayGameState,
-                    style = MaterialTheme.typography.body1,
-                    modifier = Modifier
-                        .padding(horizontal = 2.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                val hasChoiceOfPiece = viewModel.twoTypesInPool()
-                if (hasChoiceOfPiece) {
-                    Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                        RadioButtonPoBo(player, viewModel)
-                    }
-                } else {
-                    val gameState by viewModel.gameState.collectAsState()
-                    val completeSelectionForRemoval =
-                        gameState == GameState.SELECTGRADUATION
-                                && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
-                                || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
-                    if(gameState == GameState.SELECTGRADUATION) {
-                        Button(
-                            onClick = { viewModel.validateGraduationSelection() },
-                            enabled = completeSelectionForRemoval,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        ) {
-                            Text(
-                                text = "Validate",
-                                style = MaterialTheme.typography.body1
-                            )
-                        }
-                    }
-                }
+                columnAllMode(viewModel, displayGameState, landscapeMode)
             }
         }
         Configuration.ORIENTATION_LANDSCAPE -> {
-            Row(Modifier.fillMaxHeight()) {
-                Column(
-                    Modifier
-                        .fillMaxHeight()
-                        .width(IntrinsicSize.Min)
-                ) {
-                    PiecesStocksView(
-                        pool = board.getPlayerPool(PieceColor.Blue),
-                        PieceColor.Blue,
-                        Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    PiecesStocksView(
-                        pool = board.getPlayerPool(PieceColor.Red),
-                        PieceColor.Red,
-                        Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(
-                            text = "Player's turn: ",
-                            style = MaterialTheme.typography.body1,
-                            modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                        )
-                        val style = TextStyle(
-                            color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
-                            fontSize = MaterialTheme.typography.body1.fontSize,
-                            fontWeight = FontWeight.Bold,
-                            fontStyle = MaterialTheme.typography.body1.fontStyle
-                        )
-                        Text(
-                            text = player.toString(),
-                            style = style,
-                            modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = displayGameState,
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier
-                            .padding(horizontal = 2.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
-                    val hasChoiceOfPiece = viewModel.twoTypesInPool()
-                    if (hasChoiceOfPiece) {
-                        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                            RadioButtonPoBo(player, viewModel)
-                        }
-                    } else {
-                        val gameState by viewModel.gameState.collectAsState()
-                        val completeSelectionForRemoval =
-                            gameState == GameState.SELECTGRADUATION
-                                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
-                                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
-                        Button(
-                            onClick = { viewModel.validateGraduationSelection() },
-                            enabled = completeSelectionForRemoval
-                        ) {
-                            Text(
-                                text = "Validate",
-                                style = MaterialTheme.typography.body1
-                            )
-                        }
-                    }
+            landscapeMode = true
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+
+                Column(Modifier.fillMaxHeight()) {
+                    columnAllMode(viewModel, displayGameState, landscapeMode)
                 }
+
                 BoardView(
                     board = board,
                     lastMove = lastMove,
@@ -214,75 +87,84 @@ fun MainView(
                     promotionable = promotionable,
                     selected = selected
                 )
-                Column(
-                    Modifier
-                        .fillMaxHeight()
-                        .width(IntrinsicSize.Min)
-                ) {
-                    PiecesStocksView(
-                        pool = board.getPlayerPool(PieceColor.Blue),
-                        PieceColor.Blue,
-                        Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    PiecesStocksView(
-                        pool = board.getPlayerPool(PieceColor.Red),
-                        PieceColor.Red,
-                        Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        Text(
-                            text = "Player's turn: ",
-                            style = MaterialTheme.typography.body1,
-                            modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                        )
-                        val style = TextStyle(
-                            color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
-                            fontSize = MaterialTheme.typography.body1.fontSize,
-                            fontWeight = FontWeight.Bold,
-                            fontStyle = MaterialTheme.typography.body1.fontStyle
-                        )
-                        Text(
-                            text = player.toString(),
-                            style = style,
-                            modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = displayGameState,
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier
-                            .padding(horizontal = 2.dp)
-                            .align(Alignment.CenterHorizontally)
-                    )
-                    val hasChoiceOfPiece = viewModel.twoTypesInPool()
-                    if (hasChoiceOfPiece) {
-                        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                            RadioButtonPoBo(player, viewModel)
-                        }
-                    } else {
-                        val gameState by viewModel.gameState.collectAsState()
-                        val completeSelectionForRemoval =
-                            gameState == GameState.SELECTGRADUATION
-                                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
-                                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
-                        Button(
-                            onClick = { viewModel.validateGraduationSelection() },
-                            enabled = completeSelectionForRemoval
-                        ) {
-                            Text(
-                                text = "Validate",
-                                style = MaterialTheme.typography.body1
-                            )
-                        }
-                    }
+
+                Column(Modifier.fillMaxHeight()) {
+                    columnAllMode(viewModel, displayGameState, landscapeMode)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun columnAllMode(viewModel: GameViewModel = viewModel(), displayGameState: String, landscapeMode: Boolean) {
+    val board = viewModel.currentBoard
+    val player = viewModel.currentPlayer
+    val modifier = if(landscapeMode) Modifier else Modifier.fillMaxWidth()
+    PiecesStocksView(
+        pool = board.getPlayerPool(PieceColor.Blue),
+        color = PieceColor.Blue,
+        modifier = modifier
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    PiecesStocksView(
+        pool = board.getPlayerPool(PieceColor.Red),
+        color = PieceColor.Red,
+        modifier = modifier
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+    Row(
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Player's turn: ",
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier
+                .padding(horizontal = 2.dp)
+        )
+        val style = TextStyle(
+            color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
+            fontSize = MaterialTheme.typography.body1.fontSize,
+            fontWeight = FontWeight.Bold,
+            fontStyle = MaterialTheme.typography.body1.fontStyle
+        )
+        Text(
+            text = player.toString(),
+            style = style,
+            modifier = Modifier
+                .padding(horizontal = 2.dp)
+        )
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    Text(
+        text = displayGameState,
+        style = MaterialTheme.typography.body1,
+        modifier = Modifier
+            .padding(horizontal = 2.dp)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    val hasChoiceOfPiece = viewModel.twoTypesInPool()
+    if (hasChoiceOfPiece) {
+        Row(
+            horizontalArrangement = Arrangement.Center
+        ) {
+            RadioButtonPoBo(player, viewModel)
+        }
+    } else {
+        val gameState by viewModel.gameState.collectAsState()
+        val completeSelectionForRemoval =
+            gameState == GameState.SELECTGRADUATION
+                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
+                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
+        if(gameState == GameState.SELECTGRADUATION) {
+            Button(
+                onClick = { viewModel.validateGraduationSelection() },
+                enabled = completeSelectionForRemoval
+            ) {
+                Text(
+                    text = "Validate",
+                    style = MaterialTheme.typography.body1
+                )
             }
         }
     }
