@@ -182,7 +182,7 @@ data class Board(
 
     fun hasTwoTypesInPool(color: PieceColor): Boolean {
         val pool = getPlayerPool(color)
-        return pool.first().type != pool.last().type
+        return !pool.isEmpty() && pool.first().type != pool.last().type
     }
 
     fun removeFromPool(piece: Piece): List<Piece>{
