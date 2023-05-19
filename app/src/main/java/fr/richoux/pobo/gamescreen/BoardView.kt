@@ -8,12 +8,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -34,11 +35,28 @@ fun BoardView(
     selected: List<Position>,
     landscapeMode: Boolean = false
 ){
+    // Get local density from composable
+    val localDensity = LocalDensity.current
+
+//    // Create element height in pixel state
+//    var columnHeightPx by remember {
+//        mutableStateOf(0f)
+//    }
+
+    // Create element height in dp state
+    var columnHeightDp by remember { mutableStateOf(0.dp) }
+
     var modifier = modifier.aspectRatio(1.0f)
     if(landscapeMode)
         modifier = modifier.fillMaxHeight()
     else
         modifier = modifier.fillMaxWidth()
+
+    modifier = modifier.onGloballyPositioned { coordinates ->
+        // Set column height using the LayoutCoordinates
+//        columnHeightPx = coordinates.size.height.toFloat()
+        columnHeightDp = with(localDensity) { coordinates.size.height.toDp() }
+    }
 
     Box(modifier) {
         BoardBackground(lastMove, onTap, promotionable, selected)

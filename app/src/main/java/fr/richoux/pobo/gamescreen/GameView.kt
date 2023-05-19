@@ -90,7 +90,7 @@ fun MainView(
                 }
 
                 BoardView(
-                    modifier = Modifier.fillMaxHeight().weight(1f),
+                    modifier = Modifier.fillMaxHeight(),
                     board = board,
                     lastMove = lastMove,
                     onTap = onTap,
@@ -321,77 +321,74 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 
 @Composable
 fun RadioButtonPoBo(player: PieceColor, viewModel: GameViewModel) {
-//    MaterialTheme {
-        val icon_po = when (player) {
-            PieceColor.Blue -> R.drawable.blue_po
-            PieceColor.Red -> R.drawable.red_po
-        }
-        val icon_bo = when (player) {
-            PieceColor.Blue -> R.drawable.blue_bo
-            PieceColor.Red -> R.drawable.red_bo
-        }
+    val icon_po = when (player) {
+        PieceColor.Blue -> R.drawable.blue_po
+        PieceColor.Red -> R.drawable.red_po
+    }
+    val icon_bo = when (player) {
+        PieceColor.Blue -> R.drawable.blue_bo
+        PieceColor.Red -> R.drawable.red_bo
+    }
 
-        val selectedValue by viewModel.selectedValue.collectAsState()
-        val items = listOf("Po", "Bo")
-        Row(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            items.forEach { item ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .selectable(
-                            selected = (selectedValue == item),
-                            onClick = {
-                                //selectedValue.value = item
-                                viewModel.cancelPieceSelection()
-                                when (item) {
-                                    "Po" -> viewModel.selectPo()
-                                    else -> viewModel.selectBo()
-                                }
-                            },
-                            role = Role.RadioButton
-                        )
-                        .padding(8.dp)
-                ) {
-                    IconToggleButton(
-                        checked = selectedValue == item,
-                        onCheckedChange = {
-                            //selectedValue.value = item
+    val selectedValue by viewModel.selectedValue.collectAsState()
+    val items = listOf("Po", "Bo")
+    Row(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        items.forEach { item ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .selectable(
+                        selected = (selectedValue == item),
+                        onClick = {
                             viewModel.cancelPieceSelection()
-                            when(item) {
+                            when (item) {
                                 "Po" -> viewModel.selectPo()
                                 else -> viewModel.selectBo()
                             }
                         },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(
-                                if (selectedValue == item) {
-                                    R.drawable.ic_baseline_check_circle_24
-                                } else {
-                                    R.drawable.ic_baseline_circle_24
-                                }
-                            ),
-                            contentDescription = null,
-                            tint = MaterialTheme.colors.primary
-                        )
-                    }
-                    Image(
+                        role = Role.RadioButton
+                    )
+                    .padding(8.dp)
+            ) {
+                IconToggleButton(
+                    checked = selectedValue == item,
+                    onCheckedChange = {
+                        viewModel.cancelPieceSelection()
+                        when (item) {
+                            "Po" -> viewModel.selectPo()
+                            else -> viewModel.selectBo()
+                        }
+                    },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
                         painter = painterResource(
-                            id = when(item) {
-                                "Po" -> icon_po
-                                else -> icon_bo
+                            if (selectedValue == item) {
+                                R.drawable.ic_baseline_check_circle_24
+                            } else {
+                                R.drawable.ic_baseline_circle_24
                             }
                         ),
-                        contentDescription = ""
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.primary
                     )
                 }
+                Image(
+                    painter = painterResource(
+                        id = when (item) {
+                            "Po" -> icon_po
+                            else -> icon_bo
+                        }
+                    ),
+                    contentDescription = "",
+                    modifier = Modifier.size(92.dp)
+                )
             }
         }
-//    }
+    }
 }
