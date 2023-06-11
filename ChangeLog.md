@@ -1,5 +1,8 @@
 # ChangeLog
 
+## [0.2.0] - 2023-06-11
+- MCTS-based AI (bad, but working)
+
 ## [0.1.3] - 2023-05-17
 - New interface: piece selection, promotion validation, etc.
 - Fix bugs.

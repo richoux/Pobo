@@ -9,7 +9,7 @@ data class Move(val piece: Piece, val to: Position) {
         return "$piece at $to"
     }
 }
-data class History(val board: Board, val player: PieceColor) {}
+data class History(val board: Board, val player: PieceColor, val moveNumber: Int) {}
 
 enum class GameState {
     INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
@@ -44,6 +44,7 @@ data class Game(
     var currentPlayer: PieceColor = PieceColor.Blue,
     var victory: Boolean = false,
     val isPlayout: Boolean = false, // true if the game is a simulation for decision-making
+    var moveNumber: Int = 0
 ) {
     val displayGameState: String
         get() {
@@ -84,6 +85,17 @@ data class Game(
         return true
     }
 
+    fun copyForPlayout(): Game {
+        return Game(
+            this.board,
+            this.gameState,
+            this.currentPlayer,
+            this.victory,
+            isPlayout = true,
+            this.moveNumber
+        )
+    }
+
     fun doPush(board: Board, move: Move): Board {
         var newBoard = board
         enumValues<Direction>().forEach {
@@ -93,6 +105,7 @@ data class Game(
                 newBoard = newBoard.slideFromTo(victim, target)
             }
         }
+        moveNumber++
         return newBoard
     }
 
@@ -219,6 +232,10 @@ data class Game(
         return graduable.toList()
     }
 
+    fun getGraduations(): List<List<Position>> {
+        return getGraduations( board )
+    }
+
     fun promoteOrRemovePieces(toPromote: List<Position>) {
         var newBoard: Board = board
         for( position in toPromote) {
@@ -227,10 +244,9 @@ data class Game(
         board = newBoard
     }
 
-    fun checkVictory(board: Board): Boolean {
-        // check if current player has 8 Bo on the board
+    fun checkVictoryFor(board: Board, player: PieceColor): Boolean {
         victory = false
-        if(board.isPoolEmpty(currentPlayer) && board.getPlayerNumberBo(currentPlayer) == 8) {
+        if(board.isPoolEmpty(player) && board.getPlayerNumberBo(player) == 8) {
             victory =  true
         }
         else { // check if current player has at least 3 Bo in line
@@ -238,11 +254,11 @@ data class Game(
                 (0 until 6).map { x ->
                     val position = Position(x,y)
                     val piece = board.pieceAt(position)
-                    if(piece?.color == currentPlayer && piece.type == PieceType.Bo ) {
+                    if(piece?.color == player && piece.type == PieceType.Bo ) {
                         scanDirection.forEach {
                             val alignment = getAlignedPositionsInDirection(
                                 board,
-                                currentPlayer,
+                                player,
                                 position,
                                 it
                             )
@@ -258,10 +274,42 @@ data class Game(
         return victory
     }
 
-    fun checkVictory(): Boolean = checkVictory(board)
+//    fun checkVictory(board: Board): Boolean {
+//        // check if current player has 8 Bo on the board
+//        victory = false
+//        if(board.isPoolEmpty(currentPlayer) && board.getPlayerNumberBo(currentPlayer) == 8) {
+//            victory =  true
+//        }
+//        else { // check if current player has at least 3 Bo in line
+//            (0 until 6).map { y ->
+//                (0 until 6).map { x ->
+//                    val position = Position(x,y)
+//                    val piece = board.pieceAt(position)
+//                    if(piece?.color == currentPlayer && piece.type == PieceType.Bo ) {
+//                        scanDirection.forEach {
+//                            val alignment = getAlignedPositionsInDirection(
+//                                board,
+//                                currentPlayer,
+//                                position,
+//                                it
+//                            )
+//                            if(isValidAlignedPositions(alignment) && containsBoOnly(board, alignment)) {
+//                                victory = true
+//                                return true
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return victory
+//    }
+
+    fun checkVictory(): Boolean = checkVictoryFor(board, currentPlayer)
 
     fun changeWithHistory(history: History) {
         board = history.board
+        moveNumber = history.moveNumber
         currentPlayer = history.player
         gameState = GameState.PLAY
         checkVictory()

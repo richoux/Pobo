@@ -1,11 +1,10 @@
 package fr.richoux.pobo.gamescreen
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
+import fr.richoux.pobo.engine.ai.AI
+import fr.richoux.pobo.engine.ai.MCTS
+import fr.richoux.pobo.engine.ai.randomPlay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -19,9 +18,13 @@ class GameViewModel : ViewModel() {
     var state = GameViewModelState.IDLE
         private set
 
-    private val _history: MutableList<History> = mutableListOf<History>()
-    private val _forwardHistory: MutableList<History> = mutableListOf<History>()
+    private val _history: MutableList<History> = mutableListOf()
+    private val _forwardHistory: MutableList<History> = mutableListOf()
+    private val _moveHistory: MutableList<Move> = mutableListOf()
+    private val _forwardMoveHistory: MutableList<Move> = mutableListOf()
     var historyCall = false
+    var moveNumber: Int = 0
+        private set
 
     private val _ai = AI(PieceColor.Red)
     var aiEnabled = true
@@ -67,8 +70,11 @@ class GameViewModel : ViewModel() {
     fun newGame(aiEnabled: Boolean) {
         this.aiEnabled = aiEnabled
 
-        _forwardHistory.clear()
         _history.clear()
+        _forwardHistory.clear()
+        _moveHistory.clear()
+        _forwardMoveHistory.clear()
+        moveNumber = 0
         _game = Game()
         currentBoard = _game.board
         currentPlayer = _game.currentPlayer
@@ -79,12 +85,22 @@ class GameViewModel : ViewModel() {
     }
 
     fun goBackMove() {
-        _forwardHistory.add(History(currentBoard,currentPlayer))
         var last = _history.removeLast()
+        _forwardHistory.add(last)
+        moveNumber = last.moveNumber
+
+        var lastMove = _moveHistory.removeLast()
+        _forwardMoveHistory.add(lastMove)
+
         if (aiEnabled) {
             last = _history.removeLast()
             _forwardHistory.add(last)
+            moveNumber = last.moveNumber
+
+            lastMove = _moveHistory.removeLast()
+            _forwardMoveHistory.add(lastMove)
         }
+
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
@@ -94,12 +110,22 @@ class GameViewModel : ViewModel() {
     }
 
     fun goForwardMove() {
-        _history.add(History(currentBoard,currentPlayer))
         var last = _forwardHistory.removeLast()
+        _history.add(last)
+        moveNumber = last.moveNumber
+
+        var lastMove = _forwardMoveHistory.removeLast()
+        _moveHistory.add(lastMove)
+
         if (aiEnabled) {
             last = _forwardHistory.removeLast()
             _history.add(last)
+            moveNumber = last.moveNumber
+
+            lastMove = _forwardMoveHistory.removeLast()
+            _moveHistory.add(lastMove)
         }
+
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
@@ -146,6 +172,7 @@ class GameViewModel : ViewModel() {
 
     fun playAt(it: Position) {
         _forwardHistory.clear()
+        _forwardMoveHistory.clear()
         historyCall = false
 
         val piece = when(pieceTypeToPlay) {
@@ -158,12 +185,14 @@ class GameViewModel : ViewModel() {
 
         if(!_game.canPlay(move)) return
 
-        _history.add(History(currentBoard, currentPlayer))
+        moveNumber++
+        _history.add(History(currentBoard, currentPlayer, moveNumber))
+        _moveHistory.add(move)
         var newBoard = currentBoard.playAt(move)
         newBoard = _game.doPush(newBoard, move)
         selectedValue.tryEmit("")
 
-        _game.checkVictory(newBoard)
+        _game.checkVictoryFor(newBoard, currentPlayer)
         _game.board = newBoard
         currentBoard = _game.board
         goToNextState()
@@ -313,6 +342,14 @@ class GameViewModel : ViewModel() {
     fun nextTurn() {
         _game.changePlayer()
         currentPlayer = _game.currentPlayer
+
+        // if we play against an AI and it is its turn
+        if(aiEnabled && currentPlayer == PieceColor.Red) {
+            // val move = randomPlay(_game)
+            val move = MCTS( _game, _moveHistory.last(), 1000 )
+            pieceTypeToPlay = move.piece.type
+            playAt( move.to )
+        }
     }
 
     fun twoTypesInPool(): Boolean = currentBoard.hasTwoTypesInPool(currentPlayer)

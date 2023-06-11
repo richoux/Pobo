@@ -156,6 +156,7 @@ data class Board(
             var board = Board()
             history.forEach {
                 board = board.playAt(it)
+                //TODO: doPush
             }
 
             return board
