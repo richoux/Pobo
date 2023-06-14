@@ -7,6 +7,7 @@ import kotlin.math.ln
 
 private const val PLAYOUTS = 1
 private const val TIMEOUT_PLAYOUT = 30 //ms
+private const val PLAYOUT_DEPTH = 30
 private const val TAG = "pobotag MCTS"
 
 data class Node(
@@ -184,13 +185,14 @@ fun playout( node: Node ): Int {
     val start = System.currentTimeMillis()
     var numberBlueBo = 0
     var numberRedBo = 0
+    var numberMoves = 0
 
-    while( System.currentTimeMillis() - start < TIMEOUT_PLAYOUT ) {
+//    while( System.currentTimeMillis() - start < TIMEOUT_PLAYOUT ) {
         for (i in 1..PLAYOUTS) {
             val game = node.game.copyForPlayout()
             var isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
             var isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
-            while (!isBlueVictory && !isRedVictory) {
+            while (!isBlueVictory && !isRedVictory && numberMoves < PLAYOUT_DEPTH ) {
                 val move = randomPlay(game)
                 val board = game.board.playAt(move)
                 game.board = game.doPush(board, move)
@@ -200,6 +202,7 @@ fun playout( node: Node ): Int {
 
                 numberBlueBo = game.board.numberBlueBo
                 numberRedBo = game.board.numberRedBo
+                numberMoves++
                 game.changePlayer()
                 isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
                 isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
@@ -218,7 +221,7 @@ fun playout( node: Node ): Int {
 //        if( (isBlueVictory && myColor == PieceColor.Red) || (isRedVictory && myColor == PieceColor.Blue))
 //            score -= 1
         }
-    }
+//    }
 
     if( (myColor == PieceColor.Blue && numberBlueBo > numberRedBo )
         || (myColor == PieceColor.Red && numberBlueBo < numberRedBo) )
