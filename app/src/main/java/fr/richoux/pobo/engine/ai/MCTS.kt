@@ -6,6 +6,7 @@ import java.lang.Math.sqrt
 import kotlin.math.ln
 
 private const val PLAYOUTS = 1
+private const val TIMEOUT_PLAYOUT = 30 //ms
 private const val TAG = "pobotag MCTS"
 
 data class Node(
@@ -112,7 +113,7 @@ fun MCTS( game: Game, lastMove: Move, timeout_in_ms: Long ): Move {
     var mostSelected = 0
     var bestRatio = 0.0
     for( childID in root.childID ) {
-//        Log.d(TAG,"Root child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}")
+        Log.d(TAG,"Root child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}")
         if( nodes[childID].visits > mostSelected ) {
             bestRatio = nodes[childID].score.toDouble() / nodes[childID].visits
             potentialChildrenID.clear()
@@ -132,7 +133,7 @@ fun MCTS( game: Game, lastMove: Move, timeout_in_ms: Long ): Move {
     }
 
     val bestChildID = potentialChildrenID.random()
-//    Log.d(TAG,"Best child ID: ${bestChildID}, visits=${mostSelected}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
+    Log.d(TAG,"Best child ID: ${bestChildID}, visits=${mostSelected}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
     return nodes[bestChildID].move
 }
 
@@ -179,39 +180,52 @@ fun UCTValue( node: Node, parentVisits: Int ): Double {
 
 fun playout( node: Node ): Int {
     val myColor = node.game.currentPlayer
-    var score = 0
+//    var score = 0
+    val start = System.currentTimeMillis()
+    var numberBlueBo = 0
+    var numberRedBo = 0
 
-    for( i in 1..PLAYOUTS ) {
-        val game = node.game.copyForPlayout()
-        var isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
-        var isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
-        while( !isBlueVictory && !isRedVictory ) {
-            val move = randomPlay(game)
-            val board = game.board.playAt(move)
-            game.board = game.doPush(board, move)
-            // check if we need to graduate a piece
-            if( game.getGraduations().isNotEmpty() )
-                game.promoteOrRemovePieces( randomGraduation(game) )
+    while( System.currentTimeMillis() - start < TIMEOUT_PLAYOUT ) {
+        for (i in 1..PLAYOUTS) {
+            val game = node.game.copyForPlayout()
+            var isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
+            var isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
+            while (!isBlueVictory && !isRedVictory) {
+                val move = randomPlay(game)
+                val board = game.board.playAt(move)
+                game.board = game.doPush(board, move)
+                // check if we need to graduate a piece
+                if (game.getGraduations().isNotEmpty())
+                    game.promoteOrRemovePieces(randomGraduation(game))
 
-            game.changePlayer()
-            isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
-            isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
-        }
+                numberBlueBo = game.board.numberBlueBo
+                numberRedBo = game.board.numberRedBo
+                game.changePlayer()
+                isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
+                isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
+            }
 //        if(isBlueVictory) {
 //            Log.d(TAG,"Blue wins in playout")
 //        }
 //        if(isRedVictory) {
 //            Log.d(TAG,"Red wins in playout")
 //        }
-        if( (isBlueVictory && myColor == PieceColor.Blue) || (isRedVictory && myColor == PieceColor.Red)) {
-            score += 1
+            if ((isBlueVictory && myColor == PieceColor.Blue) || (isRedVictory && myColor == PieceColor.Red)) {
+//                score += 1
+                return 1 // incompatible with PLAYOUTS > 1
 //            Log.d(TAG,"My color ${myColor} wins!")
-        }
+            }
 //        if( (isBlueVictory && myColor == PieceColor.Red) || (isRedVictory && myColor == PieceColor.Blue))
 //            score -= 1
+        }
     }
 
-    return score
+    if( (myColor == PieceColor.Blue && numberBlueBo > numberRedBo )
+        || (myColor == PieceColor.Red && numberBlueBo < numberRedBo) )
+        return 1
+    else
+         return 0
+//    return score
 }
 
 fun backpropagate( nodes: ArrayList<Node>, parentID: Int, score: Int ) {

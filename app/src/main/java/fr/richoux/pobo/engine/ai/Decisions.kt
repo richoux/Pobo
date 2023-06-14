@@ -45,9 +45,10 @@ fun searchForWinningMove( game: Game, movesToRemove: List<Move> ): Move? {
 
 fun randomPlay( game: Game, movesToRemove: List<Move> ): Move {
     // check first if we have a winning move
-    val winningMove = searchForWinningMove( game, movesToRemove )
-    if( winningMove != null )
-        return winningMove
+    // Commented because VERY time-consuming
+//    val winningMove = searchForWinningMove( game, movesToRemove )
+//    if( winningMove != null )
+//        return winningMove
 
     // if not, make a random move
     // draw uniformly a piece to play

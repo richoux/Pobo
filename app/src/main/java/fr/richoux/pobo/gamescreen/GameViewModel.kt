@@ -346,7 +346,7 @@ class GameViewModel : ViewModel() {
         // if we play against an AI and it is its turn
         if(aiEnabled && currentPlayer == PieceColor.Red) {
             // val move = randomPlay(_game)
-            val move = MCTS( _game, _moveHistory.last(), 1000 )
+            val move = MCTS( _game, _moveHistory.last(), 1500 )
             pieceTypeToPlay = move.piece.type
             playAt( move.to )
         }
