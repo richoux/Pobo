@@ -8,6 +8,9 @@ data class Move(val piece: Piece, val to: Position) {
     override fun toString(): String {
         return "$piece at $to"
     }
+    fun isSame(other: Move?): Boolean {
+        return this === other || ( this.piece.isEquivalent( other?.piece ) && this.to.isSame(other?.to) )
+    }
 }
 data class History(val board: Board, val player: PieceColor, val moveNumber: Int) {}
 
