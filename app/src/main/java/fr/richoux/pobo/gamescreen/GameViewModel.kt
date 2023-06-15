@@ -29,6 +29,7 @@ class GameViewModel : ViewModel() {
     private val _ai = AI(PieceColor.Red)
     var aiEnabled = true
         private set
+    private var _mcts = MCTS()
 
     private var _promotionListIndex: MutableList<Int> = mutableListOf()
     private var _promotionListMask: MutableList<Boolean> = mutableListOf()
@@ -69,6 +70,8 @@ class GameViewModel : ViewModel() {
 
     fun newGame(aiEnabled: Boolean) {
         this.aiEnabled = aiEnabled
+        if( aiEnabled )
+            _mcts = MCTS()
 
         _history.clear()
         _forwardHistory.clear()
@@ -346,7 +349,7 @@ class GameViewModel : ViewModel() {
         // if we play against an AI and it is its turn
         if(aiEnabled && currentPlayer == PieceColor.Red) {
             // val move = randomPlay(_game)
-            val move = MCTS( _game, _moveHistory.last(), 1500 )
+            val move = _mcts.run( _game, _moveHistory.last(), 1500 )
             pieceTypeToPlay = move.piece.type
             playAt( move.to )
         }

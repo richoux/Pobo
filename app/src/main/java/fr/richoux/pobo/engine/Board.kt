@@ -89,6 +89,10 @@ data class Piece(val id: String, val type: PieceType, val color: PieceColor) {
         }
     }
 
+    fun isEquivalent(other: Piece?): Boolean {
+        return this === other || ( this.type == other?.type && this.color == other?.color)
+    }
+
     override fun toString(): String {
         return id
     }
