@@ -29,6 +29,12 @@ data class MCTS(
     val nodes: ArrayList<Node> = arrayListOf(),
     var numberNodes: Int = 1
 ) {
+//    companion object {
+//        init {
+//            System.loadLibrary("pobo")
+//        }
+//    }
+
     fun run( game: Game, lastOpponentMove: Move, timeout_in_ms: Long ): Move {
         val start = System.currentTimeMillis()
         currentGame = game.copyForPlayout()
