@@ -12,7 +12,7 @@ data class Move(val piece: Piece, val to: Position) {
         return this === other || ( this.piece.isEquivalent( other?.piece ) && this.to.isSame(other?.to) )
     }
 }
-data class History(val board: Board, val player: PieceColor, val moveNumber: Int) {}
+data class History(val board: Board, val player: Color, val moveNumber: Int) {}
 
 enum class GameState {
     INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
@@ -44,7 +44,7 @@ fun isPositionOnTheBoard(at: Position): Boolean {
 data class Game(
     var board: Board = Board(),
     var gameState: GameState = GameState.INIT,
-    var currentPlayer: PieceColor = PieceColor.Blue,
+    var currentPlayer: Color = Color.Blue,
     var victory: Boolean = false,
     val isPlayout: Boolean = false, // true if the game is a simulation for decision-making
     var moveNumber: Int = 0
@@ -80,7 +80,7 @@ data class Game(
         val myPiece = board.pieceAt(myPosition) ?: return false
 
         // if I am a Bo, and pusher is a Po, I don't move
-        if(myPiece.type > pusher) return false
+        if(myPiece.getType() > pusher) return false
 
         // if the cell in the pushing direction is not empty, I don't move
         if(board.pieceAt( getPositionTowards(myPosition, direction) ) != null) return false
@@ -103,7 +103,7 @@ data class Game(
         var newBoard = board
         enumValues<Direction>().forEach {
             val victim = getPositionTowards(move.to, it)
-            if(canBePushed(newBoard, move.piece.type, victim, it)) {
+            if(canBePushed(newBoard, move.piece.getType(), victim, it)) {
                 val target = getPositionTowards(victim, it)
                 newBoard = newBoard.slideFromTo(victim, target)
             }
@@ -171,21 +171,21 @@ data class Game(
         }
     }
 
-    fun getAlignedPositionsInDirection(board: Board, player: PieceColor, position: Position, direction: Direction): List<Position> {
+    fun getAlignedPositionsInDirection(board: Board, player: Color, position: Position, direction: Direction): List<Position> {
         val alignedPieces: MutableList<Position> = mutableListOf()
 
         val currentPiece = board.pieceAt(position)
-        if(currentPiece?.color == player)
+        if(currentPiece?.getColor() == player)
             alignedPieces.add(position)
 
         val nextPosition = getPositionTowards(position, direction)
         val nextPiece = board.pieceAt(nextPosition)
-        if(nextPiece?.color == player)
+        if(nextPiece?.getColor() == player)
             alignedPieces.add(nextPosition)
 
         val nextNextPosition = getPositionTowards(nextPosition, direction)
         val nextNextPiece = board.pieceAt(getPositionTowards(nextPosition, direction))
-        if(nextNextPiece?.color == player)
+        if(nextNextPiece?.getColor() == player)
             alignedPieces.add(nextNextPosition)
 
         return alignedPieces.toList()
@@ -196,7 +196,7 @@ data class Game(
     fun countBoInAlignment(board: Board, positions: List<Position>): Int {
         var countBo = 0
         positions.forEach {
-            if(board.pieceAt(it)?.type == PieceType.Bo)
+            if(board.pieceAt(it)?.getType() == PieceType.Bo)
                 countBo++
         }
         return countBo
@@ -213,7 +213,7 @@ data class Game(
             (0 until 6).map { x ->
                 val position = Position(x,y)
                 val piece = board.pieceAt(position)
-                if(piece?.color == currentPlayer){
+                if(piece?.getColor() == currentPlayer){
                     // check if we have 8 pieces on the board
                     if(hasAllPiecesOnTheBoard)
                         graduable.add(listOf(position))
@@ -247,7 +247,7 @@ data class Game(
         board = newBoard
     }
 
-    fun checkVictoryFor(board: Board, player: PieceColor): Boolean {
+    fun checkVictoryFor(board: Board, player: Color): Boolean {
         victory = false
         if(board.isPoolEmpty(player) && board.getPlayerNumberBo(player) == 8) {
             victory =  true
@@ -257,7 +257,7 @@ data class Game(
                 (0 until 6).map { x ->
                     val position = Position(x,y)
                     val piece = board.pieceAt(position)
-                    if(piece?.color == player && piece.type == PieceType.Bo ) {
+                    if(piece?.getColor() == player && piece.getType() == PieceType.Bo ) {
                         scanDirection.forEach {
                             val alignment = getAlignedPositionsInDirection(
                                 board,

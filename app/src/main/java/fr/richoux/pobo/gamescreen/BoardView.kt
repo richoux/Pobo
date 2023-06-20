@@ -164,7 +164,8 @@ private fun BoardLayout(
         constraintSet = constraints
     ) {
         pieces.forEach { (_, piece) ->
-            PieceView(piece = piece, modifier = Modifier.layoutId(piece.id))
+            if( piece.id != "" )
+                PieceView(piece = piece, modifier = Modifier.layoutId(piece.id))
         }
     }
 }
