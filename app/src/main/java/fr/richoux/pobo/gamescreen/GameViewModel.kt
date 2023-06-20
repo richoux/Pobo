@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.engine.ai.AI
 import fr.richoux.pobo.engine.ai.MCTS
-import fr.richoux.pobo.engine.ai.randomPlay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -26,7 +25,7 @@ class GameViewModel : ViewModel() {
     var moveNumber: Int = 0
         private set
 
-    private val _ai = AI(PieceColor.Red)
+    private val _ai = AI(Color.Red)
     var aiEnabled = true
         private set
     private var _mcts = MCTS()
@@ -43,7 +42,7 @@ class GameViewModel : ViewModel() {
     private var _game: Game = Game()
     var currentBoard: Board = _game.board
         private set
-    var currentPlayer: PieceColor = _game.currentPlayer
+    var currentPlayer: Color = _game.currentPlayer
         private set
 
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
@@ -181,7 +180,7 @@ class GameViewModel : ViewModel() {
         val piece = when(pieceTypeToPlay) {
             PieceType.Po -> Piece.createPo(currentPlayer)
             PieceType.Bo -> Piece.createBo(currentPlayer)
-            null -> Piece.createFromType(currentPlayer, currentBoard.getPlayerPool(currentPlayer).first().type)
+            null -> Piece.createFromByte(currentPlayer, currentBoard.getPlayerPool(currentPlayer).first() )
         }
         pieceTypeToPlay = null
         val move = Move(piece, it)
@@ -347,10 +346,10 @@ class GameViewModel : ViewModel() {
         currentPlayer = _game.currentPlayer
 
         // if we play against an AI and it is its turn
-        if(aiEnabled && currentPlayer == PieceColor.Red) {
+        if(aiEnabled && currentPlayer == Color.Red) {
             // val move = randomPlay(_game)
             val move = _mcts.run( _game, _moveHistory.last(), 1500 )
-            pieceTypeToPlay = move.piece.type
+            pieceTypeToPlay = move.piece.getType()
             playAt( move.to )
         }
     }

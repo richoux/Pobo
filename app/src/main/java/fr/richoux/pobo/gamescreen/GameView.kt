@@ -1,7 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
 import android.content.res.Configuration
-import android.graphics.Paint.Align
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
@@ -117,14 +116,14 @@ fun columnAllMode(viewModel: GameViewModel = viewModel(), displayGameState: Stri
     val player = viewModel.currentPlayer
     val modifier = if(landscapeMode) Modifier else Modifier.fillMaxWidth()
     PiecesStocksView(
-        pool = board.getPlayerPool(PieceColor.Blue),
-        color = PieceColor.Blue,
+        pool = board.getPlayerPool(fr.richoux.pobo.engine.Color.Blue),
+        color = fr.richoux.pobo.engine.Color.Blue,
         modifier = modifier
     )
     Spacer(modifier = Modifier.height(8.dp))
     PiecesStocksView(
-        pool = board.getPlayerPool(PieceColor.Red),
-        color = PieceColor.Red,
+        pool = board.getPlayerPool(fr.richoux.pobo.engine.Color.Red),
+        color = fr.richoux.pobo.engine.Color.Red,
         modifier = modifier
     )
     Spacer(modifier = Modifier.height(32.dp))
@@ -138,7 +137,7 @@ fun columnAllMode(viewModel: GameViewModel = viewModel(), displayGameState: Stri
                 .padding(horizontal = 2.dp)
         )
         val style = TextStyle(
-            color = if (player == PieceColor.Blue) Color.Blue else Color.Red,
+            color = if (player == fr.richoux.pobo.engine.Color.Blue) Color.Blue else Color.Red,
             fontSize = MaterialTheme.typography.body1.fontSize,
             fontWeight = FontWeight.Bold,
             fontStyle = MaterialTheme.typography.body1.fontStyle
@@ -269,7 +268,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         }
         GameState.END -> {
             val style = TextStyle(
-                color = if(player == PieceColor.Blue) Color.Blue else Color.Red,
+                color = if(player == fr.richoux.pobo.engine.Color.Blue) Color.Blue else Color.Red,
                 fontSize = MaterialTheme.typography.body1.fontSize,
                 fontWeight = FontWeight.Bold,
                 fontStyle = MaterialTheme.typography.body1.fontStyle
@@ -320,14 +319,14 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 }
 
 @Composable
-fun RadioButtonPoBo(player: PieceColor, viewModel: GameViewModel) {
-    val icon_po = when (player) {
-        PieceColor.Blue -> R.drawable.blue_po
-        PieceColor.Red -> R.drawable.red_po
+fun RadioButtonPoBo(player: fr.richoux.pobo.engine.Color, viewModel: GameViewModel) {
+    val iconPo = when (player) {
+        fr.richoux.pobo.engine.Color.Blue -> R.drawable.blue_po
+        fr.richoux.pobo.engine.Color.Red -> R.drawable.red_po
     }
-    val icon_bo = when (player) {
-        PieceColor.Blue -> R.drawable.blue_bo
-        PieceColor.Red -> R.drawable.red_bo
+    val iconBo = when (player) {
+        fr.richoux.pobo.engine.Color.Blue -> R.drawable.blue_bo
+        fr.richoux.pobo.engine.Color.Red -> R.drawable.red_bo
     }
 
     val selectedValue by viewModel.selectedValue.collectAsState()
@@ -381,8 +380,8 @@ fun RadioButtonPoBo(player: PieceColor, viewModel: GameViewModel) {
                 Image(
                     painter = painterResource(
                         id = when (item) {
-                            "Po" -> icon_po
-                            else -> icon_bo
+                            "Po" -> iconPo
+                            else -> iconBo
                         }
                     ),
                     contentDescription = "",

@@ -131,8 +131,8 @@ data class MCTS(
         }
 
         val bestChildID = potentialChildrenID.random()
-//        Log.d(TAG,"Best child ID: ${bestChildID}, visits=${mostSelected}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
-//        Log.d(TAG,"Tree size: ${nodes.size} nodes")
+        Log.d(TAG,"Best child ID: ${bestChildID}, visits=${mostSelected}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
+        Log.d(TAG,"Tree size: ${nodes.size} nodes")
 
         currentNode = nodes[bestChildID]
         return currentNode.move!!
@@ -189,8 +189,8 @@ data class MCTS(
 //    while( System.currentTimeMillis() - start < TIMEOUT_PLAYOUT ) {
         for (i in 1..PLAYOUTS) {
             val game = node.game.copyForPlayout()
-            var isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
-            var isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
+            var isBlueVictory = game.checkVictoryFor(game.board, Color.Blue)
+            var isRedVictory = game.checkVictoryFor(game.board, Color.Red)
             while (!isBlueVictory && !isRedVictory && numberMoves < PLAYOUT_DEPTH) {
                 val move = randomPlay(game)
                 val board = game.board.playAt(move)
@@ -203,8 +203,8 @@ data class MCTS(
                 numberRedBo = game.board.numberRedBo
                 numberMoves++
                 game.changePlayer()
-                isBlueVictory = game.checkVictoryFor(game.board, PieceColor.Blue)
-                isRedVictory = game.checkVictoryFor(game.board, PieceColor.Red)
+                isBlueVictory = game.checkVictoryFor(game.board, Color.Blue)
+                isRedVictory = game.checkVictoryFor(game.board, Color.Red)
             }
 //        if(isBlueVictory) {
 //            Log.d(TAG,"Blue wins in playout")
@@ -212,7 +212,7 @@ data class MCTS(
 //        if(isRedVictory) {
 //            Log.d(TAG,"Red wins in playout")
 //        }
-            if ((isBlueVictory && myColor == PieceColor.Blue) || (isRedVictory && myColor == PieceColor.Red)) {
+            if ((isBlueVictory && myColor == Color.Blue) || (isRedVictory && myColor == Color.Red)) {
 //                score += 1
                 return 1 // incompatible with PLAYOUTS > 1
 //            Log.d(TAG,"My color ${myColor} wins!")
@@ -222,8 +222,8 @@ data class MCTS(
         }
 //    }
 
-        if ((myColor == PieceColor.Blue && numberBlueBo > numberRedBo)
-            || (myColor == PieceColor.Red && numberBlueBo < numberRedBo)
+        if ((myColor == Color.Blue && numberBlueBo > numberRedBo)
+            || (myColor == Color.Red && numberBlueBo < numberRedBo)
         )
             return 1
         else
@@ -243,13 +243,13 @@ data class MCTS(
     fun tryEachPossibleMove() {
         val game = currentNode.game
         val player = game.currentPlayer
-        val positions = game.board.getAllEmptyPositions()
+        val positions = game.board.emptyPositions
         val pieces: List<Piece>
 
         if (game.board.hasTwoTypesInPool(player))
-            pieces = listOf(Piece.createPo(player), Piece.createBo(player))
+            pieces = listOf(getPoInstanceOfColor(player), getBoInstanceOfColor(player))
         else
-            pieces = listOf(game.board.getPlayerPool(player)[0])
+            pieces = listOf( getPieceInstance(player, game.board.getPlayerPool(player)[0]) )
 
         var childExists: Boolean
 
@@ -277,20 +277,20 @@ data class MCTS(
         if (newGame.getGraduations().isNotEmpty())
             newGame.promoteOrRemovePieces(randomGraduation(newGame))
 
-        val isBlueVictory = newGame.checkVictoryFor(newBoard, PieceColor.Blue)
-        val isRedVictory = newGame.checkVictoryFor(newBoard, PieceColor.Red)
+        val isBlueVictory = newGame.checkVictoryFor(newBoard, Color.Blue)
+        val isRedVictory = newGame.checkVictoryFor(newBoard, Color.Red)
         val isTerminal = isBlueVictory || isRedVictory
 
         val score =
             if (isBlueVictory) {
                 when (newGame.currentPlayer) {
-                    PieceColor.Blue -> 1
-                    PieceColor.Red -> 0 //-1
+                    Color.Blue -> 1
+                    Color.Red -> 0 //-1
                 }
             } else if (isRedVictory) {
                 when (newGame.currentPlayer) {
-                    PieceColor.Red -> 1
-                    PieceColor.Blue -> 0 //-1
+                    Color.Red -> 1
+                    Color.Blue -> 0 //-1
                 }
             } else {
                 0
