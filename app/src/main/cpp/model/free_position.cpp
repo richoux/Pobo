@@ -2,6 +2,8 @@
 // Created by flo on 21/06/2023.
 //
 
+#include "free_position.hpp"
+
 FreePosition::FreePosition(const std::vector <ghost::Variable> &variables, jbyte *const grid )
     : Constraint( variables ),
       _grid( grid )

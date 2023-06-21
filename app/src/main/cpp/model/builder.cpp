@@ -4,9 +4,11 @@
 
 #include <string>
 #include "builder.hpp"
+#include "has_piece.hpp"
+#include "free_position.hpp"
 #include "pobo_heuristic.hpp"
 
-Builder::Builder( const jbyte *grid, const jbyte *pool, jint pool_size, jboolean blue_turn )
+Builder::Builder( jbyte * const grid, jbyte * const pool, jint pool_size, jboolean blue_turn )
 	: ModelBuilder(),
 	  _grid( grid ),
 	  _pool( pool ),

@@ -24,7 +24,7 @@ bool PoboHeuristic::check_three_in_a_row( int from_x, int from_y, Direction dire
            && check_two_in_a_row( next_x, next_y, direction, type );
 }
 
-bool PoboHeuristic::check_two_in_a_row( int from_x, int from_y, Direction direction, PieceType type )
+bool PoboHeuristic::check_two_in_a_row( int from_x, int from_y, Direction direction, PieceType type ) const
 {
     if( from_x > 5 || from_y < 0 || from_y > 5 )
         return false;
@@ -77,7 +77,7 @@ int PoboHeuristic::count_Po_in_a_row( int from_x, int from_y, Direction directio
     return count;
 }
 
-int PoboHeuristic::get_next_x( int from_x, Direction direction )
+int PoboHeuristic::get_next_x( int from_x, Direction direction ) const
 {
     switch( direction ) {
         case TOPRIGHT: return from_x + 1;
@@ -87,7 +87,7 @@ int PoboHeuristic::get_next_x( int from_x, Direction direction )
     }
 }
 
-int PoboHeuristic::get_next_y( int from_y, Direction direction )
+int PoboHeuristic::get_next_y( int from_y, Direction direction ) const
 {
     switch( direction ) {
         case TOPRIGHT: return from_y - 1;
