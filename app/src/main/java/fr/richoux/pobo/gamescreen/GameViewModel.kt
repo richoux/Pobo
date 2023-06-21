@@ -87,17 +87,15 @@ class GameViewModel : ViewModel() {
     }
 
     fun goBackMove() {
+        _forwardHistory.add(History(currentBoard, currentPlayer, moveNumber))
         var last = _history.removeLast()
-        _forwardHistory.add(last)
-        moveNumber = last.moveNumber
 
         var lastMove = _moveHistory.removeLast()
         _forwardMoveHistory.add(lastMove)
 
         if (aiEnabled) {
-            last = _history.removeLast()
             _forwardHistory.add(last)
-            moveNumber = last.moveNumber
+            last = _history.removeLast()
 
             lastMove = _moveHistory.removeLast()
             _forwardMoveHistory.add(lastMove)
@@ -106,23 +104,22 @@ class GameViewModel : ViewModel() {
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
+        moveNumber = last.moveNumber
         reset()
         historyCall = true
         _gameState.tryEmit(GameState.PLAY)
     }
 
     fun goForwardMove() {
+        _history.add(History(currentBoard, currentPlayer, moveNumber))
         var last = _forwardHistory.removeLast()
-        _history.add(last)
-        moveNumber = last.moveNumber
 
         var lastMove = _forwardMoveHistory.removeLast()
         _moveHistory.add(lastMove)
 
         if (aiEnabled) {
-            last = _forwardHistory.removeLast()
             _history.add(last)
-            moveNumber = last.moveNumber
+            last = _forwardHistory.removeLast()
 
             lastMove = _forwardMoveHistory.removeLast()
             _moveHistory.add(lastMove)
@@ -131,6 +128,7 @@ class GameViewModel : ViewModel() {
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
+        moveNumber = last.moveNumber
         reset()
         historyCall = true
         _gameState.tryEmit(GameState.PLAY)
@@ -176,6 +174,7 @@ class GameViewModel : ViewModel() {
         _forwardHistory.clear()
         _forwardMoveHistory.clear()
         historyCall = false
+        _history.add(History(currentBoard, currentPlayer, moveNumber))
 
         val piece = when(pieceTypeToPlay) {
             PieceType.Po -> Piece.createPo(currentPlayer)
@@ -186,10 +185,8 @@ class GameViewModel : ViewModel() {
         val move = Move(piece, it)
 
         if(!_game.canPlay(move)) return
-
-        moveNumber++
-        _history.add(History(currentBoard, currentPlayer, moveNumber))
         _moveHistory.add(move)
+        moveNumber++
         var newBoard = currentBoard.playAt(move)
         newBoard = _game.doPush(newBoard, move)
         selectedValue.tryEmit("")

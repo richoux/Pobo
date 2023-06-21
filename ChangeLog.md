@@ -1,5 +1,9 @@
 # ChangeLog
 
+## [0.2.1] - 2023-06-21
+- Fix a but with the undo/redo feature
+- Refactor and lighten the Board data structure (anticipating JNI calls)
+
 ## [0.2.0] - 2023-06-11
 - MCTS-based AI (bad, but working)
 
