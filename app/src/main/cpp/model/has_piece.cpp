@@ -4,8 +4,8 @@
 
 #include "has_piece.hpp"
 
-HasPiece::HasPiece( const std::vector<ghost::Variable>& variables, jbyte * const pool, jint pool_size )
-        : Constraint( variables ),
+HasPiece::HasPiece( const std::vector<int>& variables_index, jbyte * const pool, jint pool_size )
+        : Constraint( variables_index ),
           _pool( pool ),
           _pool_size( pool_size )
 { }

@@ -16,9 +16,9 @@ class HasPiece : public ghost::Constraint {
 	mutable double _cache_error;
 
 public:
-	HasPiece(const std::vector <ghost::Variable> &variables, jbyte *const pool, jint pool_size);
+	HasPiece(const std::vector<int> &variables_index, jbyte *const pool, jint pool_size);
 
-	double required_error(const std::vector<ghost::Variable *> &variables) const override;
+	double required_error(const std::vector<ghost::Variable*> &variables) const override;
 
 //	double optional_delta_error(const std::vector<ghost::Variable *> &variables,
 //								const std::vector<int> &indexes,

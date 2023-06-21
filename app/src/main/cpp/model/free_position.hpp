@@ -15,7 +15,7 @@ class FreePosition : public ghost::Constraint {
     mutable double _cache_error;
 
 public:
-    FreePosition(const std::vector <ghost::Variable> &variables, jbyte *const grid );
+    FreePosition(const std::vector<int> &variables_index, jbyte *const grid );
 
     double required_error(const std::vector<ghost::Variable *> &variables) const override;
 

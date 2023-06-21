@@ -22,9 +22,9 @@ Builder::Builder( jbyte * const grid, jbyte * const pool, jint pool_size, jboole
 
 void Builder::declare_variables()
 {
-    variables.emplace_back( 1, 2, 0, std::string("piece") );
-    variables.emplace_back( 0, 5, 0, std::string("x") );
-    variables.emplace_back( 0, 5, 0, std::string("y") );
+  variables.emplace_back( 1, 2, std::string("piece") );
+  variables.emplace_back( 0, 6, std::string("x") );
+  variables.emplace_back( 0, 6, std::string("y") );
 }
 
 void Builder::declare_constraints()

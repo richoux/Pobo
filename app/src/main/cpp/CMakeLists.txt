@@ -8,7 +8,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 add_library(
         pobo
+
         SHARED
+
         ${DIR}/pobo.cpp
         ${DIR}/model/has_piece.cpp
         ${DIR}/model/free_position.cpp
@@ -22,6 +24,7 @@ set_target_properties( ghost PROPERTIES IMPORTED_LOCATION "${DIR}/lib/libghost.s
 
 target_link_libraries(
         pobo
+
         ghost
-        log
-)
+
+        log )

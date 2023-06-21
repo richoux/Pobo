@@ -4,8 +4,8 @@
 
 #include "free_position.hpp"
 
-FreePosition::FreePosition(const std::vector <ghost::Variable> &variables, jbyte *const grid )
-    : Constraint( variables ),
+FreePosition::FreePosition(const std::vector<int> &variables_index, jbyte *const grid )
+    : Constraint( variables_index ),
       _grid( grid )
 { }
 
