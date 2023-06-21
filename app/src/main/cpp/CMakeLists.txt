@@ -22,7 +22,7 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             pobo.cpp )
+             pobo.cpp model/has_piece.cpp model/free_position.cpp model/pobo_heuristic.cpp model/builder.cpp)
 
 include_directories(src/main/cpp/lib/include/)
 
@@ -48,4 +48,4 @@ set_target_properties( ghost PROPERTIES IMPORTED_LOCATION cpp/lib/libghost.so )
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
-#target_link_libraries( pobo ghost ${log-lib} )
+target_link_libraries( pobo ghost ${log-lib} )
