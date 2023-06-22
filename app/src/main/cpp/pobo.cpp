@@ -21,15 +21,16 @@ Java_fr_richoux_pobo_engine_ai_MCTS_00024Companion_ghost_1solver_1call(
         jint k_red_pool_size,
         jboolean k_blue_turn) {
     // Inputs //
-    jbyte *cpp_grid;
-    jbyte *cpp_blue_pool;
-    jbyte *cpp_red_pool;
-    jbyte *pool = k_blue_turn ? cpp_blue_pool : cpp_red_pool;
+    jbyte cpp_grid[36];
     jint pool_size = k_blue_turn ? k_blue_pool_size : k_red_pool_size;
+    jbyte pool[pool_size];
 
     env->GetByteArrayRegion(k_grid, 0, 36, cpp_grid);
-    env->GetByteArrayRegion(k_blue_pool, 0, 8, cpp_blue_pool);
-    env->GetByteArrayRegion(k_red_pool, 0, 8, cpp_red_pool);
+    if( k_blue_turn )
+        env->GetByteArrayRegion(k_blue_pool, 0, pool_size, pool);
+    else
+        env->GetByteArrayRegion(k_red_pool, 0, pool_size, pool);
+    //env->GetByteArrayRegion(k_red_pool, 0, k_red_pool_size, cpp_red_pool);
 
 //    jclass kotlin_game_class = env->GetObjectClass(k_game);
 //    jfieldID kotlin_board = env->GetFieldID(kotlin_game_class , "board", "Lfr/richoux/pobo/engine/Board;");
@@ -84,12 +85,8 @@ Java_fr_richoux_pobo_engine_ai_MCTS_00024Companion_ghost_1solver_1call(
 //    env->SetObjectField(cpp_move, piece, cpp_piece);
 //    env->SetObjectField(cpp_move, position, cpp_position);
 
-    jint sol_tmp[3];
-    for( int i = 0 ; i < 3 ; ++i )
-        sol_tmp[i] = solution[i];
-
     jintArray sol = env->NewIntArray(3);
-    env->SetIntArrayRegion(sol, 0, 3, sol_tmp);
+    env->SetIntArrayRegion(sol, 0, 3, (jint*)&solution[0]);
 
     return sol;
 }

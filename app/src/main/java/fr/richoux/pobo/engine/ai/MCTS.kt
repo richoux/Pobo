@@ -200,21 +200,33 @@ data class MCTS(
             var isRedVictory = game.checkVictoryFor(game.board, Color.Red)
             while (!isBlueVictory && !isRedVictory && numberMoves < PLAYOUT_DEPTH) {
                 //val move = randomPlay(game)
+//                val bluePoolArray = ByteArray(8){ 0 }
+//                val redPoolArray = ByteArray(8){ 0 }
+//
+//                for( i in 0..game.board.bluePool.size - 1 )
+//                    bluePoolArray[i] = game.board.bluePool.get(i)
+//
+//                for( i in 0..game.board.redPool.size - 1 )
+//                    redPoolArray[i] = game.board.redPool.get(i)
+
                 val solution = ghost_solver_call(
                     game.board.grid,
+//                    bluePoolArray,
+//                    redPoolArray,
                     game.board.bluePool.toByteArray(),
                     game.board.redPool.toByteArray(),
                     game.board.bluePool.size,
                     game.board.redPool.size,
-                myColor == Color.Blue )
-                val code = when(myColor) {
+                    myColor == Color.Blue
+                )
+                val code = when (myColor) {
                     Color.Blue -> -solution[0]
                     Color.Red -> solution[0]
                 }
 
                 val piece = Piece("", code.toByte())
-                val position = Position( solution[1], solution[2] )
-                val move = Move( piece, position )
+                val position = Position(solution[1], solution[2])
+                val move = Move(piece, position)
                 val board = game.board.playAt(move)
                 game.board = game.doPush(board, move)
                 // check if we need to graduate a piece
@@ -228,12 +240,7 @@ data class MCTS(
                 isBlueVictory = game.checkVictoryFor(game.board, Color.Blue)
                 isRedVictory = game.checkVictoryFor(game.board, Color.Red)
             }
-//        if(isBlueVictory) {
-//            Log.d(TAG,"Blue wins in playout")
-//        }
-//        if(isRedVictory) {
-//            Log.d(TAG,"Red wins in playout")
-//        }
+
             if ((isBlueVictory && myColor == Color.Blue) || (isRedVictory && myColor == Color.Red)) {
 //                score += 1
                 return 1 // incompatible with PLAYOUTS > 1
