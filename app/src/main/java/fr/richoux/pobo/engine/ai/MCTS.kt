@@ -29,11 +29,18 @@ data class MCTS(
     val nodes: ArrayList<Node> = arrayListOf(),
     var numberNodes: Int = 1
 ) {
-//    companion object {
-//        init {
-//            System.loadLibrary("pobo")
-//        }
-//    }
+    companion object {
+        init {
+            System.loadLibrary("pobo")
+        }
+
+        external fun ghost_solver_call( grid: ByteArray,
+                                        blue_pool: ByteArray,
+                                        red_pool: ByteArray,
+                                        blue_pool_size: Int,
+                                        red_pool_size: Int,
+                                        blue_turn: Boolean ): IntArray
+    }
 
     fun run( game: Game, lastOpponentMove: Move, timeout_in_ms: Long ): Move {
         val start = System.currentTimeMillis()
@@ -192,7 +199,22 @@ data class MCTS(
             var isBlueVictory = game.checkVictoryFor(game.board, Color.Blue)
             var isRedVictory = game.checkVictoryFor(game.board, Color.Red)
             while (!isBlueVictory && !isRedVictory && numberMoves < PLAYOUT_DEPTH) {
-                val move = randomPlay(game)
+                //val move = randomPlay(game)
+                val solution = ghost_solver_call(
+                    game.board.grid,
+                    game.board.bluePool.toByteArray(),
+                    game.board.redPool.toByteArray(),
+                    game.board.bluePool.size,
+                    game.board.redPool.size,
+                myColor == Color.Blue )
+                val code = when(myColor) {
+                    Color.Blue -> -solution[0]
+                    Color.Red -> solution[0]
+                }
+
+                val piece = Piece("", code.toByte())
+                val position = Position( solution[1], solution[2] )
+                val move = Move( piece, position )
                 val board = game.board.playAt(move)
                 game.board = game.doPush(board, move)
                 // check if we need to graduate a piece

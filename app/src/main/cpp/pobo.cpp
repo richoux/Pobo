@@ -8,27 +8,28 @@ using namespace std::literals::chrono_literals;
 
 // From https://www.baeldung.com/jni
 // See also https://developer.android.com/training/articles/perf-jni
-extern "C"
-JNIEXPORT jobject JNICALL
-ghost_solver_call( JNIEnv *env,
-                   jobject k_this,
-                   jbyteArray k_grid,
-                   jbyteArray k_blue_pool,
-                   jbyteArray k_red_pool,
-                   jint k_blue_pool_size,
-                   jint k_red_pool_size,
-                   jboolean k_blue_turn )
-{
-  // Inputs //
-  jbyte *cpp_grid;
-  jbyte *cpp_blue_pool;
-  jbyte *cpp_red_pool;
-	jbyte *pool = k_blue_turn ? cpp_blue_pool : cpp_red_pool;
-	jint pool_size = k_blue_turn ? k_blue_pool_size : k_red_pool_size;
 
-  env->GetByteArrayRegion(k_grid, 0, 36, cpp_grid);
-  env->GetByteArrayRegion(k_grid, 0, 8, cpp_blue_pool);
-  env->GetByteArrayRegion(k_grid, 0, 8, cpp_red_pool);
+extern "C"
+JNIEXPORT jintArray JNICALL
+Java_fr_richoux_pobo_engine_ai_MCTS_00024Companion_ghost_1solver_1call(
+        JNIEnv *env,
+        jobject thiz,
+        jbyteArray k_grid,
+        jbyteArray k_blue_pool,
+        jbyteArray k_red_pool,
+        jint k_blue_pool_size,
+        jint k_red_pool_size,
+        jboolean k_blue_turn) {
+    // Inputs //
+    jbyte *cpp_grid;
+    jbyte *cpp_blue_pool;
+    jbyte *cpp_red_pool;
+    jbyte *pool = k_blue_turn ? cpp_blue_pool : cpp_red_pool;
+    jint pool_size = k_blue_turn ? k_blue_pool_size : k_red_pool_size;
+
+    env->GetByteArrayRegion(k_grid, 0, 36, cpp_grid);
+    env->GetByteArrayRegion(k_blue_pool, 0, 8, cpp_blue_pool);
+    env->GetByteArrayRegion(k_red_pool, 0, 8, cpp_red_pool);
 
 //    jclass kotlin_game_class = env->GetObjectClass(k_game);
 //    jfieldID kotlin_board = env->GetFieldID(kotlin_game_class , "board", "Lfr/richoux/pobo/engine/Board;");
@@ -44,44 +45,51 @@ ghost_solver_call( JNIEnv *env,
 //
 //    //jstring result = (jstring)env->CallObjectMethod(userData, methodId);
 
-  // Move search //
-  jclass cpp_piece_class = env->FindClass("fr/richoux/pobo/engine/Piece");
-  jobject cpp_piece = env->AllocObject(cpp_piece_class);
+    // Move search //
+    jclass cpp_piece_class = env->FindClass("fr/richoux/pobo/engine/Piece");
+    jobject cpp_piece = env->AllocObject(cpp_piece_class);
 
-  jclass cpp_position_class = env->FindClass("fr/richoux/pobo/engine/Position");
-  jobject cpp_position = env->AllocObject(cpp_position_class);
+    jclass cpp_position_class = env->FindClass("fr/richoux/pobo/engine/Position");
+    jobject cpp_position = env->AllocObject(cpp_position_class);
 
-	Builder builder( cpp_grid, pool, pool_size, k_blue_turn );
-	ghost::Options options;
-	ghost::Solver solver( builder );
+    Builder builder(cpp_grid, pool, pool_size, k_blue_turn);
+    ghost::Options options;
+    ghost::Solver solver(builder);
 
-	double error;
-	std::vector<int> solution;
+    double error;
+    std::vector<int> solution;
 
-	solver.solve( error, solution, 1ms, options );
+    solver.solve(error, solution, 5ms, options);
 
-	// Output: Move (Piece + Position)
-	jfieldID code = env->GetFieldID(cpp_piece_class , "code", "B");
-	jfieldID x_coord = env->GetFieldID(cpp_position_class , "x", "I");
-	jfieldID y_coord = env->GetFieldID(cpp_position_class , "y", "I");
+    // Output: Move (Piece + Position)
+//    jfieldID code = env->GetFieldID(cpp_piece_class, "code", "B");
+//    jfieldID x_coord = env->GetFieldID(cpp_position_class, "x", "I");
+//    jfieldID y_coord = env->GetFieldID(cpp_position_class, "y", "I");
+//
+//    auto piece_code = solution[0] * k_blue_turn ? -1 : 1;
+//    env->SetByteField(cpp_piece, code, piece_code);
+//
+//    auto x = solution[1];
+//    auto y = solution[2];
+//
+//    env->SetIntField(cpp_position, x_coord, x);
+//    env->SetIntField(cpp_position, y_coord, y);
+//
+//    jclass cpp_move_class = env->FindClass("fr/richoux/pobo/engine/Move");
+//    jobject cpp_move = env->AllocObject(cpp_move_class);
+//
+//    jfieldID piece = env->GetFieldID(cpp_move_class, "piece", "Lfr/richoux/pobo/engine/Piece;");
+//    jfieldID position = env->GetFieldID(cpp_move_class, "to", "Lfr/richoux/pobo/engine/Position;");
+//
+//    env->SetObjectField(cpp_move, piece, cpp_piece);
+//    env->SetObjectField(cpp_move, position, cpp_position);
 
-	auto piece_code = solution[0] * k_blue_turn ? -1 : 1;
-	env->SetByteField( cpp_piece, code, piece_code );
+    jint sol_tmp[3];
+    for( int i = 0 ; i < 3 ; ++i )
+        sol_tmp[i] = solution[i];
 
-	auto x = solution[1];
-	auto y = solution[2];
+    jintArray sol = env->NewIntArray(3);
+    env->SetIntArrayRegion(sol, 0, 3, sol_tmp);
 
-	env->SetIntField( cpp_position, x_coord, x );
-	env->SetIntField( cpp_position, y_coord, y );
-
-	jclass cpp_move_class = env->FindClass("fr/richoux/pobo/engine/Move");
-  jobject cpp_move = env->AllocObject(cpp_move_class);
-
-  jfieldID piece = env->GetFieldID(cpp_move_class , "piece", "Lfr/richoux/pobo/engine/Piece;");
-  jfieldID position = env->GetFieldID(cpp_move_class , "to", "Lfr/richoux/pobo/engine/Position;");
-
-  env->SetObjectField(cpp_move, piece, cpp_piece);
-  env->SetObjectField(cpp_move, position, cpp_position);
-
-  return cpp_move;
+    return sol;
 }
