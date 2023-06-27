@@ -14,6 +14,12 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+        signingConfig signingConfigs.debug
     }
 
     buildTypes {
@@ -34,6 +40,23 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
+    }
+
+//    productFlavors {
+//        create("mcts_cop") {
+//            externalNativeBuild {
+//                cmake {
+//                    targets += listOf("pobo")
+//                }
+//            }
+//        }
+//    }
+
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version '3.18.1'
+        }
     }
 }
 

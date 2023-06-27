@@ -1,6 +1,9 @@
 package fr.richoux.pobo.engine.ai
 
+import android.util.Log
 import fr.richoux.pobo.engine.*
+
+private const val TAG = "pobotag Decision"
 
 // return null if no immediate winning move
 fun searchForWinningMove( game: Game, movesToRemove: List<Move> ): Move? {
@@ -8,13 +11,13 @@ fun searchForWinningMove( game: Game, movesToRemove: List<Move> ): Move? {
     val player = game.currentPlayer
 
     val pool = when(player) {
-        PieceColor.Blue -> board.bluePool
-        PieceColor.Red -> board.redPool
+        Color.Blue -> board.bluePool
+        Color.Red -> board.redPool
     }
 
     var hasBo = false
     for( p in pool )
-        if( p.type == PieceType.Bo )
+        if( p == 1.toByte() )
         {
             hasBo = true
             break
@@ -22,15 +25,15 @@ fun searchForWinningMove( game: Game, movesToRemove: List<Move> ): Move? {
 
     if( hasBo )
     {
-        val emptyPositions = board.getAllEmptyPositions().toMutableList()
+        val emptyPositions = board.emptyPositions.toMutableList()
         for( m in movesToRemove )
-            if( m.piece.type == PieceType.Bo )
+            if( m.piece.getType() == PieceType.Bo )
                 emptyPositions.remove( m.to )
 
         val newGame = game//.copyForPlayout()
 
         for( position in emptyPositions ) {
-            val move = Move(Piece.createBo(player), position)
+            val move = Move( getBoInstanceOfColor(player), position )
             if (newGame.canPlay(move) ) {
                 var newBoard = board.playAt(move)
                 newBoard = newGame.doPush(newBoard, move)
@@ -52,22 +55,23 @@ fun randomPlay( game: Game, movesToRemove: List<Move> ): Move {
 
     // if not, make a random move
     // draw uniformly a piece to play
+
     val board = game.board
     val player = game.currentPlayer
     val pool = when(player) {
-        PieceColor.Blue -> board.bluePool
-        PieceColor.Red -> board.redPool
+        Color.Blue -> board.bluePool
+        Color.Red -> board.redPool
     }
 
-    val piece = pool.random()
-    val positions = board.getAllEmptyPositions().toMutableList()
+    val type = pool.random()
+    val positions = board.emptyPositions.toMutableList()
     for( m in movesToRemove )
-        if( piece.type == m.piece.type )
-            positions.remove( m.to )
+        if( type == m.piece.getType().value ) {
+            positions.remove(m.to)
+        }
 
     val position = positions.random()
-
-    return Move(piece, position)
+    return Move( getPieceInstance( player, type), position)
 }
 
 fun randomPlay( game: Game ): Move = randomPlay( game, listOf<Move>() )
