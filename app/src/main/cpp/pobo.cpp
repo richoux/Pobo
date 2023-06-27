@@ -60,7 +60,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_00024Companion_ghost_1solver_1call(
     double error;
     std::vector<int> solution;
 
-    solver.solve(error, solution, 5ms, options);
+    bool success = solver.solve(error, solution, 5ms, options);
 
     // Output: Move (Piece + Position)
 //    jfieldID code = env->GetFieldID(cpp_piece_class, "code", "B");
@@ -84,6 +84,9 @@ Java_fr_richoux_pobo_engine_ai_MCTS_00024Companion_ghost_1solver_1call(
 //
 //    env->SetObjectField(cpp_move, piece, cpp_piece);
 //    env->SetObjectField(cpp_move, position, cpp_position);
+
+		if( !success )
+			solution[0] = 42;
 
     jintArray sol = env->NewIntArray(3);
     env->SetIntArrayRegion(sol, 0, 3, (jint*)&solution[0]);

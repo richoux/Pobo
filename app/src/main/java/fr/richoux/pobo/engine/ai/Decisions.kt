@@ -1,6 +1,9 @@
 package fr.richoux.pobo.engine.ai
 
+import android.util.Log
 import fr.richoux.pobo.engine.*
+
+private const val TAG = "pobotag Decision"
 
 // return null if no immediate winning move
 fun searchForWinningMove( game: Game, movesToRemove: List<Move> ): Move? {
@@ -52,6 +55,7 @@ fun randomPlay( game: Game, movesToRemove: List<Move> ): Move {
 
     // if not, make a random move
     // draw uniformly a piece to play
+
     val board = game.board
     val player = game.currentPlayer
     val pool = when(player) {
@@ -62,11 +66,11 @@ fun randomPlay( game: Game, movesToRemove: List<Move> ): Move {
     val type = pool.random()
     val positions = board.emptyPositions.toMutableList()
     for( m in movesToRemove )
-        if( type == m.piece.getType().value )
-            positions.remove( m.to )
+        if( type == m.piece.getType().value ) {
+            positions.remove(m.to)
+        }
 
     val position = positions.random()
-
     return Move( getPieceInstance( player, type), position)
 }
 
