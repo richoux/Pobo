@@ -1,7 +1,10 @@
 # ChangeLog
 
+## [0.2.2] - 2023-06-27
+- Fix a major bug making the app crashing while playing against the AI, but some bugs remain
+
 ## [0.2.1] - 2023-06-21
-- Fix a but with the undo/redo feature
+- Fix a bug with the undo/redo feature
 - Refactor and lighten the Board data structure (anticipating JNI calls)
 
 ## [0.2.0] - 2023-06-11

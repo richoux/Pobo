@@ -18,7 +18,7 @@ data class Node(
     val isTerminal: Boolean,
     val parentID: Int,
     var childID: MutableList<Int>
-) {}
+    ) {}
 
 data class MCTS(
     var lastMove: Move? = null,
@@ -32,7 +32,8 @@ data class MCTS(
         1,
         false,
         0,
-        mutableListOf() ),
+        mutableListOf()
+    ),
     var currentNode: Node = root,
     val nodes: ArrayList<Node> = arrayListOf(),
     var numberNodes: Int = 1
@@ -125,8 +126,10 @@ data class MCTS(
                 game.currentPlayer == Color.Blue
             )
 
-            if (solution[0] == 42)
+            if (solution[0] == 42) {
                 move = randomPlay(selectNode.game, movesToRemove.toList())
+//                Log.d(TAG, "Selection: RANDOM move ${move}")
+            }
             else {
                 val code = when (game.currentPlayer) {
                     Color.Blue -> -solution[0]
@@ -136,6 +139,7 @@ data class MCTS(
                 val piece = Piece("", code.toByte())
                 val position = Position(solution[1], solution[2])
                 move = Move(piece, position)
+//                Log.d(TAG, "Selection: solver move ${move}")
             }
             val child = createNode(selectNode.game, move, selectNode.id)
 
@@ -151,16 +155,21 @@ data class MCTS(
 
         // Visit
         var mostSelected = 0
+        var bestScore = 0
         var bestRatio = 0.0
+        val coeff = when( currentNode.player ) {
+            Color.Blue -> 1 // This is reversed,
+            Color.Red -> -1 // because we are considering children's score
+        }
         for (childID in currentNode.childID) {
             Log.d( TAG,"Root child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}" )
-            if (nodes[childID].visits > mostSelected) {
-                bestRatio = nodes[childID].score.toDouble() / nodes[childID].visits
+            if (coeff * nodes[childID].score > bestScore) {
+                bestRatio = (coeff.toDouble() * nodes[childID].score.toDouble()) / nodes[childID].visits
                 potentialChildrenID.clear()
-                mostSelected = nodes[childID].visits
+                bestScore = coeff * nodes[childID].score
                 potentialChildrenID.add(childID)
-            } else if (nodes[childID].visits == mostSelected) {
-                val ratio = nodes[childID].score.toDouble() / nodes[childID].visits
+            } else if (coeff * nodes[childID].score == bestScore) {
+                val ratio = (coeff.toDouble() * nodes[childID].score.toDouble()) / nodes[childID].visits
                 if (ratio > bestRatio) {
                     potentialChildrenID.clear()
                     bestRatio = ratio
@@ -169,10 +178,25 @@ data class MCTS(
                     potentialChildrenID.add(childID)
                 }
             }
+//            if (nodes[childID].visits > mostSelected) {
+//                bestRatio = nodes[childID].score.toDouble() / nodes[childID].visits
+//                potentialChildrenID.clear()
+//                mostSelected = nodes[childID].visits
+//                potentialChildrenID.add(childID)
+//            } else if (nodes[childID].visits == mostSelected) {
+//                val ratio = nodes[childID].score.toDouble() / nodes[childID].visits
+//                if (ratio > bestRatio) {
+//                    potentialChildrenID.clear()
+//                    bestRatio = ratio
+//                    potentialChildrenID.add(childID)
+//                } else if (ratio == bestRatio) {
+//                    potentialChildrenID.add(childID)
+//                }
+//            }
         }
 
         val bestChildID = potentialChildrenID.random()
-        Log.d( TAG,"Best child ID: ${bestChildID} ${nodes[bestChildID].move}, visits=${mostSelected}, ratio=${bestRatio}, score=${nodes[bestChildID].score}" )
+        Log.d(TAG,"Best child ID: ${bestChildID} ${nodes[bestChildID].move}, visits=${mostSelected}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
         Log.d(TAG, "Tree size: ${nodes.size} nodes")
 
         currentNode = nodes[bestChildID]
@@ -180,9 +204,10 @@ data class MCTS(
     }
 
     fun UCT(node: Node, actionMasking: MutableList<Int>): Node {
-        if (node.childID.isEmpty())
+        if (node.childID.size != node.game.board.emptyPositions.size) {
+//            Log.d(TAG, "Selection: nodeID=${node.id}, node.childID.size=${node.childID.size}, available moves=${node.game.board.emptyPositions.size}")
             return node
-
+        }
         var bestValue = 0.0
         val potentialNodes = mutableListOf<Node>()
 
@@ -207,6 +232,7 @@ data class MCTS(
 
 //        Log.d(TAG, "UCT: finish scanning children")
 
+        // Should never happen
         if( potentialNodes.isEmpty() )
             return node
 
@@ -214,8 +240,7 @@ data class MCTS(
         return UCT(bestNode, actionMasking)
     }
 
-    fun UCT(actionMasking: MutableList<Int>): Node =
-        UCT(currentNode, actionMasking)
+    fun UCT(actionMasking: MutableList<Int>): Node = UCT(currentNode, actionMasking)
     //UCT(nodes[0], actionMasking)
 
     fun UCTValue(node: Node, parentVisits: Int ): Double {
@@ -227,16 +252,17 @@ data class MCTS(
 //            Log.d(TAG, "UCT, node ${node.id} has ${node.visits} visits")
             999999.9
         } else {
-            ( (coeff * node.score.toDouble()) / node.visits) + 2 * sqrt(2.0) * sqrt(2 * ln(parentVisits.toDouble()) / node.visits)
+//            Log.d(TAG, "UCT, node ${node.id} score=${( (coeff * node.score.toDouble()) / node.visits) + (2.0 / sqrt(2.0)) * sqrt(2 * ln(parentVisits.toDouble()) / node.visits)}")
+            ( (coeff * node.score.toDouble()) / node.visits) + (2.0 / sqrt(2.0)) * sqrt(2 * ln(parentVisits.toDouble()) / node.visits)
         }
     }
 
     fun playout(node: Node): Int {
-        val myColor = node.game.currentPlayer
+//        val myColor = node.game.currentPlayer
 //    var score = 0
-        val start = System.currentTimeMillis()
-        var numberBlueBo = 0
-        var numberRedBo = 0
+//        val start = System.currentTimeMillis()
+//        var numberBlueBo = 0
+//        var numberRedBo = 0
         var numberMoves = 0
 
         val game = node.game.copyForPlayout()
@@ -255,31 +281,33 @@ data class MCTS(
 //            ss += "\n"
 //            Log.d(TAG,"${ss}")
 
-        while (!isBlueVictory && !isRedVictory && numberMoves < PLAYOUT_DEPTH) {
-            var move: Move
-
-            val solution = ghost_solver_call(
-                game.board.grid,
-                game.board.bluePool.toByteArray(),
-                game.board.redPool.toByteArray(),
-                game.board.bluePool.size,
-                game.board.redPool.size,
-                game.currentPlayer == Color.Blue
-            )
-
-            if (solution[0] == 42) {
-                move = randomPlay(game)
-            }
-            else {
-                val code = when (game.currentPlayer) {
-                    Color.Blue -> -solution[0]
-                    Color.Red -> solution[0]
-                }
-
-                val piece = Piece("", code.toByte())
-                val position = Position(solution[1], solution[2])
-                move = Move(piece, position)
-            }
+        while (!isBlueVictory && !isRedVictory){ // && numberMoves < PLAYOUT_DEPTH) {
+            val move = randomPlay(game)
+            // Move selected by the solver
+//            var move: Move
+//
+//            val solution = ghost_solver_call(
+//                game.board.grid,
+//                game.board.bluePool.toByteArray(),
+//                game.board.redPool.toByteArray(),
+//                game.board.bluePool.size,
+//                game.board.redPool.size,
+//                game.currentPlayer == Color.Blue
+//            )
+//
+//            if (solution[0] == 42) {
+//                move = randomPlay(game)
+//            }
+//            else {
+//                val code = when (game.currentPlayer) {
+//                    Color.Blue -> -solution[0]
+//                    Color.Red -> solution[0]
+//                }
+//
+//                val piece = Piece("", code.toByte())
+//                val position = Position(solution[1], solution[2])
+//                move = Move(piece, position)
+//            }
 
             val board = game.board.playAt(move)
             game.board = game.doPush(board, move)
@@ -287,8 +315,8 @@ data class MCTS(
             if (game.getGraduations().isNotEmpty())
                 game.promoteOrRemovePieces( randomGraduation(game) )
 
-            numberBlueBo = game.board.numberBlueBo
-            numberRedBo = game.board.numberRedBo
+//            numberBlueBo = game.board.numberBlueBo
+//            numberRedBo = game.board.numberRedBo
             numberMoves++
             game.changePlayer()
             isBlueVictory = game.checkVictoryFor(game.board, Color.Blue)
@@ -307,21 +335,23 @@ data class MCTS(
 //                Log.d(TAG,"${ss}")
         }
 
-        if( isBlueVictory ) {
+        if( isBlueVictory )
             return -1
-        }
-        else if( isRedVictory ) {
-            return 1
+        else {
+            if( isRedVictory )
+                return 1
+            else
+                return 0
         }
 
-        if (numberBlueBo == numberRedBo)
-            return 0
-        else {
-            if( numberBlueBo > numberRedBo )
-                return -1
-            else
-                return 1
-        }
+//        if (numberBlueBo == numberRedBo)
+//            return 0
+//        else {
+//            if( numberBlueBo > numberRedBo )
+//                return -1
+//            else
+//                return 1
+//        }
     }
 
     fun backpropagate(parentID: Int, score: Int) {
