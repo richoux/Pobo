@@ -17,6 +17,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags ''
+                //arguments '-DCMAKE_ANDROID_ARCH=arm64-v8a'
             }
         }
         signingConfig signingConfigs.debug
@@ -41,16 +42,6 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }
-
-//    productFlavors {
-//        create("mcts_cop") {
-//            externalNativeBuild {
-//                cmake {
-//                    targets += listOf("pobo")
-//                }
-//            }
-//        }
-//    }
 
     externalNativeBuild {
         cmake {

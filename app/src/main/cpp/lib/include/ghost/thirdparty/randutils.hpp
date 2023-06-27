@@ -522,7 +522,9 @@ namespace randutils {
 
 			// Platform-specific entropy
 			auto pid = crushto32(RANDUTILS_GETPID);
-			auto cpu = crushto32(RANDUTILS_CPU_ENTROPY);
+			// Commented out because it causes a SIGILL on Android platforms
+			//auto cpu = crushto32(RANDUTILS_CPU_ENTROPY);
+			unsigned int cpu = crushto32(127);
 
 			return {{random_int, crushto32(hitime), stack, heap, self_data,
 			         self_func, exit_func, thread_id, type_id, pid, cpu}};

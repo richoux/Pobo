@@ -55,6 +55,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_00024Companion_ghost_1solver_1call(
 
     Builder builder(cpp_grid, pool, pool_size, k_blue_turn);
     ghost::Options options;
+//  options.parallel_runs = true;
     ghost::Solver solver(builder);
 
     double error;
