@@ -58,6 +58,9 @@ data class MCTS(
         currentGame = game.copyForPlayout()
         lastMove = lastOpponentMove
         var opponentMoveExistsInTree = false
+        var numberPlayouts = 0
+        var numberSolverCalls = 0
+        var numberSolverFailures = 0
 
         // First move of the game from the opponent (for the moment, the AI in always playing second)
         if (numberNodes == 1) {
@@ -126,8 +129,10 @@ data class MCTS(
                 game.currentPlayer == Color.Blue
             )
 
+            numberSolverCalls++
             if (solution[0] == 42) {
                 move = randomPlay(selectNode.game, movesToRemove.toList())
+                numberSolverFailures++
 //                Log.d(TAG, "Selection: RANDOM move ${move}")
             }
             else {
@@ -144,8 +149,10 @@ data class MCTS(
             val child = createNode(selectNode.game, move, selectNode.id)
 
             // Playout
-            if (!child.isTerminal)
+            if (!child.isTerminal) {
                 child.score = playout(child)
+                numberPlayouts++
+            }
 
             // Backpropagate score
             backpropagate(selectNode.id, child.score)
@@ -197,7 +204,7 @@ data class MCTS(
 
         val bestChildID = potentialChildrenID.random()
         Log.d(TAG,"Best child ID: ${bestChildID} ${nodes[bestChildID].move}, visits=${mostSelected}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
-        Log.d(TAG, "Tree size: ${nodes.size} nodes")
+        Log.d(TAG, "Tree size: ${nodes.size} nodes, number of playouts: ${numberPlayouts}, solver calls: ${numberSolverCalls}, solver failures: ${numberSolverFailures}")
 
         currentNode = nodes[bestChildID]
         return currentNode.move!!
