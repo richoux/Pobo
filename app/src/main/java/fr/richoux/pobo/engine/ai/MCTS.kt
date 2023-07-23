@@ -144,7 +144,7 @@ data class MCTS(
                 val piece = Piece("", code.toByte())
                 val position = Position(solution[1], solution[2])
                 move = Move(piece, position)
-//                Log.d(TAG, "Selection: solver move ${move}")
+                Log.d(TAG, "Selection: solver move ${move}, cost ${solution[3]}")
             }
             val child = createNode(selectNode.game, move, selectNode.id)
 
