@@ -20,7 +20,7 @@ data class Node(
     var childID: MutableList<Int>
     ) {}
 
-data class MCTS(
+class MCTS(
     var lastMove: Move? = null,
     var currentGame: Game = Game(),
     var root: Node = Node(
