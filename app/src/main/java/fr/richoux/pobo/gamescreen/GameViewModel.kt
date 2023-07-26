@@ -2,8 +2,8 @@ package fr.richoux.pobo.gamescreen
 
 import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
-import fr.richoux.pobo.engine.ai.AI
-import fr.richoux.pobo.engine.ai.MCTS
+import fr.richoux.pobo.engine.ai.MCTS_GHOST
+import fr.richoux.pobo.engine.ai.SimpleHeuristics
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -25,10 +25,10 @@ class GameViewModel : ViewModel() {
     var moveNumber: Int = 0
         private set
 
-    private val _ai = AI(Color.Red)
     var aiEnabled = true
         private set
-    private var _mcts = MCTS()
+    //private var ai = MCTS_GHOST(Color.Red)
+    private var ai = SimpleHeuristics(Color.Red)
 
     private var _promotionListIndex: MutableList<Int> = mutableListOf()
     private var _promotionListMask: MutableList<Boolean> = mutableListOf()
@@ -70,7 +70,7 @@ class GameViewModel : ViewModel() {
     fun newGame(aiEnabled: Boolean) {
         this.aiEnabled = aiEnabled
         if( aiEnabled )
-            _mcts = MCTS()
+            ai = SimpleHeuristics(Color.Red) //MCTS_GHOST(Color.Red)
 
         _history.clear()
         _forwardHistory.clear()
@@ -345,7 +345,7 @@ class GameViewModel : ViewModel() {
         // if we play against an AI and it is its turn
         if(aiEnabled && currentPlayer == Color.Red) {
             // val move = randomPlay(_game)
-            val move = _mcts.run( _game, _moveHistory.last(), 1000 )
+            val move = ai.select_move( _game, _moveHistory.last(), 1000 )
             pieceTypeToPlay = move.piece.getType()
             playAt( move.to )
         }

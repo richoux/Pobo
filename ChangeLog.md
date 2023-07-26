@@ -1,5 +1,9 @@
 # ChangeLog
 
+## [0.3.0] - 2023-07-26
+- Strategy pattern to implement and run different AI agents
+- Implementation of an heuristic-based AI agent
+
 ## [0.2.2] - 2023-06-27
 - Fix a major bug making the app crashing while playing against the AI, but some bugs remain
 

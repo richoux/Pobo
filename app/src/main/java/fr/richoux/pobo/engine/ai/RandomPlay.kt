@@ -1,6 +1,5 @@
 package fr.richoux.pobo.engine.ai
 
-import android.util.Log
 import fr.richoux.pobo.engine.*
 
 private const val TAG = "pobotag Decision"

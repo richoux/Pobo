@@ -11,7 +11,7 @@ using namespace std::literals::chrono_literals;
 
 extern "C"
 JNIEXPORT jintArray JNICALL
-Java_fr_richoux_pobo_engine_ai_MCTS_00024Companion_ghost_1solver_1call(
+Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 				JNIEnv *env,
 				jobject thiz,
 				jbyteArray k_grid,

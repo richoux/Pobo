@@ -20,7 +20,8 @@ data class Node(
     var childID: MutableList<Int>
     ) {}
 
-class MCTS(
+class MCTS_GHOST (
+    color: Color,
     var lastMove: Move? = null,
     var currentGame: Game = Game(),
     var root: Node = Node(
@@ -37,7 +38,7 @@ class MCTS(
     var currentNode: Node = root,
     val nodes: ArrayList<Node> = arrayListOf(),
     var numberNodes: Int = 1
-) {
+) : AI(color) {
     companion object {
         init {
             System.loadLibrary("pobo")
@@ -53,7 +54,9 @@ class MCTS(
         ): IntArray
     }
 
-    fun run(game: Game, lastOpponentMove: Move, timeout_in_ms: Long): Move {
+    override fun select_move(game: Game,
+                             lastOpponentMove: Move,
+                             timeout_in_ms: Long): Move {
         val start = System.currentTimeMillis()
         currentGame = game.copyForPlayout()
         lastMove = lastOpponentMove

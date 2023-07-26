@@ -90,7 +90,7 @@ data class Game(
 
     fun copyForPlayout(): Game {
         return Game(
-            this.board,
+            this.board.copy(),
             this.gameState,
             this.currentPlayer,
             this.victory,
