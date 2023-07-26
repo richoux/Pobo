@@ -28,15 +28,14 @@ class SimpleHeuristics(color: Color) : AI(color) {
         Log.d(TAG, "New call to SimpleHeuristics::select_move")
         _game = game.copyForPlayout()
         _blue_turn = _game.currentPlayer == Color.Blue
-        Log.d(TAG, "Is blue turn? (should be false) => $_blue_turn")
 
-        var grid_string = ""
-        for(row in 0..5 ) {
-            for (col in 0..5)
-                grid_string += ( "" + _game.board.grid[row*6 + col] + " " )
-            grid_string += "\n"
-        }
-        Log.d(TAG, grid_string)
+//        var grid_string = ""
+//        for(row in 0..5 ) {
+//            for (col in 0..5)
+//                grid_string += ( "" + _game.board.grid[row*6 + col] + " " )
+//            grid_string += "\n"
+//        }
+//        Log.d(TAG, grid_string)
 
         var max_score = MIN_VALUE
         var best_moves = mutableListOf<Move>() //= Move( getPoInstanceOfColor(color), Position(-1, -1) )
@@ -44,74 +43,61 @@ class SimpleHeuristics(color: Color) : AI(color) {
         for( free_cell in _game.board.emptyPositions )
         {
             if( _game.board.hasTwoTypesInPool( color ) ) {
-                Log.d(TAG, "$color has both Po and Bo in pool")
                 score = compute_score(free_cell.y, free_cell.x, PieceType.PO )
-                Log.d(TAG, "Testing move ${Move( getPoInstanceOfColor(color), free_cell )} with score $score")
+                Log.d(TAG, "move ${Move( getPoInstanceOfColor(color), free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
                     val best_move = Move( getPoInstanceOfColor(color), free_cell )
                     best_moves.clear()
                     best_moves.add( best_move )
-                    Log.d(TAG, "New best move found ${best_move}, new max score $max_score")
                 }
                 else if( max_score == score )
                 {
                     val best_move = Move( getPoInstanceOfColor(color), free_cell )
                     best_moves.add( best_move )
-                    Log.d(TAG, "Equal move found $best_move")
                 }
 
                 score = compute_score(free_cell.y, free_cell.x, PieceType.BO )
-                Log.d(TAG, "Testing move ${Move( getBoInstanceOfColor(color), free_cell )} with score $score")
+                Log.d(TAG, "Move ${Move( getBoInstanceOfColor(color), free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
                     val best_move = Move( getBoInstanceOfColor(color), free_cell )
                     best_moves.clear()
                     best_moves.add( best_move )
-                    Log.d(TAG, "New best move found ${best_move}, new max score $max_score")
                 }
                 else if( max_score == score )
                 {
                     val best_move = Move( getBoInstanceOfColor(color), free_cell )
                     best_moves.add( best_move )
-                    Log.d(TAG, "Equal move found $best_move")
                 }
-            } else
-            {
+            } else {
                 val type: PieceType
                 val piece: Piece
-                Log.d(TAG, "Piece in player's pool: ${_game.board.getPlayerPool(color)[0]}")
 
                 if( _game.board.getPlayerPool(color)[0] == fr.richoux.pobo.engine.PieceType.Po.value ) {
                     type = PieceType.PO
                     piece = getPoInstanceOfColor(color)
-                    Log.d(TAG, "$color has only Po in pool")
                 }
                 else {
                     type = PieceType.BO
                     piece = getBoInstanceOfColor(color)
-                    Log.d(TAG, "$color has only Bo in pool")
                 }
 
-                Log.d(TAG, "Chosen piece: $piece")
-
                 score = compute_score(free_cell.y, free_cell.x, type )
-                Log.d(TAG, "Testing move ${Move( piece, free_cell )} with score $score")
+                Log.d(TAG, "Move ${Move( piece, free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
                     val best_move = Move( piece, free_cell )
                     best_moves.clear()
                     best_moves.add( best_move )
-                    Log.d(TAG, "New best move found ${best_move}, new max score $max_score")
                 }
                 else if( max_score == score )
                 {
                     val best_move = Move( piece, free_cell )
                     best_moves.add( best_move )
-                    Log.d(TAG, "Equal move found $best_move")
                 }
             }
         }
@@ -289,15 +275,17 @@ class SimpleHeuristics(color: Color) : AI(color) {
                                type: PieceType )
     {
         val p = ( ( if( type == PieceType.PO ) 1 else 2 ) * if( _blue_turn ) -1 else 1 ).toByte()
-        val index = row * 6 + col
+        val index = row*6 + col
 
         _simulation_grid[index] = p
 
-        if( col - 1 >= 0 )
+        if( col-1 >= 0 )
         {
-            if( row - 1 >= 0 )
+            // Top Left
+            if( row-1 >= 0 )
             {
                 if( _simulation_grid[ (row-1)*6 + col-1 ] != 0.toByte() &&
+                    abs( _simulation_grid[ (row-1)*6 + col-1 ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                     ( col-2 < 0 || row-2 < 0 || _simulation_grid[ (row-2)*6 + col-2] == 0.toByte() ))
                 {
                     if( col-2 >= 0 && row-2 >= 0 && _simulation_grid[ (row-2)*6 + col-2] == 0.toByte() )
@@ -305,9 +293,12 @@ class SimpleHeuristics(color: Color) : AI(color) {
                     _simulation_grid[ (row-1)*6 + col-1] = 0
                 }
             }
+
+            // Bottom Left
             if( row+1 <= 5 )
             {
                 if( _simulation_grid[ (row+1)*6 + col-1] != 0.toByte() &&
+                    abs( _simulation_grid[ (row+1)*6 + col-1 ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                     ( col-2 < 0 || row+2 > 5 || _simulation_grid[ (row+2)*6 + col-2] == 0.toByte() ))
                 {
                     if( col-2 >= 0 && row+2 <= 5 && _simulation_grid[ (row+2)*6 + col-2] == 0.toByte() )
@@ -315,7 +306,10 @@ class SimpleHeuristics(color: Color) : AI(color) {
                     _simulation_grid[ (row+1)*6 + col-1] = 0
                 }
             }
+
+            // Left
             if( _simulation_grid[ row*6 + col-1] != 0.toByte() &&
+                abs( _simulation_grid[ row*6 + col-1 ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                 ( col-2 < 0 || _simulation_grid[ row*6 + col-2] == 0.toByte() ))
             {
                 if( col-2 >= 0 && _simulation_grid[ row*6 + col-2 ] == 0.toByte() )
@@ -323,11 +317,14 @@ class SimpleHeuristics(color: Color) : AI(color) {
                 _simulation_grid[ row*6 + col-1 ] = 0
             }
         }
+
         if( col+1 <= 5 )
         {
+            // Top Right
             if( row-1 >= 0 )
             {
                 if( _simulation_grid[ (row-1)*6 + col+1 ] != 0.toByte() &&
+                    abs( _simulation_grid[ (row-1)*6 + col+1 ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                     ( col+2 > 5 || row-2 < 0 || _simulation_grid[ (row-2)*6 + col+2 ] == 0.toByte() ))
                 {
                     if( col+2 <= 5 && row-2 >= 0 && _simulation_grid[ (row-2)*6 + col+2 ] == 0.toByte() )
@@ -335,9 +332,12 @@ class SimpleHeuristics(color: Color) : AI(color) {
                     _simulation_grid[ (row-1)*6 + col+1 ] = 0
                 }
             }
+
+            // Bottom Right
             if( row+1 <= 5 )
             {
                 if( _simulation_grid[ (row+1)*6 + col+1] != 0.toByte() &&
+                    abs( _simulation_grid[ (row+1)*6 + col+1 ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                     ( col+2 > 5 || row+2 > 5 || _simulation_grid[ (row+2)*6 + col+2 ] == 0.toByte() ))
                 {
                     if( col+2 <= 5 && row+2 <= 5 && _simulation_grid[ (row+2)*6 + col+2 ] == 0.toByte() )
@@ -345,7 +345,10 @@ class SimpleHeuristics(color: Color) : AI(color) {
                     _simulation_grid[ (row+1)*6 + col+1 ] = 0
                 }
             }
+
+            // Right
             if( _simulation_grid[ row*6 + col+1 ] != 0.toByte() &&
+                abs( _simulation_grid[ row*6 + col+1 ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                 ( col+2 > 5 || _simulation_grid[ row*6 + col+2 ] == 0.toByte() ))
             {
                 if( col+2 <= 5 && _simulation_grid[ row*6 + col+2 ] == 0.toByte() )
@@ -353,9 +356,12 @@ class SimpleHeuristics(color: Color) : AI(color) {
                 _simulation_grid[ row*6 + col+1 ] = 0
             }
         }
+
+        // Top
         if( row-1 >= 0 )
         {
             if( _simulation_grid[ (row-1)*6 + col ] != 0.toByte() &&
+                abs( _simulation_grid[ (row-1)*6 + col ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                 ( row-2 < 0 || _simulation_grid[ (row-2)*6 + col ] == 0.toByte() ))
             {
                 if( row-2 >= 0 && _simulation_grid[ (row-2)*6 + col ] == 0.toByte() )
@@ -363,9 +369,12 @@ class SimpleHeuristics(color: Color) : AI(color) {
                 _simulation_grid[ (row-1)*6 + col ] = 0
             }
         }
+
+        // Bottom
         if( row+1 <= 5 )
         {
             if( _simulation_grid[ (row+1)*6 + col ] != 0.toByte() &&
+                abs( _simulation_grid[ (row+1)*6 + col ].toInt() ) <= abs( _simulation_grid[ index ].toInt() ) &&
                 ( row+2 > 5 || _simulation_grid[ (row+2)*6 + col ] == 0.toByte() ))
             {
                 if( row+2 <= 5 && _simulation_grid[ (row+2)*6 + col ] == 0.toByte() )
@@ -385,14 +394,13 @@ class SimpleHeuristics(color: Color) : AI(color) {
 
         simulate_move( row, col, type )
 
-            var grid_string = ""
-            for( row in 0..5 ) {
-                for ( col in 0..5 )
-                    grid_string += ( "" + _simulation_grid[ row*6 + col ] + " " )
-                grid_string += "\n"
-            }
-            Log.d(TAG, grid_string)
-
+//        var grid_string = ""
+//        for( row in 0..5 ) {
+//            for ( col in 0..5 )
+//                grid_string += ( "" + _simulation_grid[ row*6 + col ] + " " )
+//            grid_string += "\n"
+//        }
+//        Log.d(TAG, grid_string)
 
         var count_blue_pieces = 0
         var count_red_pieces = 0
@@ -445,17 +453,20 @@ class SimpleHeuristics(color: Color) : AI(color) {
             {
                 if( _simulation_grid[ row*6 + col ] != 0.toByte() )
                 {
-                    if( _simulation_grid[ row*6 + col ] < 0 )
-                    {
-                        val partial_score = compute_partial_score( row, col, Direction.RIGHT )
-                        score += partial_score.first
-                        col += partial_score.second
-                    } else
-                    {
-                        val partial_score = compute_partial_score( row, col, Direction.RIGHT )
-                        score += partial_score.first
-                        col += partial_score.second
-                    }
+                    val partial_score = compute_partial_score( row, col, Direction.RIGHT )
+                    score += partial_score.first
+                    col += partial_score.second
+
+//                    if( _simulation_grid[ row*6 + col ] < 0 )
+//                    {
+//                        val partial_score = compute_partial_score( row, col, Direction.RIGHT )
+//                        score += partial_score.first
+//                        col += partial_score.second
+//                    } else {
+//                        val partial_score = compute_partial_score( row, col, Direction.RIGHT )
+//                        score += partial_score.first
+//                        col += partial_score.second
+//                    }
                 }
                 col++
             }
@@ -469,20 +480,20 @@ class SimpleHeuristics(color: Color) : AI(color) {
             {
                 if( _simulation_grid[ row*6 + col ] != 0.toByte() )
                 {
-                    if( _simulation_grid[ row*6 + col ] < 0 )
-                    {
-                        val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
-                        score += partial_score.first
-                        row += partial_score.second
+                    val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
+                    score += partial_score.first
+                    row += partial_score.second
 
-                        if( col == 1 && row == 0 )
-                            Log.d(TAG, "partial score, vertical scan at (b,6): ${partial_score.first}")
-                    } else
-                    {
-                        val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
-                        score += partial_score.first
-                        row += partial_score.second
-                    }
+//                    if( _simulation_grid[ row*6 + col ] < 0 )
+//                    {
+//                        val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
+//                        score += partial_score.first
+//                        row += partial_score.second
+//                    } else {
+//                        val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
+//                        score += partial_score.first
+//                        row += partial_score.second
+//                    }
                 }
                 row++
             }
@@ -544,7 +555,6 @@ class SimpleHeuristics(color: Color) : AI(color) {
         }
 
         score += 3 * diff_pieces + diff_pieces_central + diff_pieces_border
-        Log.d(TAG, "Diff piece: ${diff_pieces}, diff central: ${diff_pieces_central}, diff border: $diff_pieces_border")
 
         return score
     }
