@@ -44,7 +44,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
         {
             if( _game.board.hasTwoTypesInPool( color ) ) {
                 score = compute_score(free_cell.y, free_cell.x, PieceType.PO )
-                Log.d(TAG, "move ${Move( getPoInstanceOfColor(color), free_cell )} has score $score")
+//                Log.d(TAG, "move ${Move( getPoInstanceOfColor(color), free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
@@ -59,7 +59,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
                 }
 
                 score = compute_score(free_cell.y, free_cell.x, PieceType.BO )
-                Log.d(TAG, "Move ${Move( getBoInstanceOfColor(color), free_cell )} has score $score")
+//                Log.d(TAG, "Move ${Move( getBoInstanceOfColor(color), free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
@@ -86,7 +86,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
                 }
 
                 score = compute_score(free_cell.y, free_cell.x, type )
-                Log.d(TAG, "Move ${Move( piece, free_cell )} has score $score")
+//                Log.d(TAG, "Move ${Move( piece, free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score

@@ -1,5 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.engine.ai.MCTS_GHOST
@@ -27,7 +28,6 @@ class GameViewModel : ViewModel() {
 
     var aiEnabled = true
         private set
-    //private var ai = MCTS_GHOST(Color.Red)
     private var ai = SimpleHeuristics(Color.Red)
 
     private var _promotionListIndex: MutableList<Int> = mutableListOf()
@@ -147,13 +147,28 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        val newState = _game.nextGameState()
-        hasStarted = true
+        var newState = _game.nextGameState()
         _game.gameState = newState
+        if( aiEnabled && currentPlayer == Color.Red)
+            Log.d(TAG, "New game state: $newState")
+
+        if( newState == GameState.SELECTPIECE && aiEnabled && currentPlayer == Color.Red) {
+            newState = _game.nextGameState()
+            _game.gameState = newState
+            Log.d(TAG, "New game state 2: $newState")
+        }
+
+        hasStarted = true
         canGoBack.tryEmit(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
         canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         displayGameState  = _game.displayGameState
-        _gameState.tryEmit(newState)
+
+        if( aiEnabled && currentPlayer == Color.Red &&  _game.gameState == GameState.SELECTGRADUATION ) {
+            piecesToPromote = ai.select_graduation( _game ).toMutableList()
+            validateGraduationSelection()
+        } else {
+            _gameState.tryEmit(newState)
+        }
     }
 
     fun selectPo() {
@@ -236,7 +251,7 @@ class GameViewModel : ViewModel() {
     fun selectForGraduationOrCancel(position: Position) {
         val removable = _game.getGraduations(currentBoard)
 
-        if(state != GameViewModelState.IDLE) {
+        if (state != GameViewModelState.IDLE) {
             // if the player taps a selected piece, unselect it
             if (piecesToPromote.contains(position)) {
                 piecesToPromote.remove(position)
@@ -343,7 +358,7 @@ class GameViewModel : ViewModel() {
         currentPlayer = _game.currentPlayer
 
         // if we play against an AI and it is its turn
-        if(aiEnabled && currentPlayer == Color.Red) {
+        if( aiEnabled && currentPlayer == Color.Red ) {
             // val move = randomPlay(_game)
             val move = ai.select_move( _game, _moveHistory.last(), 1000 )
             pieceTypeToPlay = move.piece.getType()

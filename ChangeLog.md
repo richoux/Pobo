@@ -1,5 +1,12 @@
 # ChangeLog
 
+## [0.3.2] - 2023-07-28
+- Add the function select_gratudation to the abstract class AI
+- select_gratudation and select_move make random decisions by default
+
+## [0.3.1] - 2023-07-28
+- Fix a bug when the AI plays Bo pieces
+
 ## [0.3.0] - 2023-07-26
 - Strategy pattern to implement and run different AI agents
 - Implementation of an heuristic-based AI agent
