@@ -3,6 +3,7 @@
 //
 
 #include "pobo_heuristic.hpp"
+#include "../androidbuf.hpp"
 
 PoboHeuristic::PoboHeuristic( const std::vector<ghost::Variable>& variables, jbyte * const grid, jboolean blue_turn )
 				: Maximize( variables, "pobo Heuristic" ),
@@ -10,35 +11,35 @@ PoboHeuristic::PoboHeuristic( const std::vector<ghost::Variable>& variables, jby
 				  _blue_turn( blue_turn )
 { }
 
-bool PoboHeuristic::check_three_in_a_row( int from_x, int from_y, Direction direction, PieceType type ) const
+bool PoboHeuristic::check_three_in_a_row( int from_row, int from_col, Direction direction, PieceType type ) const
 {
-	if( from_x > 5 || from_y < 0 || from_y > 5 )
+	if( from_col > 5 || from_row < 0 || from_row > 5 )
 		return false;
 
-	int next_x = get_next_x( from_x, direction );
-	int next_y = get_next_y( from_y, direction );
+	int next_row = get_next_row( from_row, direction );
+	int next_col = get_next_col( from_col, direction );
 
-	if( _simulation_grid[from_y * 6 + from_x] == 0 || next_x > 5 || next_y < 0 || next_y > 5 )
+	if( _simulation_grid[ from_row*6 + from_col ] == 0 || next_col > 5 || next_row < 0 || next_row > 5 )
 		return false;
 
-	return check_two_in_a_row( from_x, from_y, direction, type )
-	       && check_two_in_a_row( next_x, next_y, direction, type );
+	return check_two_in_a_row( from_row, from_col, direction, type )
+	       && check_two_in_a_row( next_row, next_col, direction, type );
 }
 
-bool PoboHeuristic::check_two_in_a_row( int from_x, int from_y, Direction direction, PieceType type ) const
+bool PoboHeuristic::check_two_in_a_row( int from_row, int from_col, Direction direction, PieceType type ) const
 {
-	if( from_x > 5 || from_y < 0 || from_y > 5 )
+	if( from_col > 5 || from_row < 0 || from_row > 5 )
 		return false;
 
-	int next_x = get_next_x( from_x, direction );
-	int next_y = get_next_y( from_y, direction );
+	int next_row = get_next_row( from_row, direction );
+	int next_col = get_next_col( from_col, direction );
 
-	int index = from_y * 6 + from_x;
+	int index = from_row*6 + from_col;
 
-	if( _simulation_grid[index] == 0 || next_x > 5 || next_y < 0 || next_y > 5 )
+	if( _simulation_grid[index] == 0 || next_col > 5 || next_row < 0 || next_row > 5 )
 		return false;
 
-	int next_index = next_y * 6 + next_x;
+	int next_index = next_row*6 + next_col;
 
 	switch( type )
 	{
@@ -49,26 +50,26 @@ bool PoboHeuristic::check_two_in_a_row( int from_x, int from_y, Direction direct
 	}
 }
 
-int PoboHeuristic::count_Po_in_a_row( int from_x, int from_y, Direction direction ) const
+int PoboHeuristic::count_Po_in_a_row( int from_row, int from_col, Direction direction ) const
 {
-	if( from_x > 5 || from_y < 0 || from_y > 5 )
+	if( from_col > 5 || from_row < 0 || from_row > 5 )
 		return 0;
 
-	int next_x = get_next_x( from_x, direction );
-	int next_y = get_next_y( from_y, direction );
-	int index = from_y * 6 + from_x;
+	int next_row = get_next_row( from_row, direction );
+	int next_col = get_next_col( from_col, direction );
+	int index = from_row*6 + from_col;
 
-	if( _simulation_grid[index] == 0 || next_x > 5 || next_y < 0 || next_y > 5 )
+	if( _simulation_grid[index] == 0 || next_col > 5 || next_row < 0 || next_row > 5 )
 		return 0;
 
-	int next_next_x = get_next_x( next_x, direction );
-	int next_next_y = get_next_y( next_y, direction );
-	int next_index = next_y * 6 + next_x;
+	int next_next_row = get_next_row( next_row, direction );
+	int next_next_col = get_next_col( next_col, direction );
+	int next_index = next_row*6 + next_col;
 
-	if( _simulation_grid[next_index] == 0 || next_next_x > 5 || next_next_y < 0 || next_next_y > 5 )
+	if( _simulation_grid[next_index] == 0 || next_next_col > 5 || next_next_row < 0 || next_next_row > 5 )
 		return 0;
 
-	int next_next_index = next_next_y * 6 + next_next_x;
+	int next_next_index = next_next_row*6 + next_next_col;
 
 	int count = 0;
 	// no need to check the color of these Po pieces: count_Po_in_a_row is only called after
@@ -83,71 +84,71 @@ int PoboHeuristic::count_Po_in_a_row( int from_x, int from_y, Direction directio
 	return count;
 }
 
-int PoboHeuristic::get_next_x( int from_x, Direction direction ) const
+int PoboHeuristic::get_next_row( int from_row, Direction direction ) const
 {
 	switch( direction )
 	{
 		case TOPRIGHT:
-			return from_x + 1;
+			return from_row - 1;
 		case RIGHT :
-			return from_x + 1;
+			return from_row;
 		case BOTTOMRIGHT :
-			return from_x + 1;
+			return from_row + 1;
 		case BOTTOM :
-			return from_x;
+			return from_row + 1;
 	}
 }
 
-int PoboHeuristic::get_next_y( int from_y, Direction direction ) const
+int PoboHeuristic::get_next_col( int from_col, Direction direction ) const
 {
 	switch( direction )
 	{
 		case TOPRIGHT:
-			return from_y - 1;
+			return from_col + 1;
 		case RIGHT :
-			return from_y;
+			return from_col + 1;
 		case BOTTOMRIGHT :
-			return from_y + 1;
+			return from_col + 1;
 		case BOTTOM :
-			return from_y + 1;
+			return from_col;
 	}
 }
 
-double PoboHeuristic::compute_partial_score( int from_x, int from_y, Direction direction, int& jump_forward ) const
+double PoboHeuristic::compute_partial_score( int from_row, int from_col, Direction direction, int& jump_forward ) const
 {
 	double score = 0.;
-	bool is_player_piece = ( ( _simulation_grid[ from_y * 6 + from_x ] < 0 && _blue_turn ) ||
-					( _simulation_grid[ from_y * 6 + from_x ] > 0 && !_blue_turn ) );
+	bool is_player_piece = ( ( _simulation_grid[ from_row*6 + from_col ] < 0 && _blue_turn ) ||
+					( _simulation_grid[ from_row*6 + from_col ] > 0 && !_blue_turn ) );
 
-	if( check_three_in_a_row( from_x, from_y, direction, BO ))
+	if( check_three_in_a_row( from_row, from_col, direction, BO ))
 	{
 		score += is_player_piece ? 200 : -200;
 		jump_forward = 2;
 	}
 	else
 	{
-		if( check_three_in_a_row( from_x, from_y, direction, PO ))
+		if( check_three_in_a_row( from_row, from_col, direction, PO ))
 		{
 			score += is_player_piece ? 30 : -30;
 			jump_forward = 2;
 		}
 		else
 		{
-			if( check_three_in_a_row( from_x, from_y, direction, WHATEVER ))
+			if( check_three_in_a_row( from_row, from_col, direction, WHATEVER ))
 			{
-				score += count_Po_in_a_row( from_x, from_y, direction ) * ( is_player_piece ? 10 : -10 );
+				score += count_Po_in_a_row( from_row, from_col, direction ) * ( is_player_piece ? 10 : -10 );
 				jump_forward = 1;
 			}
 			else
 			{
-				if( check_two_in_a_row( from_x, from_y, direction, BO ))
+				if( check_two_in_a_row( from_row, from_col, direction, BO ))
 				{
 					score += is_player_piece ? 20 : -100;
 					jump_forward = 1;
 				}
 				else
 				{
-					if( check_two_in_a_row( from_x, from_y, direction, PO ))
+					if( check_two_in_a_row( from_row, from_col, direction, PO ))
 					{
 						score += is_player_piece ? 5 : -10;
 						jump_forward = 1;
@@ -162,97 +163,122 @@ double PoboHeuristic::compute_partial_score( int from_x, int from_y, Direction d
 
 void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variables ) const
 {
-	int p = variables[0]->get_value() * _blue_turn ? -1 : 1;
-	int x = variables[1]->get_value();
-	int y = variables[2]->get_value();
-	int index = y * 6 + x;
+	int p = variables[0]->get_value() * (_blue_turn ? -1 : 1);
+	int row = variables[1]->get_value();
+	int col = variables[2]->get_value();
+	int index = row*6 + col;
 
 	_simulation_grid[index] = p;
 
-	if( x - 1 >= 0 )
+	if( col-1 >= 0 )
 	{
-		if( y - 1 >= 0 )
+		// Top Left
+		if( row-1 >= 0 )
 		{
-			if( _simulation_grid[( y - 1 ) * 6 + x - 1] != 0 &&
-			    ( x - 2 < 0 || y - 2 < 0 || _simulation_grid[( y - 2 ) * 6 + x - 2] == 0 ))
+			if( _simulation_grid[ ( row-1 )*6 + col-1 ] != 0 &&
+					_simulation_grid[ ( row-1 )*6 + col-1 ] <= _simulation_grid[ index ] &&
+			    ( col-2 < 0 || row-2 < 0 || _simulation_grid[ ( row-2 )*6 + col-2 ] == 0 ))
 			{
-				if( x - 2 >= 0 && y - 2 >= 0 && _simulation_grid[( y - 2 ) * 6 + x - 2] == 0 )
-					_simulation_grid[( y - 2 ) * 6 + x - 2] = _simulation_grid[( y - 1 ) * 6 + x - 1];
-				_simulation_grid[( y - 1 ) * 6 + x - 1] = 0;
+				if( col-2 >= 0 && row-2 >= 0 && _simulation_grid[ ( row-2 )*6 + col-2 ] == 0 )
+					_simulation_grid[ ( row-2 )*6 + col-2 ] = _simulation_grid[ ( row-1 )*6 + col-1 ];
+				_simulation_grid[ ( row-1 )*6 + col-1 ] = 0;
 			}
 		}
-		if( y + 1 <= 5 )
+
+		// Bottom Left
+		if( row+1 <= 5 )
 		{
-			if( _simulation_grid[( y + 1 ) * 6 + x - 1] != 0 &&
-			    ( x - 2 < 0 || y + 2 > 5 || _simulation_grid[( y + 2 ) * 6 + x - 2] == 0 ))
+			if( _simulation_grid[ ( row+1 )*6 + col-1 ] != 0 &&
+			    _simulation_grid[ ( row+1 )*6 + col-1 ] <= _simulation_grid[ index ] &&
+			    ( col-2 < 0 || row+2 > 5 || _simulation_grid[ ( row+2 )*6 + col-2 ] == 0 ))
 			{
-				if( x - 2 >= 0 && y + 2 <= 5 && _simulation_grid[( y + 2 ) * 6 + x - 2] == 0 )
-					_simulation_grid[( y + 2 ) * 6 + x - 2] = _simulation_grid[( y + 1 ) * 6 + x - 1];
-				_simulation_grid[( y + 1 ) * 6 + x - 1] = 0;
+				if( col-2 >= 0 && row+2 <= 5 && _simulation_grid[ ( row+2 )*6 + col-2 ] == 0 )
+					_simulation_grid[ ( row+2 )*6 + col-2 ] = _simulation_grid[ ( row+1 )*6 + col-1 ];
+				_simulation_grid[ ( row+1 )*6 + col-1 ] = 0;
 			}
 		}
-		if( _simulation_grid[y * 6 + x - 1] != 0 &&
-		    ( x - 2 < 0 || _simulation_grid[y * 6 + x - 2] == 0 ))
+
+		// Left
+		if( _simulation_grid[ row*6 + col-1 ] != 0 &&
+		    _simulation_grid[ row*6 + col-1 ] <= _simulation_grid[ index ] &&
+		    ( col-2 < 0 || _simulation_grid[ row*6 + col-2 ] == 0 ))
 		{
-			if( x - 2 >= 0 && _simulation_grid[y * 6 + x - 2] == 0 )
-				_simulation_grid[y * 6 + x - 2] = _simulation_grid[y * 6 + x - 1];
-			_simulation_grid[y * 6 + x - 1] = 0;
+			if( col-2 >= 0 && _simulation_grid[ row*6 + col-2 ] == 0 )
+				_simulation_grid[ row*6 + col-2 ] = _simulation_grid[ row*6 + col-1 ];
+			_simulation_grid[ row*6 + col-1 ] = 0;
 		}
 	}
-	if( x + 1 <= 5 )
+
+	if( col+1 <= 5 )
 	{
-		if( y - 1 >= 0 )
+		// Top Right
+		if( row-1 >= 0 )
 		{
-			if( _simulation_grid[( y - 1 ) * 6 + x + 1] != 0 &&
-			    ( x + 2 > 5 || y - 2 < 0 || _simulation_grid[( y - 2 ) * 6 + x + 2] == 0 ))
+			if( _simulation_grid[ ( row-1 )*6 + col+1 ] != 0 &&
+			    _simulation_grid[ ( row-1 )*6 + col+1 ] <= _simulation_grid[ index ] &&
+			    ( col+2 > 5 || row-2 < 0 || _simulation_grid[ ( row-2 )*6 + col+2 ] == 0 ))
 			{
-				if( x + 2 <= 5 && y - 2 >= 0 && _simulation_grid[( y - 2 ) * 6 + x + 2] == 0 )
-					_simulation_grid[( y - 2 ) * 6 + x + 2] = _simulation_grid[( y - 1 ) * 6 + x + 1];
-				_simulation_grid[( y - 1 ) * 6 + x + 1] = 0;
+				if( col+2 <= 5 && row-2 >= 0 && _simulation_grid[ ( row-2 )*6 + col+2 ] == 0 )
+					_simulation_grid[ ( row-2 )*6 + col+2 ] = _simulation_grid[ ( row-1 )*6 + col+1 ];
+				_simulation_grid[ ( row-1 )*6 + col+1 ] = 0;
 			}
 		}
-		if( y + 1 <= 5 )
+
+		// Bottom Right
+		if( row+1 <= 5 )
 		{
-			if( _simulation_grid[( y + 1 ) * 6 + x + 1] != 0 &&
-			    ( x + 2 > 5 || y + 2 > 5 || _simulation_grid[( y + 2 ) * 6 + x + 2] == 0 ))
+			if( _simulation_grid[ ( row+1 )*6 + col+1 ] != 0 &&
+			    _simulation_grid[ ( row+1 )*6 + col+1 ] <= _simulation_grid[ index ] &&
+			    ( col+2 > 5 || row+2 > 5 || _simulation_grid[ ( row+2 )*6 + col+2 ] == 0 ) )
 			{
-				if( x + 2 <= 5 && y + 2 <= 5 && _simulation_grid[( y + 2 ) * 6 + x + 2] == 0 )
-					_simulation_grid[( y + 2 ) * 6 + x + 2] = _simulation_grid[( y + 1 ) * 6 + x + 1];
-				_simulation_grid[( y + 1 ) * 6 + x + 1] = 0;
+				if( col+2 <= 5 && row+2 <= 5 && _simulation_grid[ ( row+2 )*6 + col+2 ] == 0 )
+					_simulation_grid[ ( row+2 )*6 + col+2 ] = _simulation_grid[ ( row+1 )*6 + col+1 ];
+				_simulation_grid[ ( row+1 )*6 + col+1 ] = 0;
 			}
 		}
-		if( _simulation_grid[y * 6 + x + 1] != 0 &&
-		    ( x + 2 > 5 || _simulation_grid[y * 6 + x + 2] == 0 ))
+
+		// Right
+		if( _simulation_grid[ row*6 + col+1 ] != 0 &&
+		    _simulation_grid[ row*6 + col+1 ] <= _simulation_grid[ index ] &&
+		    ( col+2 > 5 || _simulation_grid[ row*6 + col+2 ] == 0 ))
 		{
-			if( x + 2 <= 5 && _simulation_grid[y * 6 + x + 2] == 0 )
-				_simulation_grid[y * 6 + x + 2] = _simulation_grid[y * 6 + x + 1];
-			_simulation_grid[y * 6 + x + 1] = 0;
+			if( col+2 <= 5 && _simulation_grid[ row*6 + col+2 ] == 0 )
+				_simulation_grid[ row*6 + col+2 ] = _simulation_grid[ row*6 + col+1 ];
+			_simulation_grid[ row*6 + col+1 ] = 0;
 		}
 	}
-	if( y - 1 >= 0 )
+
+	// Top
+	if( row-1 >= 0 )
 	{
-		if( _simulation_grid[( y - 1 ) * 6 + x] != 0 &&
-		    ( y - 2 < 0 || _simulation_grid[( y - 2 ) * 6 + x] == 0 ))
+		if( _simulation_grid[ ( row-1 )*6 + col ] != 0 &&
+		    _simulation_grid[ ( row-1 )*6 + col ] <= _simulation_grid[ index ] &&
+		    ( row-2 < 0 || _simulation_grid[ ( row-2 )*6 + col ] == 0 ))
 		{
-			if( y - 2 >= 0 && _simulation_grid[( y - 2 ) * 6 + x] == 0 )
-				_simulation_grid[( y - 2 ) * 6 + x] = _simulation_grid[( y - 1 ) * 6 + x];
-			_simulation_grid[( y - 1 ) * 6 + x] = 0;
+			if( row-2 >= 0 && _simulation_grid[ ( row-2 )*6 + col ] == 0 )
+				_simulation_grid[ ( row-2 )*6 + col ] = _simulation_grid[ ( row-1 )*6 + col ];
+			_simulation_grid[ ( row-1 )*6 + col ] = 0;
 		}
 	}
-	if( y + 1 <= 5 )
+
+	 // Bottom
+	if( row+1 <= 5 )
 	{
-		if( _simulation_grid[( y + 1 ) * 6 + x] != 0 &&
-		    ( y + 2 > 5 || _simulation_grid[( y + 2 ) * 6 + x] == 0 ))
+		if( _simulation_grid[ ( row+1 )*6 + col ] != 0 &&
+		    _simulation_grid[ ( row+1 )*6 + col ] <= _simulation_grid[ index ] &&
+		    ( row+2 > 5 || _simulation_grid[ ( row+2 )*6 + col ] == 0 ))
 		{
-			if( y + 2 <= 5 && _simulation_grid[( y + 2 ) * 6 + x] == 0 )
-				_simulation_grid[( y + 2 ) * 6 + x] = _simulation_grid[( y + 1 ) * 6 + x];
-			_simulation_grid[( y + 1 ) * 6 + x] = 0;
+			if( row+2 <= 5 && _simulation_grid[ ( row+2 )*6 + col ] == 0 )
+				_simulation_grid[ ( row+2 )*6 + col ] = _simulation_grid[ ( row+1 )*6 + col ];
+			_simulation_grid[ ( row+1 )*6 + col ] = 0;
 		}
 	}
 }
 
 double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &variables ) const
 {
+	std::cout.rdbuf(new androidbuf); // to redirect std::cout to android logs
+
 	double score = 0.;
 
 	for( int i = 0; i < 36; ++i )
@@ -269,43 +295,56 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 	int count_blue_border_pieces = 0;
 	int count_red_border_pieces = 0;
 
-	if( _simulation_grid[14] < 0 )
-		++count_blue_central_pieces;
-	if( _simulation_grid[14] > 0 )
-		++count_red_central_pieces;
-	if( _simulation_grid[15] < 0 )
-		++count_blue_central_pieces;
-	if( _simulation_grid[15] > 0 )
-		++count_red_central_pieces;
-	if( _simulation_grid[20] < 0 )
-		++count_blue_central_pieces;
-	if( _simulation_grid[20] > 0 )
-		++count_red_central_pieces;
-	if( _simulation_grid[21] < 0 )
-		++count_blue_central_pieces;
-	if( _simulation_grid[21] > 0 )
-		++count_red_central_pieces;
+	for( int row = 0 ; row < 6 ; ++row )
+		for( int col = 0 ; col < 6 ; ++col )
+		{
+			int index = row*6 + col;
 
+			if( _simulation_grid[ index ] < 0 )
+				++count_blue_pieces;
+			if( _simulation_grid[ index ] > 0 )
+				++count_red_pieces;
+
+			if( row == 0 || row == 5 )
+			{
+				if( _simulation_grid[ index ] < 0 )
+					++count_blue_border_pieces;
+				if( _simulation_grid[ index ] > 0 )
+					++count_red_border_pieces;
+			}
+			else {
+				if( col == 0 || col == 5 ) {
+					if( _simulation_grid[ index ] < 0 )
+						++count_blue_border_pieces;
+					if( _simulation_grid[ index ] > 0 )
+						++count_red_border_pieces;
+				}
+				else {
+					if( index == 14 || index == 15 || index == 20 || index == 21 ) {
+						if( _simulation_grid[ index ] < 0 )
+							++count_blue_central_pieces;
+						if( _simulation_grid[ index ] > 0 )
+							++count_red_central_pieces;
+					}
+				}
+			}
+		}
+
+	int jump_forward;
 	// horizontal scans
 	for( int row = 0; row < 6; ++row )
 	{
-		int jump_forward = 0;
 		for( int col = 0; col < 5; col = col + 1 + jump_forward )
 		{
-			if( _simulation_grid[6 * row + col] != 0 )
+			jump_forward = 0;
+			if( _simulation_grid[row * 6 + col] != 0 )
 			{
-				if( _simulation_grid[6 * row + col] < 0 )
+				auto partial_score = compute_partial_score( row, col, RIGHT, jump_forward );
+				if( partial_score > 0 )
 				{
-					++count_blue_pieces;
-					score += compute_partial_score( row, col, RIGHT, jump_forward );
-					if( row == 0 || row == 5 )
-						++count_blue_border_pieces;
-				} else
-				{
-					++count_red_pieces;
-					score += compute_partial_score( row, col, RIGHT, jump_forward );
-					if( row == 0 || row == 5 )
-						++count_red_border_pieces;
+					score += partial_score;
+//					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
+//									  << partial_score << ", jump=" << jump_forward << "\n";
 				}
 			}
 		}
@@ -314,23 +353,17 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 	// vertical scans
 	for( int col = 0; col < 6; ++col )
 	{
-		int jump_forward = 0;
 		for( int row = 0; row < 5; row = row + 1 + jump_forward )
 		{
-			if( _simulation_grid[6 * row + col] != 0 )
+			jump_forward = 0;
+			if( _simulation_grid[ row*6 + col ] != 0 )
 			{
-				if( _simulation_grid[6 * row + col] < 0 )
+				auto partial_score= compute_partial_score( row, col, BOTTOM, jump_forward );
+				if( partial_score > 0 )
 				{
-					++count_blue_pieces;
-					score += compute_partial_score( row, col, BOTTOM, jump_forward );
-					if(( col == 0 || col == 5 ) && row > 0 )
-						++count_blue_border_pieces;
-				} else
-				{
-					++count_red_pieces;
-					score += compute_partial_score( row, col, BOTTOM, jump_forward );
-					if(( col == 0 || col == 5 ) && row > 0 )
-						++count_red_border_pieces;
+					score += partial_score;
+//					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
+//					          << partial_score << ", jump=" << jump_forward << "\n";
 				}
 			}
 		}
@@ -350,10 +383,13 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 	for( auto index: ascendant )
 		if( _simulation_grid[index] != 0 )
 		{
-			if( _simulation_grid[index] < 0 )
-				score += compute_partial_score( index % 6, index / 6, TOPRIGHT, fake_jump );
-			else
-				score += compute_partial_score( index % 6, index / 6, TOPRIGHT, fake_jump );
+			auto partial_score = compute_partial_score( index / 6, index % 6, TOPRIGHT, fake_jump );
+			if( partial_score > 0 )
+			{
+				score += partial_score;
+//				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
+//				          << partial_score << ", jump=" << jump_forward << "\n";
+			}
 		}
 
 	// descendant diagonal scans
@@ -370,20 +406,43 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 	for( auto index: descendant )
 		if( _simulation_grid[index] != 0 )
 		{
-			if( _simulation_grid[index] < 0 )
-				score += compute_partial_score( index % 6, index / 6, BOTTOMRIGHT, fake_jump );
-			else
-				score += compute_partial_score( index % 6, index / 6, BOTTOMRIGHT, fake_jump );
+			auto partial_score = compute_partial_score( index / 6, index % 6, BOTTOMRIGHT, fake_jump );
+			if( partial_score > 0 )
+			{
+				score += partial_score;
+//				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
+//				          << partial_score << ", jump=" << jump_forward << "\n";
+			}
 		}
 
+	int diff_pieces = 0;
+	int diff_pieces_central = 0;
+	int diff_pieces_border = 0;
+
 	if( _blue_turn )
-		score += 3 * ( count_blue_pieces - count_red_pieces ) +
-	           ( count_blue_central_pieces - count_red_central_pieces ) +
-	           ( count_red_border_pieces - count_blue_border_pieces );
+	{
+		diff_pieces = count_blue_pieces - count_red_pieces;
+		diff_pieces_central = count_blue_central_pieces - count_red_central_pieces;
+		diff_pieces_border = count_red_border_pieces - count_blue_border_pieces;
+	}
 	else
-		score += 3 * ( count_red_pieces - count_blue_pieces ) +
-		         ( count_red_central_pieces - count_blue_central_pieces ) +
-		         ( count_blue_border_pieces - count_red_border_pieces );
+	{
+		diff_pieces = count_red_pieces - count_blue_pieces;
+		diff_pieces_central = count_red_central_pieces - count_blue_central_pieces;
+		diff_pieces_border = count_blue_border_pieces - count_red_border_pieces;
+	}
+
+	score += 3 * diff_pieces + diff_pieces_central + diff_pieces_border;
+
+//	std::cout << "diff_pieces: " << diff_pieces
+//	          << ", diff_pieces_central: " << diff_pieces_central
+//						<< ", diff_pieces_border: " << diff_pieces_border << "\n";
+//
+//	std::cout << "Score for piece " << variables[0]->get_value() * (_blue_turn ? -1 : 1)
+//						<< " at (" << (char)('a'+variables[1]->get_value()) << "," << 6-variables[2]->get_value() << "): "
+//						<< score << "\n";
+
+	//delete std::cout.rdbuf(0); // to avoid memory leaks
 
 	return score;
 }

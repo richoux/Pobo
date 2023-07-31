@@ -121,7 +121,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
         val next_row = get_next_row( from_row, direction )
         val next_col = get_next_col( from_col, direction )
 
-        if( _simulation_grid[from_row * 6 + from_col] == 0.toByte() || next_col > 5 || next_row < 0 || next_row > 5 )
+        if( _simulation_grid[from_row*6 + from_col] == 0.toByte() || next_col > 5 || next_row < 0 || next_row > 5 )
             return false
 
         return check_two_in_a_row( from_row, from_col, direction, type )
@@ -140,7 +140,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
         val next_row = get_next_row( from_row, direction )
         val next_col = get_next_col( from_col, direction )
 
-        val index = from_row * 6 + from_col
+        val index = from_row*6 + from_col
         val type_value = when( type ) {
             PieceType.PO -> 1
             PieceType.BO -> 2
@@ -151,7 +151,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
             next_col > 5 || next_row < 0 || next_row > 5 )
             return false
 
-        val next_index = next_row * 6 + next_col
+        val next_index = next_row*6 + next_col
 
         return when( type )
         {
@@ -169,14 +169,14 @@ class SimpleHeuristics(color: Color) : AI(color) {
 
         val next_row = get_next_row( from_row, direction )
         val next_col = get_next_col( from_col, direction )
-        val index = from_row * 6 + from_col
+        val index = from_row*6 + from_col
 
         if( _simulation_grid[index] == 0.toByte() || next_col > 5 || next_row < 0 || next_row > 5 )
             return 0;
 
         val next_next_row = get_next_row( next_row, direction )
         val next_next_col = get_next_col( next_col, direction )
-        val next_index = next_row * 6 + next_col
+        val next_index = next_row*6 + next_col
 
         if( _simulation_grid[next_index] == 0.toByte() || next_next_col > 5 || next_next_row < 0 || next_next_row > 5 )
             return 0
@@ -456,17 +456,6 @@ class SimpleHeuristics(color: Color) : AI(color) {
                     val partial_score = compute_partial_score( row, col, Direction.RIGHT )
                     score += partial_score.first
                     col += partial_score.second
-
-//                    if( _simulation_grid[ row*6 + col ] < 0 )
-//                    {
-//                        val partial_score = compute_partial_score( row, col, Direction.RIGHT )
-//                        score += partial_score.first
-//                        col += partial_score.second
-//                    } else {
-//                        val partial_score = compute_partial_score( row, col, Direction.RIGHT )
-//                        score += partial_score.first
-//                        col += partial_score.second
-//                    }
                 }
                 col++
             }
@@ -483,17 +472,6 @@ class SimpleHeuristics(color: Color) : AI(color) {
                     val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
                     score += partial_score.first
                     row += partial_score.second
-
-//                    if( _simulation_grid[ row*6 + col ] < 0 )
-//                    {
-//                        val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
-//                        score += partial_score.first
-//                        row += partial_score.second
-//                    } else {
-//                        val partial_score = compute_partial_score( row, col, Direction.BOTTOM );
-//                        score += partial_score.first
-//                        row += partial_score.second
-//                    }
                 }
                 row++
             }
@@ -512,12 +490,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
 
         for( index in ascendant )
             if( _simulation_grid[index] != 0.toByte() )
-            {
-                if( _simulation_grid[index] < 0 )
-                    score += compute_partial_score( index / 6, index % 6, Direction.TOPRIGHT ).first
-                else
-                    score += compute_partial_score( index / 6, index % 6, Direction.TOPRIGHT ).first
-            }
+                score += compute_partial_score( index / 6, index % 6, Direction.TOPRIGHT ).first
 
         // descendant diagonal scans
         val descendant = intArrayOf( 24,
@@ -532,12 +505,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
 
         for( index in descendant )
             if( _simulation_grid[index] != 0.toByte() )
-            {
-                if( _simulation_grid[index] < 0 )
-                    score += compute_partial_score( index / 6, index % 6, Direction.BOTTOMRIGHT ).first
-                else
-                    score += compute_partial_score( index / 6, index % 6, Direction.BOTTOMRIGHT ).first
-            }
+                score += compute_partial_score( index / 6, index % 6, Direction.BOTTOMRIGHT ).first
 
         val diff_pieces: Int
         val diff_pieces_central: Int

@@ -17,14 +17,14 @@ Builder::Builder( jbyte * const grid, jbyte * const pool, jint pool_size, jboole
 {
 	piece.push_back(0); // Piece variable is at index 0 of the Variable vector
 	coordinates.push_back(1);
-	coordinates.push_back(2); // Coordinates (x,y) at respectively at indexes 1 and 2
+	coordinates.push_back(2); // Coordinates (row,column) at respectively at indexes 1 and 2
 }
 
 void Builder::declare_variables()
 {
   variables.emplace_back( 1, 2, std::string("piece") );
-  variables.emplace_back( 0, 6, std::string("x") );
-  variables.emplace_back( 0, 6, std::string("y") );
+  variables.emplace_back( 0, 6, std::string("row") );
+  variables.emplace_back( 0, 6, std::string("col") );
 }
 
 void Builder::declare_constraints()

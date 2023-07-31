@@ -11,6 +11,6 @@ FreePosition::FreePosition(const std::vector<int> &variables_index, jbyte *const
 
 double FreePosition::required_error(const std::vector<ghost::Variable *> &variables) const
 {
-    _cache_error = _grid[ 6 * variables[1]->get_value() + variables[0]->get_value() ] == 0 ? 0. : 1.;
+    _cache_error = _grid[ variables[0]->get_value() * 6 + variables[1]->get_value() ] == 0 ? 0. : 1.;
     return _cache_error;
 }

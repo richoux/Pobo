@@ -122,6 +122,36 @@ class MCTS_GHOST (
 
             // Expand
             //val move = randomPlay( selectNode.game, movesToRemove.toList() )
+
+//            Log.d(TAG,"GHOST call\nGrid:")
+//            var ss = ""
+//            for( i in 0..35 ) {
+//                var p = game.board.grid[i].toInt()
+//                if( p < 0 )
+//                    p += 10;
+//                ss += (p.toString() + " ")
+//                if( (i+1) % 6 == 0 )
+//                    ss += "\n"
+//            }
+//            ss += "\n"
+//            Log.d(TAG,"$ss")
+//            ss = ""
+//            Log.d(TAG,"Blue player pool:")
+//            for( i in 0..game.board.bluePool.size-1 ) {
+//                var p = game.board.bluePool[i].toInt()
+//                ss += (p.toString() + " ")
+//            }
+//            Log.d(TAG,"$ss")
+//            ss = ""
+//            Log.d(TAG,"Red player pool:")
+//            for( i in 0..game.board.redPool.size-1 ) {
+//                var p = game.board.redPool[i].toInt()
+//                ss += (p.toString() + " ")
+//            }
+//            Log.d(TAG,"$ss")
+//            var blueTurn = game.currentPlayer == Color.Blue
+//            Log.d(TAG,"Is Blue turn: $blueTurn")
+
             var move: Move
             val solution = ghost_solver_call(
                 game.board.grid,
@@ -136,7 +166,7 @@ class MCTS_GHOST (
             if (solution[0] == 42) {
                 move = randomPlay(selectNode.game, movesToRemove.toList())
                 numberSolverFailures++
-//                Log.d(TAG, "Selection: RANDOM move ${move}")
+                Log.d(TAG, "Selection: RANDOM move ${move}")
             }
             else {
                 val code = when (game.currentPlayer) {
@@ -144,10 +174,16 @@ class MCTS_GHOST (
                     Color.Red -> solution[0]
                 }
 
-                val piece = Piece("", code.toByte())
-                val position = Position(solution[1], solution[2])
+                val id = when( code ) {
+                    -2 -> "BB"
+                    -1 -> "BP"
+                    1 -> "RP"
+                    else -> "RB"
+                }
+                val piece = Piece(id, code.toByte())
+                val position = Position(solution[2], solution[1])
                 move = Move(piece, position)
-                Log.d(TAG, "Selection: solver move ${move}, cost ${solution[3]}")
+//                Log.d(TAG, "Selection: solver move ${move}, cost ${solution[3]}")
             }
             val child = createNode(selectNode.game, move, selectNode.id)
 
@@ -315,7 +351,7 @@ class MCTS_GHOST (
 //                }
 //
 //                val piece = Piece("", code.toByte())
-//                val position = Position(solution[1], solution[2])
+//                val position = Position(solution[2], solution[1])
 //                move = Move(piece, position)
 //            }
 

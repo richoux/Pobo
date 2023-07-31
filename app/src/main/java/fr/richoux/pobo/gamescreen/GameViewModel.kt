@@ -3,6 +3,7 @@ package fr.richoux.pobo.gamescreen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
+import fr.richoux.pobo.engine.ai.AI
 import fr.richoux.pobo.engine.ai.MCTS_GHOST
 import fr.richoux.pobo.engine.ai.SimpleHeuristics
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,7 @@ class GameViewModel : ViewModel() {
 
     var aiEnabled = true
         private set
-    private var ai = SimpleHeuristics(Color.Red)
+    private var ai: AI = SimpleHeuristics(Color.Red)
 
     private var _promotionListIndex: MutableList<Int> = mutableListOf()
     private var _promotionListMask: MutableList<Boolean> = mutableListOf()
@@ -70,7 +71,8 @@ class GameViewModel : ViewModel() {
     fun newGame(aiEnabled: Boolean) {
         this.aiEnabled = aiEnabled
         if( aiEnabled )
-            ai = SimpleHeuristics(Color.Red) //MCTS_GHOST(Color.Red)
+            //ai = SimpleHeuristics(Color.Red)
+            ai = MCTS_GHOST(Color.Red)
 
         _history.clear()
         _forwardHistory.clear()
@@ -149,13 +151,13 @@ class GameViewModel : ViewModel() {
 
         var newState = _game.nextGameState()
         _game.gameState = newState
-        if( aiEnabled && currentPlayer == Color.Red)
-            Log.d(TAG, "New game state: $newState")
+//        if( aiEnabled && currentPlayer == Color.Red)
+//            Log.d(TAG, "New game state: $newState")
 
         if( newState == GameState.SELECTPIECE && aiEnabled && currentPlayer == Color.Red) {
             newState = _game.nextGameState()
             _game.gameState = newState
-            Log.d(TAG, "New game state 2: $newState")
+//            Log.d(TAG, "New game state 2: $newState")
         }
 
         hasStarted = true

@@ -19,12 +19,12 @@ class PoboHeuristic : public ghost::Maximize
 		mutable jbyte _simulation_grid[36];
 		jboolean _blue_turn;
 
-		bool check_three_in_a_row( int from_x, int from_y, Direction direction, PieceType type ) const;
-		bool check_two_in_a_row( int from_x, int from_y, Direction direction, PieceType Type ) const;
-		int	count_Po_in_a_row( int from_x, int from_y, Direction direction ) const;
-		double compute_partial_score( int from_x, int from_y, Direction direction, int& jump_forward ) const;
-		int get_next_x( int from_x, Direction direction ) const;
-		int get_next_y( int from_y, Direction direction ) const;
+		bool check_three_in_a_row( int from_row, int from_col, Direction direction, PieceType type ) const;
+		bool check_two_in_a_row( int from_row, int from_col, Direction direction, PieceType Type ) const;
+		int	count_Po_in_a_row( int from_row, int from_col, Direction direction ) const;
+		double compute_partial_score( int from_row, int from_col, Direction direction, int& jump_forward ) const;
+		int get_next_row( int from_row, Direction direction ) const;
+		int get_next_col( int from_col, Direction direction ) const;
 		void simulate_move( const std::vector<ghost::Variable *> &variables ) const;
 
 public:
