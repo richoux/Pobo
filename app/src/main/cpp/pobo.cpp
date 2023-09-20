@@ -39,7 +39,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 	double cost;
 	std::vector<int> solution;
 
-	bool success = solver.solve( cost, solution, 1 );
+	bool success = solver.fast_search( cost, solution, 1 );
 
 	// Output: Move (Piece + Position) + Cost
 	if( !success )
