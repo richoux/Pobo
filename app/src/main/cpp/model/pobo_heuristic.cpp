@@ -3,7 +3,7 @@
 //
 
 #include "pobo_heuristic.hpp"
-#include "../androidbuf.hpp"
+//#include "../androidbuf.hpp"
 
 PoboHeuristic::PoboHeuristic( const std::vector<ghost::Variable>& variables, jbyte * const grid, jboolean blue_turn )
 				: Maximize( variables, "pobo Heuristic" ),
@@ -277,7 +277,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 
 double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &variables ) const
 {
-	std::cout.rdbuf(new androidbuf); // to redirect std::cout to android logs
+//	std::cout.rdbuf(new androidbuf); // to redirect std::cout to android logs
 
 	double score = 0.;
 
@@ -439,7 +439,7 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 //						<< ", diff_pieces_border: " << diff_pieces_border << "\n";
 //
 //	std::cout << "Score for piece " << variables[0]->get_value() * (_blue_turn ? -1 : 1)
-//						<< " at (" << (char)('a'+variables[1]->get_value()) << "," << 6-variables[2]->get_value() << "): "
+//						<< " at (" << (char)('a'+variables[1]->get_value()) << "," << variables[2]->get_value()+1 << "): "
 //						<< score << "\n";
 
 	//delete std::cout.rdbuf(0); // to avoid memory leaks

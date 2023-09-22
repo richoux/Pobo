@@ -29,13 +29,13 @@ class SimpleHeuristics(color: Color) : AI(color) {
         _game = game.copyForPlayout()
         _blue_turn = _game.currentPlayer == Color.Blue
 
-//        var grid_string = ""
-//        for(row in 0..5 ) {
-//            for (col in 0..5)
-//                grid_string += ( "" + _game.board.grid[row*6 + col] + " " )
-//            grid_string += "\n"
-//        }
-//        Log.d(TAG, grid_string)
+        var grid_string = ""
+        for(row in 0..5 ) {
+            for (col in 0..5)
+                grid_string += ( "" + _game.board.grid[row*6 + col] + " " )
+            grid_string += "\n"
+        }
+        Log.d(TAG, grid_string)
 
         var max_score = MIN_VALUE
         var best_moves = mutableListOf<Move>() //= Move( getPoInstanceOfColor(color), Position(-1, -1) )
@@ -44,7 +44,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
         {
             if( _game.board.hasTwoTypesInPool( color ) ) {
                 score = compute_score(free_cell.y, free_cell.x, PieceType.PO )
-//                Log.d(TAG, "move ${Move( getPoInstanceOfColor(color), free_cell )} has score $score")
+                Log.d(TAG, "move ${Move( getPoInstanceOfColor(color), free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
@@ -59,7 +59,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
                 }
 
                 score = compute_score(free_cell.y, free_cell.x, PieceType.BO )
-//                Log.d(TAG, "Move ${Move( getBoInstanceOfColor(color), free_cell )} has score $score")
+                Log.d(TAG, "Move ${Move( getBoInstanceOfColor(color), free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
@@ -86,7 +86,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
                 }
 
                 score = compute_score(free_cell.y, free_cell.x, type )
-//                Log.d(TAG, "Move ${Move( piece, free_cell )} has score $score")
+                Log.d(TAG, "Move ${Move( piece, free_cell )} has score $score")
                 if( max_score < score )
                 {
                     max_score = score
@@ -394,13 +394,13 @@ class SimpleHeuristics(color: Color) : AI(color) {
 
         simulate_move( row, col, type )
 
-//        var grid_string = ""
-//        for( row in 0..5 ) {
-//            for ( col in 0..5 )
-//                grid_string += ( "" + _simulation_grid[ row*6 + col ] + " " )
-//            grid_string += "\n"
-//        }
-//        Log.d(TAG, grid_string)
+        var grid_string = ""
+        for( row in 0..5 ) {
+            for ( col in 0..5 )
+                grid_string += ( "" + _simulation_grid[ row*6 + col ] + " " )
+            grid_string += "\n"
+        }
+        Log.d(TAG, grid_string)
 
         var count_blue_pieces = 0
         var count_red_pieces = 0

@@ -2,6 +2,9 @@
 // Created by flo on 21/06/2023.
 //
 
+#include <iostream>
+#include "../androidbuf.hpp"
+
 #include "free_position.hpp"
 
 FreePosition::FreePosition(const std::vector<int> &variables_index, jbyte *const grid )

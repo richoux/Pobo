@@ -123,34 +123,34 @@ class MCTS_GHOST (
             // Expand
             //val move = randomPlay( selectNode.game, movesToRemove.toList() )
 
-//            Log.d(TAG,"GHOST call\nGrid:")
-//            var ss = ""
-//            for( i in 0..35 ) {
-//                var p = game.board.grid[i].toInt()
-//                if( p < 0 )
-//                    p += 10;
-//                ss += (p.toString() + " ")
-//                if( (i+1) % 6 == 0 )
-//                    ss += "\n"
-//            }
-//            ss += "\n"
-//            Log.d(TAG,"$ss")
-//            ss = ""
-//            Log.d(TAG,"Blue player pool:")
-//            for( i in 0..game.board.bluePool.size-1 ) {
-//                var p = game.board.bluePool[i].toInt()
-//                ss += (p.toString() + " ")
-//            }
-//            Log.d(TAG,"$ss")
-//            ss = ""
-//            Log.d(TAG,"Red player pool:")
-//            for( i in 0..game.board.redPool.size-1 ) {
-//                var p = game.board.redPool[i].toInt()
-//                ss += (p.toString() + " ")
-//            }
-//            Log.d(TAG,"$ss")
-//            var blueTurn = game.currentPlayer == Color.Blue
-//            Log.d(TAG,"Is Blue turn: $blueTurn")
+            Log.d(TAG,"GHOST call\nGrid:")
+            var ss = ""
+            for( i in 0..35 ) {
+                var p = game.board.grid[i].toInt()
+                if( p < 0 )
+                    p += 10;
+                ss += (p.toString() + " ")
+                if( (i+1) % 6 == 0 )
+                    ss += "\n"
+            }
+            ss += "\n"
+            Log.d(TAG,"$ss")
+            ss = ""
+            Log.d(TAG,"Blue player pool:")
+            for( i in 0..game.board.bluePool.size-1 ) {
+                var p = game.board.bluePool[i].toInt()
+                ss += (p.toString() + " ")
+            }
+            Log.d(TAG,"$ss")
+            ss = ""
+            Log.d(TAG,"Red player pool:")
+            for( i in 0..game.board.redPool.size-1 ) {
+                var p = game.board.redPool[i].toInt()
+                ss += (p.toString() + " ")
+            }
+            Log.d(TAG,"$ss")
+            var blueTurn = game.currentPlayer == Color.Blue
+            Log.d(TAG,"Is Blue turn: $blueTurn")
 
             var move: Move
             val solution = ghost_solver_call(

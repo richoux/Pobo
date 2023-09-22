@@ -148,6 +148,29 @@ namespace ghost
 
 		Options _options; // Options for the solver (see the struct Options).
 
+		// Prefilter domains before running the AC3 algorithm, if the model contains some unary constraints 
+		void prefiltering( std::vector< std::vector<int>> &domains )
+		{
+			for( auto& constraint : _model.constraints )
+			{
+				auto var_index = constraint->_variables_index;
+				if( var_index.size() == 1 )
+				{
+					std::vector<int> values_to_remove;
+					int index = var_index[0];
+					for( auto value : domains[index] )
+					{
+						_model.variables[index].set_value( value );
+						if( constraint->error() > 0.0 )
+							values_to_remove.push_back( value );
+					}
+					
+					for( int value : values_to_remove )
+						domains[index].erase( std::find( domains[index].begin(), domains[index].end(), value ) );					
+				}
+			}
+		}
+		
 		// AC3 algorithm for complete_search. This method is handling the filtering, and return filtered domains.
 		// The vector of vector 'domains' is passed by copy on purpose.
 		// The value of variable[ index_v ] has already been set before the call
@@ -875,6 +898,8 @@ namespace ghost
 					if( _model.constraints[ constraint_id ]->has_variable( variable_id ) )
 						_matrix_var_ctr[ variable_id ].push_back( constraint_id );
 
+			prefiltering( domains );
+			
 			for( int value : domains[0] )
 			{
 				_model.variables[0].set_value( value );
@@ -891,7 +916,12 @@ namespace ghost
 							solutions_exist = true;
 							for( int i = 1 ; i < static_cast<int>( solution.size() ) ; ++i )
 								_model.variables[i].set_value( solution[i] );
-							final_costs.push_back( _model.objective->cost() );
+
+							double cost = _model.objective->cost();
+							if( _model.objective->is_maximization() )
+								cost = -cost;
+
+							final_costs.push_back( cost );
 							final_solutions.emplace_back( solution );
 						}
 				}
@@ -901,7 +931,25 @@ namespace ghost
 			//std::cout << _options.print->print_candidate( _model.variables ).str();
 			return solutions_exist;			
 		}
-		
+
+		/*!
+		 * Call Solver::complete_search with default options.
+		 *
+		 * Users should favor this Solver::complete_search method if they want default options.
+		 *
+		 * \param final_costs a reference to a vector of double to get the errors of all solutions for 
+		 * satisfaction problems, or their objective function value for optimization problems 
+		 * For satisfaction problems, a cost of zero means a solution has been found.
+		 * \param final_solutions a reference to a vector of vector of integers, containing all solutions
+		 * of the problem instance.
+		 * \return True if and only a solution of the problem exists.
+		 */
+		bool complete_search( std::vector<double>& final_costs, std::vector<std::vector<int>>& final_solutions )
+		{
+			Options options;
+			return complete_search( final_costs, final_solutions, options );
+		}
+
 		/*!
 		 * Method to get the variables in the model. This method can be handy in some situations,
 		 * if users do not know what the variables composing their problem instance are, and need 
