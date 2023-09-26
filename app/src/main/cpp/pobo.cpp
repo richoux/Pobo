@@ -1,11 +1,13 @@
 #include <jni.h>
 
+// From https://manski.net/2012/05/logging-from-c-on-android/
+#include <android/log.h>
+#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+
 #include <vector>
 #include "lib/include/ghost/solver.hpp"
 #include "model/builder.hpp"
 #include "lib/include/ghost/thirdparty/randutils.hpp"
-
-#include "androidbuf.hpp"
 
 using namespace std::literals::chrono_literals;
 
@@ -25,7 +27,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 				jboolean k_blue_turn )
 {
 	randutils::mt19937_rng rng;
-	std::cout.rdbuf(new androidbuf); // to redirect std::cout to android logs
+//	ALOG("Line %d.", __LINE__);
 
 	// Inputs //
 	jbyte cpp_grid[36];
@@ -47,12 +49,11 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 	/*
 	bool success = solver.fast_search( cost, solution, 1 );
 	/*/
-	std::cout << "before call\n";
 	std::vector<double> costs;
 	std::vector< std::vector<int> > solutions;
-	std::cout << "before call 2\n";
+
+	// ALOG("Before solver call %d", __LINE__);
 	bool success = solver.complete_search( costs, solutions );
-	std::cout << "after call\n";
 
 	std::vector<int> best_solutions_index;
 	for( int i = 0 ; i < static_cast<int>( solutions.size() ) ; ++i )
