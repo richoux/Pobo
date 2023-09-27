@@ -1,13 +1,13 @@
 #include <jni.h>
 
-// From https://manski.net/2012/05/logging-from-c-on-android/
-#include <android/log.h>
-#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
-
 #include <vector>
 #include "lib/include/ghost/solver.hpp"
 #include "model/builder.hpp"
 #include "lib/include/ghost/thirdparty/randutils.hpp"
+
+// From https://manski.net/2012/05/logging-from-c-on-android/
+// #include <android/log.h>
+// #define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
 
 using namespace std::literals::chrono_literals;
 
@@ -27,7 +27,6 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 				jboolean k_blue_turn )
 {
 	randutils::mt19937_rng rng;
-//	ALOG("Line %d.", __LINE__);
 
 	// Inputs //
 	jbyte cpp_grid[36];
@@ -44,7 +43,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 	Builder builder( cpp_grid, pool, pool_size, k_blue_turn );
 	ghost::Solver solver( builder );
 
-	double cost = std::numeric_limits<double>::min();
+	double cost = std::numeric_limits<int>::min();
 	std::vector<int> solution;
 	/*
 	bool success = solver.fast_search( cost, solution, 1 );
@@ -52,7 +51,6 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 	std::vector<double> costs;
 	std::vector< std::vector<int> > solutions;
 
-	// ALOG("Before solver call %d", __LINE__);
 	bool success = solver.complete_search( costs, solutions );
 
 	std::vector<int> best_solutions_index;
@@ -69,14 +67,20 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 				best_solutions_index.push_back( i );
 	}
 
-	int index = rng.pick( best_solutions_index );
-	solution = solutions[ index ];
+	if( !success )
+	{
+		solution[0] = 42;
+		solution[1] = 0;
+		solution[2] = 0;
+	}
+	else
+	{
+		int index = rng.pick( best_solutions_index );
+		solution = solutions[index];
+	}
 	//*/
 
 	// Output: Move (Piece + Position) + Cost
-	if( !success )
-		solution[0] = 42;
-
 	solution.push_back(static_cast<int>(cost) );
 	jintArray sol = env->NewIntArray( 4 );
 	env->SetIntArrayRegion( sol, 0, 4, (jint *) &solution[0] );

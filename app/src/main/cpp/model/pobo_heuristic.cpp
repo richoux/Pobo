@@ -3,7 +3,9 @@
 //
 
 #include "pobo_heuristic.hpp"
-//#include "../androidbuf.hpp"
+
+//#include <android/log.h>
+//#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
 
 PoboHeuristic::PoboHeuristic( const std::vector<ghost::Variable>& variables, jbyte * const grid, jboolean blue_turn )
 				: Maximize( variables, "pobo Heuristic" ),
@@ -45,8 +47,10 @@ bool PoboHeuristic::check_two_in_a_row( int from_row, int from_col, Direction di
 	{
 		case WHATEVER:
 			return _simulation_grid[index] * _simulation_grid[next_index] > 0;
-		default:
-			return _simulation_grid[index] == _simulation_grid[next_index];
+		case PO:
+			return _simulation_grid[index] == _simulation_grid[next_index] && std::abs( _simulation_grid[index] ) == 1;
+		default: // BO
+			return _simulation_grid[index] == _simulation_grid[next_index] && std::abs( _simulation_grid[index] ) == 2;
 	}
 }
 
@@ -176,7 +180,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 		if( row-1 >= 0 )
 		{
 			if( _simulation_grid[ ( row-1 )*6 + col-1 ] != 0 &&
-					_simulation_grid[ ( row-1 )*6 + col-1 ] <= _simulation_grid[ index ] &&
+					std::abs( _simulation_grid[ ( row-1 )*6 + col-1 ] ) <= std::abs( _simulation_grid[ index ] ) &&
 			    ( col-2 < 0 || row-2 < 0 || _simulation_grid[ ( row-2 )*6 + col-2 ] == 0 ))
 			{
 				if( col-2 >= 0 && row-2 >= 0 && _simulation_grid[ ( row-2 )*6 + col-2 ] == 0 )
@@ -189,7 +193,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 		if( row+1 <= 5 )
 		{
 			if( _simulation_grid[ ( row+1 )*6 + col-1 ] != 0 &&
-			    _simulation_grid[ ( row+1 )*6 + col-1 ] <= _simulation_grid[ index ] &&
+					std::abs( _simulation_grid[ ( row+1 )*6 + col-1 ] ) <= std::abs( _simulation_grid[ index ] ) &&
 			    ( col-2 < 0 || row+2 > 5 || _simulation_grid[ ( row+2 )*6 + col-2 ] == 0 ))
 			{
 				if( col-2 >= 0 && row+2 <= 5 && _simulation_grid[ ( row+2 )*6 + col-2 ] == 0 )
@@ -200,7 +204,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 
 		// Left
 		if( _simulation_grid[ row*6 + col-1 ] != 0 &&
-		    _simulation_grid[ row*6 + col-1 ] <= _simulation_grid[ index ] &&
+		    std::abs( _simulation_grid[ row*6 + col-1 ] ) <= std::abs( _simulation_grid[ index ] ) &&
 		    ( col-2 < 0 || _simulation_grid[ row*6 + col-2 ] == 0 ))
 		{
 			if( col-2 >= 0 && _simulation_grid[ row*6 + col-2 ] == 0 )
@@ -215,7 +219,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 		if( row-1 >= 0 )
 		{
 			if( _simulation_grid[ ( row-1 )*6 + col+1 ] != 0 &&
-			    _simulation_grid[ ( row-1 )*6 + col+1 ] <= _simulation_grid[ index ] &&
+			    std::abs( _simulation_grid[ ( row-1 )*6 + col+1 ] ) <= std::abs( _simulation_grid[ index ] ) &&
 			    ( col+2 > 5 || row-2 < 0 || _simulation_grid[ ( row-2 )*6 + col+2 ] == 0 ))
 			{
 				if( col+2 <= 5 && row-2 >= 0 && _simulation_grid[ ( row-2 )*6 + col+2 ] == 0 )
@@ -228,7 +232,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 		if( row+1 <= 5 )
 		{
 			if( _simulation_grid[ ( row+1 )*6 + col+1 ] != 0 &&
-			    _simulation_grid[ ( row+1 )*6 + col+1 ] <= _simulation_grid[ index ] &&
+			    std::abs( _simulation_grid[ ( row+1 )*6 + col+1 ] ) <= std::abs( _simulation_grid[ index ] ) &&
 			    ( col+2 > 5 || row+2 > 5 || _simulation_grid[ ( row+2 )*6 + col+2 ] == 0 ) )
 			{
 				if( col+2 <= 5 && row+2 <= 5 && _simulation_grid[ ( row+2 )*6 + col+2 ] == 0 )
@@ -239,7 +243,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 
 		// Right
 		if( _simulation_grid[ row*6 + col+1 ] != 0 &&
-		    _simulation_grid[ row*6 + col+1 ] <= _simulation_grid[ index ] &&
+		    std::abs( _simulation_grid[ row*6 + col+1 ] ) <= std::abs( _simulation_grid[ index ] ) &&
 		    ( col+2 > 5 || _simulation_grid[ row*6 + col+2 ] == 0 ))
 		{
 			if( col+2 <= 5 && _simulation_grid[ row*6 + col+2 ] == 0 )
@@ -252,7 +256,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 	if( row-1 >= 0 )
 	{
 		if( _simulation_grid[ ( row-1 )*6 + col ] != 0 &&
-		    _simulation_grid[ ( row-1 )*6 + col ] <= _simulation_grid[ index ] &&
+		    std::abs( _simulation_grid[ ( row-1 )*6 + col ] ) <= std::abs( _simulation_grid[ index ] ) &&
 		    ( row-2 < 0 || _simulation_grid[ ( row-2 )*6 + col ] == 0 ))
 		{
 			if( row-2 >= 0 && _simulation_grid[ ( row-2 )*6 + col ] == 0 )
@@ -265,7 +269,7 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 	if( row+1 <= 5 )
 	{
 		if( _simulation_grid[ ( row+1 )*6 + col ] != 0 &&
-		    _simulation_grid[ ( row+1 )*6 + col ] <= _simulation_grid[ index ] &&
+		    std::abs( _simulation_grid[ ( row+1 )*6 + col ] ) <= std::abs( _simulation_grid[ index ] ) &&
 		    ( row+2 > 5 || _simulation_grid[ ( row+2 )*6 + col ] == 0 ))
 		{
 			if( row+2 <= 5 && _simulation_grid[ ( row+2 )*6 + col ] == 0 )
@@ -277,14 +281,25 @@ void PoboHeuristic::simulate_move( const std::vector<ghost::Variable *> &variabl
 
 double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &variables ) const
 {
-//	std::cout.rdbuf(new androidbuf); // to redirect std::cout to android logs
-
 	double score = 0.;
 
 	for( int i = 0; i < 36; ++i )
 		_simulation_grid[i] = _grid[i];
 
 	simulate_move( variables );
+
+//	ALOG("Simulated move [%d;(%d,%d)]", variables[0]->get_value(), variables[1]->get_value(), variables[2]->get_value() );
+//	std::string s = "";
+//	for (int i = 0 ; i < 36 ; ++i)
+//	{
+//		int p = _simulation_grid[i];
+//		if (p < 0)
+//			p += 10;
+//		s += std::to_string(p) + " ";
+//		if( (i + 1) % 6 == 0 )
+//			s += "\n";
+//	}
+//	ALOG("%s", s.c_str());
 
 	int count_blue_pieces = 0;
 	int count_red_pieces = 0;
@@ -340,12 +355,12 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 			if( _simulation_grid[row * 6 + col] != 0 )
 			{
 				auto partial_score = compute_partial_score( row, col, RIGHT, jump_forward );
-				if( partial_score > 0 )
-				{
+//				if( partial_score > 0 )
+//				{
 					score += partial_score;
 //					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
 //									  << partial_score << ", jump=" << jump_forward << "\n";
-				}
+//				}
 			}
 		}
 	}
@@ -359,12 +374,12 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 			if( _simulation_grid[ row*6 + col ] != 0 )
 			{
 				auto partial_score= compute_partial_score( row, col, BOTTOM, jump_forward );
-				if( partial_score > 0 )
-				{
+//				if( partial_score > 0 )
+//				{
 					score += partial_score;
 //					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
 //					          << partial_score << ", jump=" << jump_forward << "\n";
-				}
+//				}
 			}
 		}
 	}
@@ -384,12 +399,12 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 		if( _simulation_grid[index] != 0 )
 		{
 			auto partial_score = compute_partial_score( index / 6, index % 6, TOPRIGHT, fake_jump );
-			if( partial_score > 0 )
-			{
+//			if( partial_score > 0 )
+//			{
 				score += partial_score;
 //				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
 //				          << partial_score << ", jump=" << jump_forward << "\n";
-			}
+//			}
 		}
 
 	// descendant diagonal scans
@@ -407,12 +422,12 @@ double PoboHeuristic::required_cost( const std::vector<ghost::Variable *> &varia
 		if( _simulation_grid[index] != 0 )
 		{
 			auto partial_score = compute_partial_score( index / 6, index % 6, BOTTOMRIGHT, fake_jump );
-			if( partial_score > 0 )
-			{
+//			if( partial_score > 0 )
+//			{
 				score += partial_score;
 //				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
 //				          << partial_score << ", jump=" << jump_forward << "\n";
-			}
+//			}
 		}
 
 	int diff_pieces = 0;

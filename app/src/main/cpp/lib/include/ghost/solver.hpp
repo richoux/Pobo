@@ -70,6 +70,14 @@
 
 #include "macros.hpp"
 
+// From https://manski.net/2012/05/logging-from-c-on-android/
+#include <android/log.h>
+//*
+#define ALOG(...)
+/*/
+#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//*/
+
 namespace ghost
 {
 	/*!
@@ -151,15 +159,20 @@ namespace ghost
 		// Prefilter domains before running the AC3 algorithm, if the model contains some unary constraints 
 		void prefiltering( std::vector< std::vector<int>> &domains )
 		{
+			ALOG("prefiltering %d.", __LINE__);
+
 			for( auto& constraint : _model.constraints )
 			{
+				ALOG("prefiltering %d.", __LINE__);
 				auto var_index = constraint->_variables_index;
 				if( var_index.size() == 1 )
 				{
+					ALOG("prefiltering %d.", __LINE__);
 					std::vector<int> values_to_remove;
 					int index = var_index[0];
 					for( auto value : domains[index] )
 					{
+						ALOG("prefiltering %d.", __LINE__);
 						_model.variables[index].set_value( value );
 						if( constraint->error() > 0.0 )
 							values_to_remove.push_back( value );
@@ -176,6 +189,7 @@ namespace ghost
 		// The value of variable[ index_v ] has already been set before the call
 		std::vector< std::vector<int>> ac3_filtering( int index_v, std::vector< std::vector<int>> domains )
 		{
+			ALOG("ac3_filtering %d.", __LINE__);
 			// queue of (constraint id, variable id)
 			std::deque<std::pair<int, int>> ac3queue;
 
@@ -184,30 +198,36 @@ namespace ghost
 				{
 					if( variable_id <= index_v )
 						continue;
-					
+
+					ALOG("ac3_filtering %d.", __LINE__);
 					ac3queue.push_back( std::make_pair( constraint_id, variable_id ) );
 				}
 
 			std::vector<int> values_to_remove;
 			while( !ac3queue.empty() )
 			{
+				ALOG("ac3_filtering %d.", __LINE__);
 				int constraint_id = ac3queue.front().first;
 				int variable_id = ac3queue.front().second;
 				ac3queue.pop_front();
 				values_to_remove.clear();
 				for( auto value : domains[variable_id] )
 				{
+					ALOG("ac3_filtering %d.", __LINE__);
 					_model.variables[variable_id].set_value( value );
 					if( !has_support( constraint_id, variable_id, value, index_v, domains ) )
 					{
+						ALOG("ac3_filtering %d.", __LINE__);
 						values_to_remove.push_back( value );
 						for( int c_id : _matrix_var_ctr[ variable_id ] )
 						{
+							ALOG("ac3_filtering %d.", __LINE__);
 							if( c_id == constraint_id )
 								continue;
 
 							for( int v_id : _model.constraints[ c_id ]->_variables_index )
 							{
+								ALOG("ac3_filtering %d.", __LINE__);
 								if( v_id <= index_v || v_id == variable_id )
 									continue;
 
@@ -215,6 +235,7 @@ namespace ghost
 								                  ac3queue.end(),
 								                  [&]( auto& elem ){ return elem.first == c_id && elem.second == v_id; } ) == ac3queue.end() )
 								{
+									ALOG("ac3_filtering %d.", __LINE__);
 									ac3queue.push_back( std::make_pair( c_id, v_id ) );
 								}
 							}
@@ -225,11 +246,13 @@ namespace ghost
 				for( int value : values_to_remove )
 					domains[variable_id].erase( std::find( domains[variable_id].begin(), domains[variable_id].end(), value ) );
 
+				ALOG("ac3_filtering %d.", __LINE__);
 				// once a domain is empty, no need to go further
 				if( domains[variable_id].empty() )
 					return domains;
 			}
 
+			ALOG("ac3_filtering %d.", __LINE__);
 			return domains;
 		}
 
@@ -239,23 +262,28 @@ namespace ghost
 		// Values of variable[ index_v ] and variable[ variable_id ] have already been set before the call
 		bool has_support( int constraint_id, int variable_id, int value, int index_v, const std::vector< std::vector<int>>& domains )
 		{
+			ALOG("has_support %d.", __LINE__);
 			std::vector<int> constraint_scope;
 			for( auto var_index : _model.constraints[ constraint_id ]->_variables_index )
 				if( var_index > index_v && var_index != variable_id )
 					constraint_scope.push_back( var_index );
 
+			ALOG("has_support %d.", __LINE__);
 			// Case where there are no free variables
 			if( constraint_scope.empty() )
 				return _model.constraints[ constraint_id ]->error() == 0.0;
-			
+
+			ALOG("has_support %d.", __LINE__);
 			// From here, there are some free variables to assign
 			std::vector<int> indexes( constraint_scope.size() + 1, 0 );
 			int fake_index = static_cast<int>( indexes.size() ) - 1;
 			
 			while( indexes[ fake_index ] == 0 )
 			{
+				ALOG("has_support %d.", __LINE__);
 				for( int i = 0 ; i < fake_index ; ++i )
 				{
+					ALOG("has_support %d.", __LINE__);
 					int assignment_index = constraint_scope[i];
 					int assignment_value = domains[ assignment_index ][ indexes[ i ] ];
 					_model.variables[ assignment_index ].set_value( assignment_value );
@@ -265,14 +293,17 @@ namespace ghost
 					return true;
 				else
 				{
+					ALOG("has_support %d.", __LINE__);
 					bool changed;
 					int index = 0;
 					do
 					{
+						ALOG("has_support %d.", __LINE__);
 						changed = false;
 						++indexes[ index ];
 						if( index < fake_index && indexes[ index ] >= static_cast<int>( domains[ constraint_scope[ index ] ].size() ) )
 						{
+							ALOG("has_support %d.", __LINE__);
 							indexes[ index ] = 0;
 							changed = true;
 							++index;
@@ -282,6 +313,7 @@ namespace ghost
 				}
 			}
 
+			ALOG("has_support %d.", __LINE__);
 			return false;
 		}
 		
@@ -294,17 +326,21 @@ namespace ghost
 			if( index_v >= _model.variables.size() )
 				return std::vector<std::vector<int>>();
 
+			ALOG("complete_search rec %d.", __LINE__);
 			std::vector< std::vector<int>> new_domains;
 			if( index_v > 0 )
 			{
+				ALOG("complete_search rec %d.", __LINE__);
 				new_domains	= ac3_filtering( index_v, domains );
 				auto empty_domain = std::find_if( new_domains.cbegin(), new_domains.cend(), [&]( auto& domain ){ return domain.empty(); } );
 
+				ALOG("complete_search rec %d.", __LINE__);
 				if( empty_domain != new_domains.cend() )
 					return std::vector<std::vector<int>>();
 			}
 			else
 			{
+				ALOG("complete_search rec %d.", __LINE__);
 				new_domains = domains; // already filtered
 			}
 				
@@ -312,11 +348,13 @@ namespace ghost
 			std::vector<std::vector<int>> solutions;
 			for( auto value : new_domains[next_var] )
 			{
+				ALOG("complete_search rec %d.", __LINE__);
 				_model.variables[next_var].set_value( value );
 				
 				// last variable
 				if( next_var == _model.variables.size() - 1 )
 				{
+					ALOG("complete_search rec %d.", __LINE__);
 					std::vector<int> solution;
 					for( auto& var : _model.variables )
 						solution.emplace_back( var.get_value() );
@@ -324,7 +362,8 @@ namespace ghost
 					solutions.emplace_back( solution );
 				}
 				else // not the last variable: recursive call
-				{					
+				{
+					ALOG("complete_search rec %d.", __LINE__);
 					auto partial_solutions = complete_search( next_var, new_domains );
 					if( !partial_solutions.empty() )
 						std::copy_if( partial_solutions.begin(),
@@ -333,7 +372,8 @@ namespace ghost
 						              [&]( auto& solution ){ return !solution.empty(); } );
 				}
 			}
-			
+
+			ALOG("complete_search rec %d.", __LINE__);
 			return solutions;
 		}
 		
@@ -885,6 +925,7 @@ namespace ghost
 			// init data
 			bool solutions_exist = false;
 			_options = options;
+			ALOG("complete_search %d.", __LINE__);
 
 			_model = _model_builder.build_model();
 
@@ -892,6 +933,7 @@ namespace ghost
 			for( auto& var : _model.variables )
 				domains.emplace_back( var.get_full_domain() );
 
+			ALOG("complete_search %d.", __LINE__);
 			_matrix_var_ctr.resize( _model.variables.size() );
 			for( int variable_id = 0; variable_id < static_cast<int>( _model.variables.size() ); ++variable_id )
 			{
@@ -901,16 +943,20 @@ namespace ghost
 						_matrix_var_ctr[ variable_id ].push_back( constraint_id );
 			}
 
+			ALOG("complete_search %d.", __LINE__);
 			prefiltering( domains );
-			
+			ALOG("complete_search %d.", __LINE__);
+
 			for( int value : domains[0] )
 			{
+				ALOG("complete_search %d.", __LINE__);
 				_model.variables[0].set_value( value );
 				auto new_domains = ac3_filtering( 0, domains );
 				auto empty_domain = std::find_if( new_domains.cbegin(), new_domains.cend(), [&]( auto& domain ){ return domain.empty(); } );
 
 				if( empty_domain == new_domains.cend() )
 				{
+					ALOG("complete_search %d.", __LINE__);
 					std::vector<std::vector<int>> partial_solutions = complete_search( 0, new_domains );
 					
 					for( auto& solution : partial_solutions )
@@ -924,11 +970,15 @@ namespace ghost
 							if( _model.objective->is_maximization() )
 								cost = -cost;
 
+//							ALOG("Solution: piece=%d, position=(%d,%d)", solution[0], solution[1], solution[2]);
+//							ALOG("Cost=%.2f\n\n", cost);
 							final_costs.push_back( cost );
 							final_solutions.emplace_back( solution );
 						}
 				}
 			}
+
+			ALOG("complete_search %d, solutions_exist=%d.", __LINE__, solutions_exist);
 
 			// need to reassigned the variables value to solutions one by one
 			//std::cout << _options.print->print_candidate( _model.variables ).str();

@@ -156,7 +156,8 @@ class SimpleHeuristics(color: Color) : AI(color) {
         return when( type )
         {
             PieceType.WHATEVER -> _simulation_grid[index] * _simulation_grid[next_index] > 0
-            else -> _simulation_grid[index] == _simulation_grid[next_index]
+            PieceType.PO -> _simulation_grid[index] == _simulation_grid[next_index] && abs(_simulation_grid[index].toInt()) == 1
+            else -> _simulation_grid[index] == _simulation_grid[next_index] && abs(_simulation_grid[index].toInt()) == 2
         }
     }
 
