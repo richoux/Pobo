@@ -31,11 +31,12 @@ add_library(
         ${DIR}/pobo.cpp
         ${DIR}/model/has_piece.cpp
         ${DIR}/model/free_position.cpp
-        ${DIR}/model/pobo_heuristic.cpp
+        ${DIR}/model/pobo_objective.cpp
         ${DIR}/model/builder.cpp
+        ${DIR}/heuristics.cpp
 )
 
-include_directories(${DIR}/lib/include/)
+include_directories(${DIR}/lib/include/ ${DIR})
 add_library( ghost_android SHARED IMPORTED )
 set_target_properties( ghost_android PROPERTIES IMPORTED_LOCATION "${DIR}/lib/lib${ghost_android}.so" )
 

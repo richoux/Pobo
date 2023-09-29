@@ -6,7 +6,7 @@
 #include "builder.hpp"
 #include "has_piece.hpp"
 #include "free_position.hpp"
-#include "pobo_heuristic.hpp"
+#include "pobo_objective.hpp"
 
 Builder::Builder( jbyte * const grid, jbyte * const pool, jint pool_size, jboolean blue_turn )
 	: ModelBuilder(),
@@ -35,5 +35,5 @@ void Builder::declare_constraints()
 
 void Builder::declare_objective()
 {
-	objective = std::make_shared<PoboHeuristic>( variables, _grid, _blue_turn );
+	objective = std::make_shared<PoboObjective>( variables, _grid, _blue_turn );
 }

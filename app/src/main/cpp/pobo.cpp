@@ -1,9 +1,11 @@
 #include <jni.h>
 
 #include <vector>
+
 #include "lib/include/ghost/solver.hpp"
 #include "model/builder.hpp"
 #include "lib/include/ghost/thirdparty/randutils.hpp"
+#include "heuristics.hpp"
 
 // From https://manski.net/2012/05/logging-from-c-on-android/
 // #include <android/log.h>
@@ -86,4 +88,20 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 	env->SetIntArrayRegion( sol, 0, 4, (jint *) &solution[0] );
 
 	return sol;
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL
+Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1cpp(
+				JNIEnv *env,
+				jobject thiz,
+				jbyteArray k_grid,
+				jboolean k_blue_turn )
+{
+	jbyte cpp_grid[36];
+	env->GetByteArrayRegion( k_grid, 0, 36, cpp_grid );
+
+	jdouble score = heuristic( cpp_grid, k_blue_turn );
+
+	return score;
 }
