@@ -31,6 +31,7 @@ add_library(
         ${DIR}/pobo.cpp
         ${DIR}/model/has_piece.cpp
         ${DIR}/model/free_position.cpp
+        ${DIR}/model/removed_positions.cpp
         ${DIR}/model/pobo_objective.cpp
         ${DIR}/model/builder.cpp
         ${DIR}/heuristics.cpp

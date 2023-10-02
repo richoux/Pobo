@@ -16,12 +16,23 @@ class Builder : public ghost::ModelBuilder
     jbyte *_pool;
     jint _pool_size;
     jboolean _blue_turn;
+		jbyte *_to_remove_row;
+		jbyte *_to_remove_col;
+		jbyte *_to_remove_p;
+		jint _number_to_remove;
 
     std::vector<int> piece;
     std::vector<int> coordinates;
 
 public:
-    Builder( jbyte * const grid, jbyte * const pool, jint pool_size, jboolean blue_turn );
+    Builder( jbyte * const grid,
+						 jbyte * const pool,
+						 jint pool_size,
+						 jboolean blue_turn,
+				     jbyte * const to_remove_row,
+				     jbyte * const to_remove_col,
+				     jbyte * const to_remove_p,
+				     jint number_to_remove );
 
     void declare_variables() override;
     void declare_constraints() override;

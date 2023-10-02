@@ -26,7 +26,11 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 				jbyteArray k_red_pool,
 				jint k_blue_pool_size,
 				jint k_red_pool_size,
-				jboolean k_blue_turn )
+				jboolean k_blue_turn,
+				jbyteArray k_to_remove_row,
+				jbyteArray k_to_remove_col,
+				jbyteArray k_to_remove_p,
+				jint k_number_to_remove )
 {
 	randutils::mt19937_rng rng;
 
@@ -41,8 +45,24 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 	else
 		env->GetByteArrayRegion( k_red_pool, 0, pool_size, pool );
 
+	jbyte to_remove_row[k_number_to_remove];
+	env->GetByteArrayRegion( k_to_remove_row, 0, k_number_to_remove, to_remove_row );
+
+	jbyte to_remove_col[k_number_to_remove];
+	env->GetByteArrayRegion( k_to_remove_col, 0, k_number_to_remove, to_remove_col );
+
+	jbyte to_remove_p[k_number_to_remove];
+	env->GetByteArrayRegion( k_to_remove_p, 0, k_number_to_remove, to_remove_p );
+
 	// Move search //
-	Builder builder( cpp_grid, pool, pool_size, k_blue_turn );
+	Builder builder( cpp_grid,
+										pool,
+										pool_size,
+										k_blue_turn,
+										to_remove_row,
+										to_remove_col,
+										to_remove_p,
+										k_number_to_remove );
 	ghost::Solver solver( builder );
 
 	double cost = std::numeric_limits<int>::min();

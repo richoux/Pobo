@@ -45,6 +45,43 @@ bool check_two_in_a_row( int from_row, int from_col, Direction direction, PieceT
 	}
 }
 
+bool is_two_in_a_row_in_corner( int from_row, int from_col, Direction direction )
+{
+	return ( direction == TOPRIGHT && ( (from_row == 1 && from_col == 0) || (from_row == 5 && from_col == 4) ) )
+			|| ( direction == BOTTOMRIGHT && ( (from_row == 4 && from_col == 0) || (from_row == 0 && from_col == 4) ) );
+}
+
+bool is_two_in_a_row_blocked( int from_row, int from_col, Direction direction, jbyte * const simulation_grid )
+{
+	bool is_blocked = false;
+	int piece = simulation_grid[ from_row*6 + from_col ];
+
+	switch( direction )
+	{
+		case TOPRIGHT:
+			if( ( from_row + 1 > 5 || from_col - 1 < 0 || simulation_grid[ (from_row+1)*6 + (from_col-1) ]*piece < 0)
+			&& ( from_row - 2 < 0 || from_col + 2 > 5 || simulation_grid[ (from_row-2)*6 + (from_col+2) ]*piece < 0) )
+				is_blocked = true;
+			break;
+		case RIGHT:
+			if( ( from_col - 1 < 0 || simulation_grid[ from_row*6 + (from_col-1) ]*piece < 0)
+			    && ( from_col + 2 > 5 || simulation_grid[ from_row*6 + (from_col+2) ]*piece < 0) )
+				is_blocked = true;
+			break;
+		case BOTTOMRIGHT:
+			if( ( from_row - 1 < 0 || from_col - 1 < 0 || simulation_grid[ (from_row-1)*6 + (from_col-1) ]*piece < 0)
+			    && ( from_row + 2 > 5 || from_col + 2 > 5 || simulation_grid[ (from_row+2)*6 + (from_col+2) ]*piece < 0) )
+				is_blocked = true;
+			break;
+		default: // BOTTOM
+			if( ( from_row - 1 < 0 || simulation_grid[ (from_row-1)*6 + from_col ]*piece < 0)
+			    && ( from_row + 2 > 5 || simulation_grid[ (from_row+2)*6 + from_col ]*piece < 0) )
+				is_blocked = true;
+	}
+
+	return is_blocked;
+}
+
 int count_Po_in_a_row( int from_row, int from_col, Direction direction, jbyte * const simulation_grid )
 {
 	if( from_col > 5 || from_row < 0 || from_row > 5 )
@@ -138,16 +175,42 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 			{
 				if( check_two_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
 				{
-					score += is_player_piece ? 20 : -100;
+					if( is_two_in_a_row_in_corner(from_row, from_col, direction) )
+					{
+						score += is_player_piece ? -20 : 20;
+					}
+					else
+					{
+						if( is_two_in_a_row_blocked(from_row, from_col, direction, simulation_grid) )
+						{
+							score += is_player_piece ? -2 : 2;
+						}
+						else
+						{
+							score += is_player_piece ? 100 : -100;
+						}
+					}
 					jump_forward = 1;
 				}
 				else
 				{
 					if( check_two_in_a_row( from_row, from_col, direction, PO, simulation_grid ))
 					{
-						score += is_player_piece ? 5 : -10;
-						jump_forward = 1;
+						if( is_two_in_a_row_in_corner( from_row, from_col, direction ))
+						{
+							score += is_player_piece ? -5 : 5;
+						} else
+						{
+							if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
+							{
+								score += is_player_piece ? -1 : 1;
+							} else
+							{
+								score += is_player_piece ? 10 : -10;
+							}
+						}
 					}
+					jump_forward = 1;
 				}
 			}
 		}
@@ -327,12 +390,9 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 			if( simulation_grid[row * 6 + col] != 0 )
 			{
 				auto partial_score = compute_partial_score( row, col, RIGHT, jump_forward, simulation_grid, blue_turn );
-//				if( partial_score > 0 )
-//				{
 				score += partial_score;
 //					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
 //									  << partial_score << ", jump=" << jump_forward << "\n";
-//				}
 			}
 		}
 	}
@@ -346,12 +406,9 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 			if( simulation_grid[ row*6 + col ] != 0 )
 			{
 				auto partial_score= compute_partial_score( row, col, BOTTOM, jump_forward, simulation_grid, blue_turn );
-//				if( partial_score > 0 )
-//				{
 				score += partial_score;
 //					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
 //					          << partial_score << ", jump=" << jump_forward << "\n";
-//				}
 			}
 		}
 	}
@@ -371,12 +428,9 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 		if( simulation_grid[index] != 0 )
 		{
 			auto partial_score = compute_partial_score( index / 6, index % 6, TOPRIGHT, fake_jump, simulation_grid, blue_turn );
-//			if( partial_score > 0 )
-//			{
 			score += partial_score;
 //				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
 //				          << partial_score << ", jump=" << jump_forward << "\n";
-//			}
 		}
 
 	// descendant diagonal scans
@@ -394,12 +448,9 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 		if( simulation_grid[index] != 0 )
 		{
 			auto partial_score = compute_partial_score( index / 6, index % 6, BOTTOMRIGHT, fake_jump, simulation_grid, blue_turn );
-//			if( partial_score > 0 )
-//			{
 			score += partial_score;
 //				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
 //				          << partial_score << ", jump=" << jump_forward << "\n";
-//			}
 		}
 
 	int diff_pieces = 0;
