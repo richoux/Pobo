@@ -116,6 +116,7 @@ class MCTS_GHOST (
         // generate our moves
         tryEachPossibleMove()
 
+        //TODO: should not be reinitialized each time
         val actionMasking = mutableListOf<Int>()
         for (node in nodes)
             if (node.move?.to?.x == 0
@@ -138,7 +139,6 @@ class MCTS_GHOST (
                 if( (i+1) % 6 == 0 )
                     ss += "\n"
             }
-            ss += "\n"
             Log.d(TAG,"$ss")
             ss = ""
             Log.d(TAG,"Blue player pool:")
@@ -155,7 +155,7 @@ class MCTS_GHOST (
             }
             Log.d(TAG,"$ss")
             var blueTurn = game.currentPlayer == Color.Blue
-            Log.d(TAG,"Is Blue turn: $blueTurn")
+            Log.d(TAG,"Is Blue turn: ${blueTurn}\n")
 
             /////////////////
             // Select node //
@@ -163,14 +163,10 @@ class MCTS_GHOST (
             val selectedNode = UCT(actionMasking)
             val movesToRemove: MutableList<Move> = mutableListOf()
 
+            //TODO: add actionMasking moves?
             for (child in selectedNode.childID)
                 nodes[child].move?.let { movesToRemove.add(it) }
 
-            ////////////
-            // Expand //
-            ////////////
-            //val move = randomPlay( selectNode.game, movesToRemove.toList() )
-            Log.d(TAG,"\n*** Before expansion ***\nGrid:")
             ss = ""
             for( i in 0..35 ) {
                 var p = selectedNode.game.board.grid[i].toInt()
@@ -180,7 +176,6 @@ class MCTS_GHOST (
                 if( (i+1) % 6 == 0 )
                     ss += "\n"
             }
-            ss += "\n"
             Log.d(TAG,"$ss")
             ss = ""
             Log.d(TAG,"Blue player pool:")
@@ -197,7 +192,12 @@ class MCTS_GHOST (
             }
             Log.d(TAG,"$ss")
             blueTurn = selectedNode.game.currentPlayer == Color.Blue
-            Log.d(TAG,"Is Blue turn: $blueTurn")
+            Log.d(TAG,"Is Blue turn: ${blueTurn}\n")
+
+            ////////////
+            // Expand //
+            ////////////
+            //val move = randomPlay( selectNode.game, movesToRemove.toList() )
 
             var movesToRemoveRow: ByteArray = byteArrayOf()
             var movesToRemoveColumn: ByteArray = byteArrayOf();
@@ -211,7 +211,7 @@ class MCTS_GHOST (
                 movesToRemovePiece += abs( move.piece.code.toInt() ).toByte()
             }
             var move: Move
-            Log.d(TAG,"Before solver call")
+//            Log.d(TAG,"Before solver call")
             val solution = ghost_solver_call(
                 selectedNode.game.board.grid,
                 selectedNode.game.board.bluePool.toByteArray(),
@@ -251,7 +251,7 @@ class MCTS_GHOST (
 
             val expandedNode = createNode(selectedNode.game, move, selectedNode.id)
 
-            ss = "Expansion done:\n"
+            ss = "Expansion done, created node ${expandedNode.id}:\n"
             for( i in 0..35 ) {
                 var p = expandedNode.game.board.grid[i].toInt()
                 if( p < 0 )
@@ -266,7 +266,6 @@ class MCTS_GHOST (
             /////////////
             // Playout //
             /////////////
-            Log.d(TAG,"\n*** Before playout ***\n")
             if (!expandedNode.isTerminal) {
                 expandedNode.score = playout(expandedNode, first_n_strategy) // first n moves are GHOST-based
                 numberPlayouts++
@@ -275,8 +274,7 @@ class MCTS_GHOST (
             /////////////////////////
             // Backpropagate score //
             /////////////////////////
-            Log.d(TAG,"\n*** Before propagation ***\n")
-            Log.d( TAG,"Expanded node ${expandedNode.id} score = ${expandedNode.score}, visits = ${expandedNode.visits}" )
+            Log.d( TAG,"\nExpanded node ${expandedNode.id} score = ${expandedNode.score}, visits = ${expandedNode.visits}" )
             backpropagate(selectedNode.id, expandedNode.score)
         }
 
@@ -354,18 +352,18 @@ class MCTS_GHOST (
 //        Log.d(TAG, "UCT: start scanning children")
 
         for (nodeID in node.childID) {
-//            Log.d(TAG, "Selection: current node's child ID ${nodeID} moveNumber=${nodes[nodeID].game.moveNumber}, actionMasking.contains(${nodeID})=${actionMasking.contains(nodeID)}")
             if (nodes[nodeID].game.moveNumber > action_masking_time || !actionMasking.contains(nodeID)) {
+//                Log.d( TAG,"Selection: current node's child ID ${nodeID} moveNumber=${nodes[nodeID].game.moveNumber}")
                 val newNode = nodes[nodeID]
                 val value = UCTValue(newNode, newNode.visits)
                 if ( value > bestValue ) {
                     potentialNodes.clear()
                     bestValue = value
-//                    Log.d(TAG, "### Selection: better child found. ID=${newNode.id}, value=${value}")
+                    Log.d(TAG, "### Selection: better child found. ID=${newNode.id}, value=${value}, moveNumber=${newNode.game.moveNumber}")
                     potentialNodes.add(newNode)
                 } else if (value == bestValue ) {
                     potentialNodes.add(newNode)
-//                    Log.d(TAG, "### Selection: equivalent child found. ID=${newNode.id}, value=${value}")
+                    Log.d(TAG, "### Selection: equivalent child found. ID=${newNode.id}, value=${value}, moveNumber=${newNode.game.moveNumber}")
                 }
             }
         }

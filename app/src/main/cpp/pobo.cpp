@@ -8,8 +8,8 @@
 #include "heuristics.hpp"
 
 // From https://manski.net/2012/05/logging-from-c-on-android/
-// #include <android/log.h>
-// #define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//#include <android/log.h>
+//#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
 
 using namespace std::literals::chrono_literals;
 
@@ -78,6 +78,8 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 	std::vector<int> best_solutions_index;
 	for( int i = 0 ; i < static_cast<int>( solutions.size() ) ; ++i )
 	{
+//		ALOG("Solution %d: [%d, (%d,%d)], score=%f", i, solutions[i][0], solutions[i][1], solutions[i][2], costs[i]);
+
 		if( cost < costs[i] )
 		{
 			best_solutions_index.clear();

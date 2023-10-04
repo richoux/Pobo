@@ -154,7 +154,7 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 
 	if( check_three_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
 	{
-		score += is_player_piece ? 200 : -200;
+		score += is_player_piece ? 1000 : -1000;
 		jump_forward = 2;
 	}
 	else
@@ -162,6 +162,7 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 		if( check_three_in_a_row( from_row, from_col, direction, PO, simulation_grid ))
 		{
 			score += is_player_piece ? 30 : -30;
+//			score += is_player_piece ? 3 : -3;
 			jump_forward = 2;
 		}
 		else
@@ -169,6 +170,7 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 			if( check_three_in_a_row( from_row, from_col, direction, WHATEVER, simulation_grid ))
 			{
 				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid ) * ( is_player_piece ? 10 : -10 );
+//				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid );
 				jump_forward = 1;
 			}
 			else
@@ -177,17 +179,20 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 				{
 					if( is_two_in_a_row_in_corner(from_row, from_col, direction) )
 					{
-						score += is_player_piece ? -20 : 20;
+//						score += is_player_piece ? -20 : 20;
+						score += is_player_piece ? -30 : 30;
 					}
 					else
 					{
 						if( is_two_in_a_row_blocked(from_row, from_col, direction, simulation_grid) )
 						{
-							score += is_player_piece ? -2 : 2;
+//							score += is_player_piece ? -2 : 2;
+							score += is_player_piece ? -15 : 15;
 						}
 						else
 						{
-							score += is_player_piece ? 100 : -100;
+//							score += is_player_piece ? 100 : -100;
+							score += is_player_piece ? 60 : -60;
 						}
 					}
 					jump_forward = 1;
@@ -198,15 +203,18 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 					{
 						if( is_two_in_a_row_in_corner( from_row, from_col, direction ))
 						{
-							score += is_player_piece ? -5 : 5;
+//							score += is_player_piece ? -5 : 5;
+							score += is_player_piece ? -10 : 10;
 						} else
 						{
 							if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
 							{
-								score += is_player_piece ? -1 : 1;
+//								score += is_player_piece ? -1 : 1;
+								score += is_player_piece ? -5 : 5;
 							} else
 							{
-								score += is_player_piece ? 10 : -10;
+//								score += is_player_piece ? 10 : -10;
+								score += is_player_piece ? 20 : -20;
 							}
 						}
 					}
@@ -336,45 +344,67 @@ void simulate_move( const std::vector<ghost::Variable *> &variables, jbyte * con
 double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 	double score = 0.0;
 
-	int count_blue_pieces = 0;
-	int count_red_pieces = 0;
+	int count_blue_po = 0;
+	int count_blue_bo = 0;
+	int count_red_po = 0;
+	int count_red_bo = 0;
 
-	int count_blue_central_pieces = 0;
-	int count_red_central_pieces = 0;
+	int count_blue_central_po = 0;
+	int count_blue_central_bo = 0;
+	int count_red_central_po = 0;
+	int count_red_central_bo = 0;
 
-	int count_blue_border_pieces = 0;
-	int count_red_border_pieces = 0;
+	int count_blue_border_po = 0;
+	int count_blue_border_bo = 0;
+	int count_red_border_po = 0;
+	int count_red_border_bo = 0;
 
 	for( int row = 0 ; row < 6 ; ++row )
 		for( int col = 0 ; col < 6 ; ++col )
 		{
 			int index = row*6 + col;
 
-			if( simulation_grid[ index ] < 0 )
-				++count_blue_pieces;
-			if( simulation_grid[ index ] > 0 )
-				++count_red_pieces;
+			if( simulation_grid[ index ] == -1 )
+				++count_blue_po;
+			if( simulation_grid[ index ] == -2 )
+				++count_blue_bo;
+			if( simulation_grid[ index ] == 1 )
+				++count_red_po;
+			if( simulation_grid[ index ] == 2 )
+				++count_red_bo;
 
 			if( row == 0 || row == 5 )
 			{
-				if( simulation_grid[ index ] < 0 )
-					++count_blue_border_pieces;
-				if( simulation_grid[ index ] > 0 )
-					++count_red_border_pieces;
+				if( simulation_grid[ index ] == -1 )
+					++count_blue_border_po;
+				if( simulation_grid[ index ] == -2 )
+					++count_blue_border_bo;
+				if( simulation_grid[ index ] == 1 )
+					++count_red_border_po;
+				if( simulation_grid[ index ] == 2 )
+					++count_red_border_bo;
 			}
 			else {
 				if( col == 0 || col == 5 ) {
-					if( simulation_grid[ index ] < 0 )
-						++count_blue_border_pieces;
-					if( simulation_grid[ index ] > 0 )
-						++count_red_border_pieces;
+					if( simulation_grid[ index ] == -1 )
+						++count_blue_border_po;
+					if( simulation_grid[ index ] == -2 )
+						++count_blue_border_bo;
+					if( simulation_grid[ index ] == 1 )
+						++count_red_border_po;
+					if( simulation_grid[ index ] == 2 )
+						++count_red_border_bo;
 				}
 				else {
 					if( index == 14 || index == 15 || index == 20 || index == 21 ) {
-						if( simulation_grid[ index ] < 0 )
-							++count_blue_central_pieces;
-						if( simulation_grid[ index ] > 0 )
-							++count_red_central_pieces;
+						if( simulation_grid[ index ] == -1 )
+							++count_blue_central_po;
+						if( simulation_grid[ index ] == -2 )
+							++count_blue_central_bo;
+						if( simulation_grid[ index ] == 1 )
+							++count_red_central_po;
+						if( simulation_grid[ index ] == 2 )
+							++count_red_central_bo;
 					}
 				}
 			}
@@ -453,23 +483,36 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 //				          << partial_score << ", jump=" << jump_forward << "\n";
 		}
 
-	int diff_pieces = 0;
-	int diff_pieces_central = 0;
-	int diff_pieces_border = 0;
+	int diff_po = 0;
+	int diff_bo = 0;
+	int diff_po_central = 0;
+	int diff_bo_central = 0;
+	int diff_po_border = 0;
+	int diff_bo_border = 0;
 
 	if( blue_turn )
 	{
-		diff_pieces = count_blue_pieces - count_red_pieces;
-		diff_pieces_central = count_blue_central_pieces - count_red_central_pieces;
-		diff_pieces_border = count_red_border_pieces - count_blue_border_pieces;
+		diff_po = count_blue_po - count_red_po;
+		diff_bo = count_blue_bo - count_red_bo;
+
+		diff_po_central = count_blue_central_po - count_red_central_po;
+		diff_bo_central = count_blue_central_bo - count_red_central_bo;
+
+		diff_po_border = count_red_border_po - count_blue_border_po;
+		diff_bo_border = count_red_border_bo - count_blue_border_bo;
 	}
 	else
 	{
-		diff_pieces = count_red_pieces - count_blue_pieces;
-		diff_pieces_central = count_red_central_pieces - count_blue_central_pieces;
-		diff_pieces_border = count_blue_border_pieces - count_red_border_pieces;
+		diff_po = count_red_po - count_blue_po;
+		diff_bo = count_red_bo - count_blue_bo;
+
+		diff_po_central = count_red_central_po - count_blue_central_po;
+		diff_bo_central = count_red_central_bo - count_blue_central_bo;
+
+		diff_po_border = count_blue_border_po - count_red_border_po;
+		diff_bo_border = count_blue_border_bo - count_red_border_bo;
 	}
 
-	score += 3 * diff_pieces + diff_pieces_central + diff_pieces_border;
+	score += 3 * (diff_bo + diff_bo_central + diff_bo_border) + diff_po + diff_po_central + diff_po_border;
 	return score;
 }
