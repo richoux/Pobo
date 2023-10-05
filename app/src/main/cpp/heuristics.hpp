@@ -12,15 +12,62 @@
 enum Direction { TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOM };
 enum PieceType { PO, BO, WHATEVER };
 
-bool check_three_in_a_row( int from_row, int from_col, Direction direction, PieceType type, jbyte * const simulation_grid );
-bool check_two_in_a_row( int from_row, int from_col, Direction direction, PieceType Type, jbyte * const simulation_grid );
-bool is_two_in_a_row_in_corner( int from_row, int from_col, Direction direction );
-bool is_two_in_a_row_blocked( int from_row, int from_col, Direction direction, jbyte * const simulation_grid );
-int	count_Po_in_a_row( int from_row, int from_col, Direction direction, jbyte * const simulation_grid );
-double compute_partial_score( int from_row, int from_col, Direction direction, int& jump_forward, jbyte * const simulation_grid, jboolean blue_turn );
-int get_next_row( int from_row, Direction direction );
-int get_next_col( int from_col, Direction direction );
-void simulate_move( const std::vector<ghost::Variable *> &variables, jbyte * const simulation_grid, jboolean blue_turn );
-double heuristic( jbyte * const simulation_grid, jboolean blue_turn );
+bool check_three_in_a_row( int from_row,
+													 int from_col,
+													 Direction direction,
+													 PieceType type,
+													 jbyte * const simulation_grid );
+
+bool check_two_in_a_row( int from_row,
+												 int from_col,
+												 Direction direction,
+												 PieceType Type,
+												 jbyte * const simulation_grid );
+
+bool is_two_in_a_row_in_corner( int from_row,
+																int from_col,
+																Direction direction );
+
+bool is_two_in_a_row_blocked( int from_row,
+															int from_col,
+															Direction direction,
+															jbyte * const simulation_grid );
+
+int	count_Po_in_a_row( int from_row,
+												int from_col,
+												Direction direction,
+												jbyte * const simulation_grid );
+
+double compute_partial_score( int from_row,
+															int from_col,
+															Direction direction,
+															int& jump_forward,
+															jbyte * const simulation_grid,
+															jboolean blue_turn,
+															jbyte * const blue_pool,
+															jint& blue_pool_size,
+															jbyte * const red_pool,
+															jint& red_pool_size );
+
+int get_next_row( int from_row,
+									Direction direction );
+
+int get_next_col( int from_col,
+									Direction direction );
+
+void simulate_move( const std::vector<ghost::Variable *> &variables,
+										jbyte * const simulation_grid,
+										jboolean blue_turn,
+										jbyte * const blue_pool,
+										jint & blue_pool_size,
+										jbyte * const red_pool,
+										jint & red_pool_size );
+
+double heuristic( jbyte * const simulation_grid,
+									jboolean blue_turn,
+									jbyte * const blue_pool,
+									jint blue_pool_size,
+									jbyte * const red_pool,
+									jint red_pool_size );
 
 #endif //HEURISTICS_HPP

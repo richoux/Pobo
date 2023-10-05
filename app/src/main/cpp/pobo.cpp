@@ -36,14 +36,12 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 
 	// Inputs //
 	jbyte cpp_grid[36];
-	jint pool_size = k_blue_turn ? k_blue_pool_size : k_red_pool_size;
-	jbyte pool[pool_size];
+	jbyte blue_pool[k_blue_pool_size];
+  jbyte red_pool[k_red_pool_size];
 
 	env->GetByteArrayRegion( k_grid, 0, 36, cpp_grid );
-	if( k_blue_turn )
-		env->GetByteArrayRegion( k_blue_pool, 0, pool_size, pool );
-	else
-		env->GetByteArrayRegion( k_red_pool, 0, pool_size, pool );
+	env->GetByteArrayRegion( k_blue_pool, 0, k_blue_pool_size, blue_pool );
+	env->GetByteArrayRegion( k_red_pool, 0, k_red_pool_size, red_pool );
 
 	jbyte to_remove_row[k_number_to_remove];
 	env->GetByteArrayRegion( k_to_remove_row, 0, k_number_to_remove, to_remove_row );
@@ -56,14 +54,16 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 
 	// Move search //
 	Builder builder( cpp_grid,
-										pool,
-										pool_size,
-										k_blue_turn,
-										to_remove_row,
-										to_remove_col,
-										to_remove_p,
-										k_number_to_remove );
-	ghost::Solver solver( builder );
+                     blue_pool,
+                     k_blue_pool_size,
+                     red_pool,
+                     k_red_pool_size,
+                     k_blue_turn,
+                     to_remove_row,
+                     to_remove_col,
+                     to_remove_p,
+                     k_number_to_remove);
+    ghost::Solver solver(builder);
 
 	double cost = std::numeric_limits<int>::min();
 	std::vector<int> solution;
@@ -118,12 +118,26 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1cpp(
 				JNIEnv *env,
 				jobject thiz,
 				jbyteArray k_grid,
-				jboolean k_blue_turn )
+				jboolean k_blue_turn,
+				jbyteArray k_blue_pool,
+				jint k_blue_pool_size,
+				jbyteArray k_red_pool,
+				jint k_red_pool_size )
 {
 	jbyte cpp_grid[36];
-	env->GetByteArrayRegion( k_grid, 0, 36, cpp_grid );
+	jbyte blue_pool[k_blue_pool_size];
+	jbyte red_pool[k_red_pool_size];
 
-	jdouble score = heuristic( cpp_grid, k_blue_turn );
+	env->GetByteArrayRegion( k_grid, 0, 36, cpp_grid );
+	env->GetByteArrayRegion( k_blue_pool, 0, k_blue_pool_size, blue_pool );
+	env->GetByteArrayRegion( k_red_pool, 0, k_red_pool_size, red_pool );
+
+	jdouble score = heuristic( cpp_grid,
+														 k_blue_turn,
+														 blue_pool,
+														 k_blue_pool_size,
+														 red_pool,
+														 k_red_pool_size );
 
 	return score;
 }

@@ -64,7 +64,11 @@ class MCTS_GHOST (
 
         external fun heuristic_cpp(
             grid: ByteArray,
-            blue_turn: Boolean
+            blue_turn: Boolean,
+            blue_pool: ByteArray,
+            blue_pool_size: Int,
+            red_pool: ByteArray,
+            red_pool_size: Int
         ): Double
     }
 
@@ -481,8 +485,15 @@ class MCTS_GHOST (
 
             numberMoves++
 
-            if( !isBlueVictory && !isRedVictory ) {
-                val heuristic_score = heuristic_cpp( game.board.grid, expanded_node_color_is_blue )
+            if (!isBlueVictory && !isRedVictory) {
+                val heuristic_score = heuristic_cpp(
+                    game.board.grid,
+                    expanded_node_color_is_blue,
+                    game.board.bluePool.toByteArray(),
+                    game.board.bluePool.size,
+                    game.board.redPool.toByteArray(),
+                    game.board.redPool.size
+                )
                 val exponential_discount = discount_score.pow(numberMoves-1) // -1 because we don't want any discount for the first move
                 score += (exponential_discount * heuristic_score)
 

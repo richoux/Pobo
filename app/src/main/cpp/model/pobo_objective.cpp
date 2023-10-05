@@ -8,10 +8,20 @@
 #include <android/log.h>
 #define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
 
-PoboObjective::PoboObjective( const std::vector<ghost::Variable>& variables, jbyte * const grid, jboolean blue_turn )
+PoboObjective::PoboObjective( const std::vector<ghost::Variable>& variables,
+															jbyte * const grid,
+															jboolean blue_turn,
+															jbyte *const blue_pool,
+															jint blue_pool_size,
+															jbyte *const red_pool,
+															jint red_pool_size )
 				: Maximize( variables, "pobo Heuristic" ),
 				  _grid( grid ),
-				  _blue_turn( blue_turn )
+				  _blue_turn( blue_turn ),
+					_blue_pool( blue_pool ),
+					_blue_pool_size( blue_pool_size ),
+					_red_pool( red_pool ),
+					_red_pool_size( red_pool_size )
 { }
 
 double PoboObjective::required_cost( const std::vector<ghost::Variable *> &variables ) const
@@ -34,7 +44,13 @@ double PoboObjective::required_cost( const std::vector<ghost::Variable *> &varia
 //	}
 //	ALOG("%s", s.c_str());
 
-	simulate_move( variables, _simulation_grid, _blue_turn );
+	simulate_move( variables,
+								 _simulation_grid,
+								 _blue_turn,
+								 _blue_pool,
+								 _blue_pool_size,
+								 _red_pool,
+								 _red_pool_size );
 
 //	s = "After simulation\n";
 //	for (int i = 0 ; i < 36 ; ++i)
@@ -48,7 +64,12 @@ double PoboObjective::required_cost( const std::vector<ghost::Variable *> &varia
 //	}
 //	ALOG("%s", s.c_str());
 
-		score = heuristic( _simulation_grid, _blue_turn );
+		score = heuristic( _simulation_grid,
+											 _blue_turn,
+											 _blue_pool,
+											 _blue_pool_size,
+											 _red_pool,
+											 _red_pool_size );
 
 //	std::cout << "diff_pieces: " << diff_pieces
 //	          << ", diff_pieces_central: " << diff_pieces_central

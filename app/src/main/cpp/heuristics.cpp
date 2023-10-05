@@ -4,7 +4,11 @@
 
 #include "heuristics.hpp"
 
-bool check_three_in_a_row( int from_row, int from_col, Direction direction, PieceType type, jbyte * const simulation_grid )
+bool check_three_in_a_row( int from_row,
+													 int from_col,
+													 Direction direction,
+													 PieceType type,
+													 jbyte * const simulation_grid )
 {
 	if( from_col > 5 || from_row < 0 || from_row > 5 )
 		return false;
@@ -19,7 +23,11 @@ bool check_three_in_a_row( int from_row, int from_col, Direction direction, Piec
 	       && check_two_in_a_row( next_row, next_col, direction, type, simulation_grid );
 }
 
-bool check_two_in_a_row( int from_row, int from_col, Direction direction, PieceType type, jbyte * const simulation_grid )
+bool check_two_in_a_row( int from_row,
+												 int from_col,
+												 Direction direction,
+												 PieceType type,
+												 jbyte * const simulation_grid )
 {
 	if( from_col > 5 || from_row < 0 || from_row > 5 )
 		return false;
@@ -45,13 +53,18 @@ bool check_two_in_a_row( int from_row, int from_col, Direction direction, PieceT
 	}
 }
 
-bool is_two_in_a_row_in_corner( int from_row, int from_col, Direction direction )
+bool is_two_in_a_row_in_corner( int from_row,
+																int from_col,
+																Direction direction )
 {
 	return ( direction == TOPRIGHT && ( (from_row == 1 && from_col == 0) || (from_row == 5 && from_col == 4) ) )
 			|| ( direction == BOTTOMRIGHT && ( (from_row == 4 && from_col == 0) || (from_row == 0 && from_col == 4) ) );
 }
 
-bool is_two_in_a_row_blocked( int from_row, int from_col, Direction direction, jbyte * const simulation_grid )
+bool is_two_in_a_row_blocked( int from_row,
+															int from_col,
+															Direction direction,
+															jbyte * const simulation_grid )
 {
 	bool is_blocked = false;
 	int piece = simulation_grid[ from_row*6 + from_col ];
@@ -82,7 +95,10 @@ bool is_two_in_a_row_blocked( int from_row, int from_col, Direction direction, j
 	return is_blocked;
 }
 
-int count_Po_in_a_row( int from_row, int from_col, Direction direction, jbyte * const simulation_grid )
+int count_Po_in_a_row( int from_row,
+											 int from_col,
+											 Direction direction,
+											 jbyte * const simulation_grid )
 {
 	if( from_col > 5 || from_row < 0 || from_row > 5 )
 		return 0;
@@ -146,11 +162,41 @@ int get_next_col( int from_col, Direction direction )
 	}
 }
 
-double compute_partial_score( int from_row, int from_col, Direction direction, int& jump_forward, jbyte * const simulation_grid, jboolean blue_turn )
+double compute_partial_score( int from_row,
+															int from_col,
+															Direction direction,
+															int& jump_forward,
+															jbyte * const simulation_grid,
+															jboolean blue_turn,
+															jbyte * const blue_pool,
+															jint& blue_pool_size,
+															jbyte * const red_pool,
+															jint& red_pool_size )
 {
 	double score = 0.;
 	bool is_player_piece = ( ( simulation_grid[ from_row*6 + from_col ] < 0 && blue_turn ) ||
 	                         ( simulation_grid[ from_row*6 + from_col ] > 0 && !blue_turn ) );
+
+	bool do_current_player_has_bo_in_pool = false;
+	bool do_opponent_has_bo_in_pool = false;
+
+	for( int i = 0 ; i < blue_pool_size ; ++i )
+		if( blue_pool[i] == 2 )
+		{
+			if( blue_turn )
+				do_current_player_has_bo_in_pool = true;
+			else
+				do_opponent_has_bo_in_pool = true;
+		}
+
+	for( int i = 0 ; i < red_pool_size ; ++i )
+		if( red_pool[i] == 2 )
+		{
+			if( blue_turn )
+				do_opponent_has_bo_in_pool = true;
+			else
+				do_current_player_has_bo_in_pool = true;
+		}
 
 	if( check_three_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
 	{
@@ -192,7 +238,20 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 						else
 						{
 //							score += is_player_piece ? 100 : -100;
-							score += is_player_piece ? 60 : -60;
+							if( is_player_piece )
+							{
+								if( do_current_player_has_bo_in_pool )
+									score += 60;
+								else
+									score += 20;
+							}
+							else
+							{
+								if( do_opponent_has_bo_in_pool )
+									score -= 300; // because there is a severe risk to loose the game
+								else
+									score -= 20;
+							}
 						}
 					}
 					jump_forward = 1;
@@ -227,7 +286,13 @@ double compute_partial_score( int from_row, int from_col, Direction direction, i
 	return score;
 }
 
-void simulate_move( const std::vector<ghost::Variable *> &variables, jbyte * const simulation_grid, jboolean blue_turn )
+void simulate_move( const std::vector<ghost::Variable *> &variables,
+										jbyte * const simulation_grid,
+										jboolean blue_turn,
+										jbyte * const blue_pool,
+										jint & blue_pool_size,
+										jbyte * const red_pool,
+										jint & red_pool_size )
 {
 	int p = variables[0]->get_value() * (blue_turn ? -1 : 1);
 	int row = variables[1]->get_value();
@@ -339,9 +404,16 @@ void simulate_move( const std::vector<ghost::Variable *> &variables, jbyte * con
 			simulation_grid[ ( row+1 )*6 + col ] = 0;
 		}
 	}
+
+	//TODO: need to check graduations T_T
 }
 
-double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
+double heuristic( jbyte * const simulation_grid,
+									jboolean blue_turn,
+									jbyte * const blue_pool,
+									jint blue_pool_size,
+									jbyte * const red_pool,
+									jint red_pool_size ) {
 	double score = 0.0;
 
 	int count_blue_po = 0;
@@ -419,7 +491,16 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 			jump_forward = 0;
 			if( simulation_grid[row * 6 + col] != 0 )
 			{
-				auto partial_score = compute_partial_score( row, col, RIGHT, jump_forward, simulation_grid, blue_turn );
+				auto partial_score = compute_partial_score( row,
+																										col,
+																										RIGHT,
+																										jump_forward,
+																										simulation_grid,
+																										blue_turn,
+																										blue_pool,
+																										blue_pool_size,
+																										red_pool,
+																										red_pool_size );
 				score += partial_score;
 //					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
 //									  << partial_score << ", jump=" << jump_forward << "\n";
@@ -435,7 +516,16 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 			jump_forward = 0;
 			if( simulation_grid[ row*6 + col ] != 0 )
 			{
-				auto partial_score= compute_partial_score( row, col, BOTTOM, jump_forward, simulation_grid, blue_turn );
+				auto partial_score= compute_partial_score( row,
+																									 col,
+																									 BOTTOM,
+																									 jump_forward,
+																									 simulation_grid,
+																									 blue_turn,
+																									 blue_pool,
+																									 blue_pool_size,
+																									 red_pool,
+																									 red_pool_size );
 				score += partial_score;
 //					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
 //					          << partial_score << ", jump=" << jump_forward << "\n";
@@ -457,7 +547,16 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 	for( auto index: ascendant )
 		if( simulation_grid[index] != 0 )
 		{
-			auto partial_score = compute_partial_score( index / 6, index % 6, TOPRIGHT, fake_jump, simulation_grid, blue_turn );
+			auto partial_score = compute_partial_score( index / 6,
+																									index % 6,
+																									TOPRIGHT,
+																									fake_jump,
+																									simulation_grid,
+																									blue_turn,
+																									blue_pool,
+																									blue_pool_size,
+																									red_pool,
+																									red_pool_size );
 			score += partial_score;
 //				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
 //				          << partial_score << ", jump=" << jump_forward << "\n";
@@ -477,7 +576,16 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 	for( auto index: descendant )
 		if( simulation_grid[index] != 0 )
 		{
-			auto partial_score = compute_partial_score( index / 6, index % 6, BOTTOMRIGHT, fake_jump, simulation_grid, blue_turn );
+			auto partial_score = compute_partial_score( index / 6,
+																									index % 6,
+																									BOTTOMRIGHT,
+																									fake_jump,
+																									simulation_grid,
+																									blue_turn,
+																									blue_pool,
+																									blue_pool_size,
+																									red_pool,
+																									red_pool_size );
 			score += partial_score;
 //				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
 //				          << partial_score << ", jump=" << jump_forward << "\n";
@@ -490,6 +598,18 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 	int diff_po_border = 0;
 	int diff_bo_border = 0;
 
+	int total_blue_bo = count_blue_bo;
+	for( int i = 0 ; i < blue_pool_size ; ++i )
+		if( blue_pool[i] == 2 )
+			++total_blue_bo;
+
+	int total_red_bo = count_red_bo;
+	for( int i = 0 ; i < red_pool_size ; ++i )
+		if( red_pool[i] == 2 )
+			++total_red_bo;
+
+	int diff_total_bo = 0;
+
 	if( blue_turn )
 	{
 		diff_po = count_blue_po - count_red_po;
@@ -500,6 +620,8 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 
 		diff_po_border = count_red_border_po - count_blue_border_po;
 		diff_bo_border = count_red_border_bo - count_blue_border_bo;
+
+		diff_total_bo = total_blue_bo - total_red_bo;
 	}
 	else
 	{
@@ -511,8 +633,12 @@ double heuristic( jbyte * const simulation_grid, jboolean blue_turn ) {
 
 		diff_po_border = count_blue_border_po - count_red_border_po;
 		diff_bo_border = count_blue_border_bo - count_red_border_bo;
+
+		diff_total_bo = total_red_bo - total_blue_bo;
 	}
 
-	score += 3 * (diff_bo + diff_bo_central + diff_bo_border) + diff_po + diff_po_central + diff_po_border;
+	score += 3 * (diff_bo + diff_bo_central + diff_bo_border)
+					+ 2 * diff_total_bo
+					+ diff_po + diff_po_central + diff_po_border;
 	return score;
 }

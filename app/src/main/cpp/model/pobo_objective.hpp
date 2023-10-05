@@ -12,14 +12,24 @@
 
 class PoboObjective : public ghost::Maximize
 {
-		jbyte *_grid;
-		mutable jbyte _simulation_grid[36];
-		jboolean _blue_turn;
+	jbyte *_grid;
+	mutable jbyte _simulation_grid[36];
+	jboolean _blue_turn;
+	jbyte *_blue_pool;
+	mutable jint _blue_pool_size;
+	jbyte *_red_pool;
+	mutable jint _red_pool_size;
 
 public:
-		PoboObjective( const std::vector<ghost::Variable> &variables, jbyte *const grid, jboolean blue_turn );
+	PoboObjective( const std::vector <ghost::Variable> &variables,
+								 jbyte *const grid,
+	               jboolean blue_turn,
+	               jbyte *const blue_pool,
+								 jint blue_pool_size,
+								 jbyte *const red_pool,
+								 jint red_pool_size );
 
-		double required_cost( const std::vector<ghost::Variable *> &variables ) const override;
+	double required_cost( const std::vector<ghost::Variable *> &variables ) const override;
 };
 
 #endif //POBO_OBJECTIVE_HPP

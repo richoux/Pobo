@@ -12,31 +12,39 @@
 
 class Builder : public ghost::ModelBuilder
 {
-    jbyte *_grid;
-    jbyte *_pool;
-    jint _pool_size;
-    jboolean _blue_turn;
-		jbyte *_to_remove_row;
-		jbyte *_to_remove_col;
-		jbyte *_to_remove_p;
-		jint _number_to_remove;
+	jbyte *_grid;
+	jbyte *_pool;
+	jint _pool_size;
+	jbyte *_blue_pool;
+	jint _blue_pool_size;
+	jbyte *_red_pool;
+	jint _red_pool_size;
+	jboolean _blue_turn;
+	jbyte *_to_remove_row;
+	jbyte *_to_remove_col;
+	jbyte *_to_remove_p;
+	jint _number_to_remove;
 
-    std::vector<int> piece;
-    std::vector<int> coordinates;
+	std::vector<int> piece;
+	std::vector<int> coordinates;
 
 public:
-    Builder( jbyte * const grid,
-						 jbyte * const pool,
-						 jint pool_size,
-						 jboolean blue_turn,
-				     jbyte * const to_remove_row,
-				     jbyte * const to_remove_col,
-				     jbyte * const to_remove_p,
-				     jint number_to_remove );
+	Builder( jbyte *const grid,
+	         jbyte *const blue_pool,
+	         jint blue_pool_size,
+	         jbyte *const red_pool,
+	         jint red_pool_size,
+	         jboolean blue_turn,
+	         jbyte *const to_remove_row,
+	         jbyte *const to_remove_col,
+	         jbyte *const to_remove_p,
+	         jint number_to_remove );
 
-    void declare_variables() override;
-    void declare_constraints() override;
-    void declare_objective() override;
+	void declare_variables() override;
+
+	void declare_constraints() override;
+
+	void declare_objective() override;
 };
 
 #endif //POBO_BUILDER_HPP
