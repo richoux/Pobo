@@ -63,7 +63,8 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
                      to_remove_col,
                      to_remove_p,
                      k_number_to_remove);
-    ghost::Solver solver(builder);
+
+	ghost::Solver solver(builder);
 
 	double cost = std::numeric_limits<int>::min();
 	std::vector<int> solution;
@@ -114,7 +115,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 
 extern "C"
 JNIEXPORT jdouble JNICALL
-Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1cpp(
+Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1state_1cpp(
 				JNIEnv *env,
 				jobject thiz,
 				jbyteArray k_grid,
@@ -132,12 +133,12 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1cpp(
 	env->GetByteArrayRegion( k_blue_pool, 0, k_blue_pool_size, blue_pool );
 	env->GetByteArrayRegion( k_red_pool, 0, k_red_pool_size, red_pool );
 
-	jdouble score = heuristic( cpp_grid,
-														 k_blue_turn,
-														 blue_pool,
-														 k_blue_pool_size,
-														 red_pool,
-														 k_red_pool_size );
+	jdouble score = heuristic_state( cpp_grid,
+	                                 k_blue_turn,
+	                                 blue_pool,
+	                                 k_blue_pool_size,
+	                                 red_pool,
+	                                 k_red_pool_size );
 
 	return score;
 }

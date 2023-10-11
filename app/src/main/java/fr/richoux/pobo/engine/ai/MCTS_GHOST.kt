@@ -62,7 +62,7 @@ class MCTS_GHOST (
             number_to_remove: Int
         ): IntArray
 
-        external fun heuristic_cpp(
+        external fun heuristic_state_cpp(
             grid: ByteArray,
             blue_turn: Boolean,
             blue_pool: ByteArray,
@@ -215,7 +215,7 @@ class MCTS_GHOST (
                 movesToRemovePiece += abs( move.piece.code.toInt() ).toByte()
             }
             var move: Move
-//            Log.d(TAG,"Before solver call")
+            Log.d(TAG,"Before solver call")
             val solution = ghost_solver_call(
                 selectedNode.game.board.grid,
                 selectedNode.game.board.bluePool.toByteArray(),
@@ -486,7 +486,7 @@ class MCTS_GHOST (
             numberMoves++
 
             if (!isBlueVictory && !isRedVictory) {
-                val heuristic_score = heuristic_cpp(
+                val heuristic_score = heuristic_state_cpp(
                     game.board.grid,
                     expanded_node_color_is_blue,
                     game.board.bluePool.toByteArray(),
@@ -551,7 +551,7 @@ class MCTS_GHOST (
                 Log.d(TAG, "### Playout: Red victory, score = ${score}")
             }
             else {
-                //score = heuristic_cpp( game.board.grid, game.currentPlayer == Color.Blue );
+                //score = heuristic_state_cpp( game.board.grid, game.currentPlayer == Color.Blue );
                 Log.d(TAG, "### Playout: No victory, score = ${score}")
             }
         }
@@ -616,7 +616,7 @@ class MCTS_GHOST (
                     1000.0
                 else
                     0.0
-                    //heuristic_cpp( newGame.board.grid, newGame.currentPlayer == Color.Blue ).toInt();
+                    //heuristic_state_cpp( newGame.board.grid, newGame.currentPlayer == Color.Blue ).toInt();
             }
 
         newGame.changePlayer()

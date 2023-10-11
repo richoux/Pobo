@@ -34,6 +34,7 @@ add_library(
         ${DIR}/model/removed_positions.cpp
         ${DIR}/model/pobo_objective.cpp
         ${DIR}/model/builder.cpp
+        ${DIR}/helpers.cpp
         ${DIR}/heuristics.cpp
 )
 

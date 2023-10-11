@@ -1,419 +1,19 @@
 //
-// Created by flo on 29/09/2023.
+// Created by flo on 10/10/2023.
 //
 
 #include "heuristics.hpp"
 
-bool check_three_in_a_row( int from_row,
-													 int from_col,
-													 Direction direction,
-													 PieceType type,
-													 jbyte * const simulation_grid )
+//#include <android/log.h>
+//#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+
+double heuristic_state( jbyte *const simulation_grid,
+                        jboolean blue_turn,
+                        jbyte *const blue_pool,
+                        jint blue_pool_size,
+                        jbyte *const red_pool,
+                        jint red_pool_size )
 {
-	if( from_col > 5 || from_row < 0 || from_row > 5 )
-		return false;
-
-	int next_row = get_next_row( from_row, direction );
-	int next_col = get_next_col( from_col, direction );
-
-	if( simulation_grid[ from_row*6 + from_col ] == 0 || next_col > 5 || next_row < 0 || next_row > 5 )
-		return false;
-
-	return check_two_in_a_row( from_row, from_col, direction, type, simulation_grid )
-	       && check_two_in_a_row( next_row, next_col, direction, type, simulation_grid );
-}
-
-bool check_two_in_a_row( int from_row,
-												 int from_col,
-												 Direction direction,
-												 PieceType type,
-												 jbyte * const simulation_grid )
-{
-	if( from_col > 5 || from_row < 0 || from_row > 5 )
-		return false;
-
-	int next_row = get_next_row( from_row, direction );
-	int next_col = get_next_col( from_col, direction );
-
-	int index = from_row*6 + from_col;
-
-	if( simulation_grid[index] == 0 || next_col > 5 || next_row < 0 || next_row > 5 )
-		return false;
-
-	int next_index = next_row*6 + next_col;
-
-	switch( type )
-	{
-		case WHATEVER:
-			return simulation_grid[index] * simulation_grid[next_index] > 0;
-		case PO:
-			return simulation_grid[index] == simulation_grid[next_index] && std::abs( simulation_grid[index] ) == 1;
-		default: // BO
-			return simulation_grid[index] == simulation_grid[next_index] && std::abs( simulation_grid[index] ) == 2;
-	}
-}
-
-bool is_two_in_a_row_in_corner( int from_row,
-																int from_col,
-																Direction direction )
-{
-	return ( direction == TOPRIGHT && ( (from_row == 1 && from_col == 0) || (from_row == 5 && from_col == 4) ) )
-			|| ( direction == BOTTOMRIGHT && ( (from_row == 4 && from_col == 0) || (from_row == 0 && from_col == 4) ) );
-}
-
-bool is_two_in_a_row_blocked( int from_row,
-															int from_col,
-															Direction direction,
-															jbyte * const simulation_grid )
-{
-	bool is_blocked = false;
-	int piece = simulation_grid[ from_row*6 + from_col ];
-
-	switch( direction )
-	{
-		case TOPRIGHT:
-			if( ( from_row + 1 > 5 || from_col - 1 < 0 || simulation_grid[ (from_row+1)*6 + (from_col-1) ]*piece < 0)
-			&& ( from_row - 2 < 0 || from_col + 2 > 5 || simulation_grid[ (from_row-2)*6 + (from_col+2) ]*piece < 0) )
-				is_blocked = true;
-			break;
-		case RIGHT:
-			if( ( from_col - 1 < 0 || simulation_grid[ from_row*6 + (from_col-1) ]*piece < 0)
-			    && ( from_col + 2 > 5 || simulation_grid[ from_row*6 + (from_col+2) ]*piece < 0) )
-				is_blocked = true;
-			break;
-		case BOTTOMRIGHT:
-			if( ( from_row - 1 < 0 || from_col - 1 < 0 || simulation_grid[ (from_row-1)*6 + (from_col-1) ]*piece < 0)
-			    && ( from_row + 2 > 5 || from_col + 2 > 5 || simulation_grid[ (from_row+2)*6 + (from_col+2) ]*piece < 0) )
-				is_blocked = true;
-			break;
-		default: // BOTTOM
-			if( ( from_row - 1 < 0 || simulation_grid[ (from_row-1)*6 + from_col ]*piece < 0)
-			    && ( from_row + 2 > 5 || simulation_grid[ (from_row+2)*6 + from_col ]*piece < 0) )
-				is_blocked = true;
-	}
-
-	return is_blocked;
-}
-
-int count_Po_in_a_row( int from_row,
-											 int from_col,
-											 Direction direction,
-											 jbyte * const simulation_grid )
-{
-	if( from_col > 5 || from_row < 0 || from_row > 5 )
-		return 0;
-
-	int next_row = get_next_row( from_row, direction );
-	int next_col = get_next_col( from_col, direction );
-	int index = from_row*6 + from_col;
-
-	if( simulation_grid[index] == 0 || next_col > 5 || next_row < 0 || next_row > 5 )
-		return 0;
-
-	int next_next_row = get_next_row( next_row, direction );
-	int next_next_col = get_next_col( next_col, direction );
-	int next_index = next_row*6 + next_col;
-
-	if( simulation_grid[next_index] == 0 || next_next_col > 5 || next_next_row < 0 || next_next_row > 5 )
-		return 0;
-
-	int next_next_index = next_next_row*6 + next_next_col;
-
-	int count = 0;
-	// no need to check the color of these Po pieces: count_Po_in_a_row is only called after
-	// checking if pieces are of the same color, with check_three_in_a_row
-	if( std::abs( simulation_grid[index] ) == 1 )
-		++count;
-	if( std::abs( simulation_grid[next_index] ) == 1 )
-		++count;
-	if( std::abs( simulation_grid[next_next_index] ) == 1 )
-		++count;
-
-	return count;
-}
-
-int get_next_row( int from_row, Direction direction )
-{
-	switch( direction )
-	{
-		case TOPRIGHT:
-			return from_row - 1;
-		case RIGHT :
-			return from_row;
-		case BOTTOMRIGHT :
-			return from_row + 1;
-		case BOTTOM :
-			return from_row + 1;
-	}
-}
-
-int get_next_col( int from_col, Direction direction )
-{
-	switch( direction )
-	{
-		case TOPRIGHT:
-			return from_col + 1;
-		case RIGHT :
-			return from_col + 1;
-		case BOTTOMRIGHT :
-			return from_col + 1;
-		case BOTTOM :
-			return from_col;
-	}
-}
-
-double compute_partial_score( int from_row,
-															int from_col,
-															Direction direction,
-															int& jump_forward,
-															jbyte * const simulation_grid,
-															jboolean blue_turn,
-															jbyte * const blue_pool,
-															jint& blue_pool_size,
-															jbyte * const red_pool,
-															jint& red_pool_size )
-{
-	double score = 0.;
-	bool is_player_piece = ( ( simulation_grid[ from_row*6 + from_col ] < 0 && blue_turn ) ||
-	                         ( simulation_grid[ from_row*6 + from_col ] > 0 && !blue_turn ) );
-
-	bool do_current_player_has_bo_in_pool = false;
-	bool do_opponent_has_bo_in_pool = false;
-
-	for( int i = 0 ; i < blue_pool_size ; ++i )
-		if( blue_pool[i] == 2 )
-		{
-			if( blue_turn )
-				do_current_player_has_bo_in_pool = true;
-			else
-				do_opponent_has_bo_in_pool = true;
-		}
-
-	for( int i = 0 ; i < red_pool_size ; ++i )
-		if( red_pool[i] == 2 )
-		{
-			if( blue_turn )
-				do_opponent_has_bo_in_pool = true;
-			else
-				do_current_player_has_bo_in_pool = true;
-		}
-
-	if( check_three_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
-	{
-		score += is_player_piece ? 1000 : -1000;
-		jump_forward = 2;
-	}
-	else
-	{
-		if( check_three_in_a_row( from_row, from_col, direction, PO, simulation_grid ))
-		{
-			score += is_player_piece ? 30 : -30;
-//			score += is_player_piece ? 3 : -3;
-			jump_forward = 2;
-		}
-		else
-		{
-			if( check_three_in_a_row( from_row, from_col, direction, WHATEVER, simulation_grid ))
-			{
-				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid ) * ( is_player_piece ? 10 : -10 );
-//				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid );
-				jump_forward = 1;
-			}
-			else
-			{
-				if( check_two_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
-				{
-					if( is_two_in_a_row_in_corner(from_row, from_col, direction) )
-					{
-//						score += is_player_piece ? -20 : 20;
-						score += is_player_piece ? -30 : 30;
-					}
-					else
-					{
-						if( is_two_in_a_row_blocked(from_row, from_col, direction, simulation_grid) )
-						{
-//							score += is_player_piece ? -2 : 2;
-							score += is_player_piece ? -15 : 15;
-						}
-						else
-						{
-//							score += is_player_piece ? 100 : -100;
-							if( is_player_piece )
-							{
-								if( do_current_player_has_bo_in_pool )
-									score += 60;
-								else
-									score += 20;
-							}
-							else
-							{
-								if( do_opponent_has_bo_in_pool )
-									score -= 300; // because there is a severe risk to loose the game
-								else
-									score -= 20;
-							}
-						}
-					}
-					jump_forward = 1;
-				}
-				else
-				{
-					if( check_two_in_a_row( from_row, from_col, direction, PO, simulation_grid ))
-					{
-						if( is_two_in_a_row_in_corner( from_row, from_col, direction ))
-						{
-//							score += is_player_piece ? -5 : 5;
-							score += is_player_piece ? -10 : 10;
-						} else
-						{
-							if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
-							{
-//								score += is_player_piece ? -1 : 1;
-								score += is_player_piece ? -5 : 5;
-							} else
-							{
-//								score += is_player_piece ? 10 : -10;
-								score += is_player_piece ? 20 : -20;
-							}
-						}
-					}
-					jump_forward = 1;
-				}
-			}
-		}
-	}
-
-	return score;
-}
-
-void simulate_move( const std::vector<ghost::Variable *> &variables,
-										jbyte * const simulation_grid,
-										jboolean blue_turn,
-										jbyte * const blue_pool,
-										jint & blue_pool_size,
-										jbyte * const red_pool,
-										jint & red_pool_size )
-{
-	int p = variables[0]->get_value() * (blue_turn ? -1 : 1);
-	int row = variables[1]->get_value();
-	int col = variables[2]->get_value();
-	int index = row*6 + col;
-
-	simulation_grid[index] = p;
-
-	if( col-1 >= 0 )
-	{
-		// Top Left
-		if( row-1 >= 0 )
-		{
-			if( simulation_grid[ ( row-1 )*6 + col-1 ] != 0 &&
-			    std::abs( simulation_grid[ ( row-1 )*6 + col-1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-			    ( col-2 < 0 || row-2 < 0 || simulation_grid[ ( row-2 )*6 + col-2 ] == 0 ))
-			{
-				if( col-2 >= 0 && row-2 >= 0 && simulation_grid[ ( row-2 )*6 + col-2 ] == 0 )
-					simulation_grid[ ( row-2 )*6 + col-2 ] = simulation_grid[ ( row-1 )*6 + col-1 ];
-				simulation_grid[ ( row-1 )*6 + col-1 ] = 0;
-			}
-		}
-
-		// Bottom Left
-		if( row+1 <= 5 )
-		{
-			if( simulation_grid[ ( row+1 )*6 + col-1 ] != 0 &&
-			    std::abs( simulation_grid[ ( row+1 )*6 + col-1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-			    ( col-2 < 0 || row+2 > 5 || simulation_grid[ ( row+2 )*6 + col-2 ] == 0 ))
-			{
-				if( col-2 >= 0 && row+2 <= 5 && simulation_grid[ ( row+2 )*6 + col-2 ] == 0 )
-					simulation_grid[ ( row+2 )*6 + col-2 ] = simulation_grid[ ( row+1 )*6 + col-1 ];
-				simulation_grid[ ( row+1 )*6 + col-1 ] = 0;
-			}
-		}
-
-		// Left
-		if( simulation_grid[ row*6 + col-1 ] != 0 &&
-		    std::abs( simulation_grid[ row*6 + col-1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-		    ( col-2 < 0 || simulation_grid[ row*6 + col-2 ] == 0 ))
-		{
-			if( col-2 >= 0 && simulation_grid[ row*6 + col-2 ] == 0 )
-				simulation_grid[ row*6 + col-2 ] = simulation_grid[ row*6 + col-1 ];
-			simulation_grid[ row*6 + col-1 ] = 0;
-		}
-	}
-
-	if( col+1 <= 5 )
-	{
-		// Top Right
-		if( row-1 >= 0 )
-		{
-			if( simulation_grid[ ( row-1 )*6 + col+1 ] != 0 &&
-			    std::abs( simulation_grid[ ( row-1 )*6 + col+1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-			    ( col+2 > 5 || row-2 < 0 || simulation_grid[ ( row-2 )*6 + col+2 ] == 0 ))
-			{
-				if( col+2 <= 5 && row-2 >= 0 && simulation_grid[ ( row-2 )*6 + col+2 ] == 0 )
-					simulation_grid[ ( row-2 )*6 + col+2 ] = simulation_grid[ ( row-1 )*6 + col+1 ];
-				simulation_grid[ ( row-1 )*6 + col+1 ] = 0;
-			}
-		}
-
-		// Bottom Right
-		if( row+1 <= 5 )
-		{
-			if( simulation_grid[ ( row+1 )*6 + col+1 ] != 0 &&
-			    std::abs( simulation_grid[ ( row+1 )*6 + col+1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-			    ( col+2 > 5 || row+2 > 5 || simulation_grid[ ( row+2 )*6 + col+2 ] == 0 ) )
-			{
-				if( col+2 <= 5 && row+2 <= 5 && simulation_grid[ ( row+2 )*6 + col+2 ] == 0 )
-					simulation_grid[ ( row+2 )*6 + col+2 ] = simulation_grid[ ( row+1 )*6 + col+1 ];
-				simulation_grid[ ( row+1 )*6 + col+1 ] = 0;
-			}
-		}
-
-		// Right
-		if( simulation_grid[ row*6 + col+1 ] != 0 &&
-		    std::abs( simulation_grid[ row*6 + col+1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-		    ( col+2 > 5 || simulation_grid[ row*6 + col+2 ] == 0 ))
-		{
-			if( col+2 <= 5 && simulation_grid[ row*6 + col+2 ] == 0 )
-				simulation_grid[ row*6 + col+2 ] = simulation_grid[ row*6 + col+1 ];
-			simulation_grid[ row*6 + col+1 ] = 0;
-		}
-	}
-
-	// Top
-	if( row-1 >= 0 )
-	{
-		if( simulation_grid[ ( row-1 )*6 + col ] != 0 &&
-		    std::abs( simulation_grid[ ( row-1 )*6 + col ] ) <= std::abs( simulation_grid[ index ] ) &&
-		    ( row-2 < 0 || simulation_grid[ ( row-2 )*6 + col ] == 0 ))
-		{
-			if( row-2 >= 0 && simulation_grid[ ( row-2 )*6 + col ] == 0 )
-				simulation_grid[ ( row-2 )*6 + col ] = simulation_grid[ ( row-1 )*6 + col ];
-			simulation_grid[ ( row-1 )*6 + col ] = 0;
-		}
-	}
-
-	// Bottom
-	if( row+1 <= 5 )
-	{
-		if( simulation_grid[ ( row+1 )*6 + col ] != 0 &&
-		    std::abs( simulation_grid[ ( row+1 )*6 + col ] ) <= std::abs( simulation_grid[ index ] ) &&
-		    ( row+2 > 5 || simulation_grid[ ( row+2 )*6 + col ] == 0 ))
-		{
-			if( row+2 <= 5 && simulation_grid[ ( row+2 )*6 + col ] == 0 )
-				simulation_grid[ ( row+2 )*6 + col ] = simulation_grid[ ( row+1 )*6 + col ];
-			simulation_grid[ ( row+1 )*6 + col ] = 0;
-		}
-	}
-
-	//TODO: need to check graduations T_T
-}
-
-double heuristic( jbyte * const simulation_grid,
-									jboolean blue_turn,
-									jbyte * const blue_pool,
-									jint blue_pool_size,
-									jbyte * const red_pool,
-									jint red_pool_size ) {
 	double score = 0.0;
 
 	int count_blue_po = 0;
@@ -492,18 +92,16 @@ double heuristic( jbyte * const simulation_grid,
 			if( simulation_grid[row * 6 + col] != 0 )
 			{
 				auto partial_score = compute_partial_score( row,
-																										col,
-																										RIGHT,
-																										jump_forward,
-																										simulation_grid,
-																										blue_turn,
-																										blue_pool,
-																										blue_pool_size,
-																										red_pool,
-																										red_pool_size );
+				                                            col,
+				                                            RIGHT,
+				                                            jump_forward,
+				                                            simulation_grid,
+				                                            blue_turn,
+				                                            blue_pool,
+				                                            blue_pool_size,
+				                                            red_pool,
+				                                            red_pool_size );
 				score += partial_score;
-//					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
-//									  << partial_score << ", jump=" << jump_forward << "\n";
 			}
 		}
 	}
@@ -517,18 +115,16 @@ double heuristic( jbyte * const simulation_grid,
 			if( simulation_grid[ row*6 + col ] != 0 )
 			{
 				auto partial_score= compute_partial_score( row,
-																									 col,
-																									 BOTTOM,
-																									 jump_forward,
-																									 simulation_grid,
-																									 blue_turn,
-																									 blue_pool,
-																									 blue_pool_size,
-																									 red_pool,
-																									 red_pool_size );
+				                                           col,
+				                                           BOTTOM,
+				                                           jump_forward,
+				                                           simulation_grid,
+				                                           blue_turn,
+				                                           blue_pool,
+				                                           blue_pool_size,
+				                                           red_pool,
+				                                           red_pool_size );
 				score += partial_score;
-//					std::cout << "Score horizontal scan from (" << row << "," << col << "): "
-//					          << partial_score << ", jump=" << jump_forward << "\n";
 			}
 		}
 	}
@@ -548,18 +144,16 @@ double heuristic( jbyte * const simulation_grid,
 		if( simulation_grid[index] != 0 )
 		{
 			auto partial_score = compute_partial_score( index / 6,
-																									index % 6,
-																									TOPRIGHT,
-																									fake_jump,
-																									simulation_grid,
-																									blue_turn,
-																									blue_pool,
-																									blue_pool_size,
-																									red_pool,
-																									red_pool_size );
+			                                            index % 6,
+			                                            TOPRIGHT,
+			                                            fake_jump,
+			                                            simulation_grid,
+			                                            blue_turn,
+			                                            blue_pool,
+			                                            blue_pool_size,
+			                                            red_pool,
+			                                            red_pool_size );
 			score += partial_score;
-//				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
-//				          << partial_score << ", jump=" << jump_forward << "\n";
 		}
 
 	// descendant diagonal scans
@@ -577,18 +171,16 @@ double heuristic( jbyte * const simulation_grid,
 		if( simulation_grid[index] != 0 )
 		{
 			auto partial_score = compute_partial_score( index / 6,
-																									index % 6,
-																									BOTTOMRIGHT,
-																									fake_jump,
-																									simulation_grid,
-																									blue_turn,
-																									blue_pool,
-																									blue_pool_size,
-																									red_pool,
-																									red_pool_size );
+			                                            index % 6,
+			                                            BOTTOMRIGHT,
+			                                            fake_jump,
+			                                            simulation_grid,
+			                                            blue_turn,
+			                                            blue_pool,
+			                                            blue_pool_size,
+			                                            red_pool,
+			                                            red_pool_size );
 			score += partial_score;
-//				std::cout << "Score horizontal scan from (" << index / 6 << "," << index % 6 << "): "
-//				          << partial_score << ", jump=" << jump_forward << "\n";
 		}
 
 	int diff_po = 0;
@@ -638,7 +230,47 @@ double heuristic( jbyte * const simulation_grid,
 	}
 
 	score += 3 * (diff_bo + diff_bo_central + diff_bo_border)
-					+ 2 * diff_total_bo
-					+ diff_po + diff_po_central + diff_po_border;
+	         + 2 * diff_total_bo
+	         + diff_po + diff_po_central + diff_po_border;
 	return score;
+}
+
+std::vector<double> heuristic_graduation( jbyte *const simulation_grid,
+                                          std::vector<std::vector<Position> > groups,
+                                          jboolean blue_turn,
+                                          jbyte *const blue_pool,
+                                          jint blue_pool_size,
+                                          jbyte *const red_pool,
+                                          jint red_pool_size )
+{
+	std::vector<double> scores( groups.size(), 0.0 );
+	bool eight_pieces = groups.size() >= 8;
+
+	for( int i = 0 ; i < groups.size() ; ++i )
+	{
+		auto group = groups[i];
+		if( group.size() == 1 )
+		{
+			if( std::abs( simulation_grid[ 6*group[0].row + group[0].column ] ) == 1 ) // if it is a Po
+			{
+				scores[i] += 5;
+				if( is_on_border( group ) )
+					scores[i] += 2;
+				//TODO: malus if in a 3-piece group, regarding the number of po
+			}
+		}
+		else
+		{
+			int count_po = 0;
+			for( auto pos : group )
+				if( std::abs( simulation_grid[ 6*pos.row + pos.column ] ) == 1 )
+					++count_po;
+
+			scores[i] += count_po;
+			if( count_po == 3 && is_on_border( group ) )
+				scores[i] += 10;
+		}
+	}
+
+	return scores;
 }

@@ -3,10 +3,11 @@
 //
 
 #include "pobo_objective.hpp"
+#include "../helpers.hpp"
 #include "../heuristics.hpp"
 
-#include <android/log.h>
-#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//#include <android/log.h>
+//#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
 
 PoboObjective::PoboObjective( const std::vector<ghost::Variable>& variables,
 															jbyte * const grid,
@@ -31,7 +32,6 @@ double PoboObjective::required_cost( const std::vector<ghost::Variable *> &varia
 	for( int i = 0; i < 36; ++i )
 		_simulation_grid[i] = _grid[i];
 
-//	ALOG("Simulated move [%d;(%d,%d)]", variables[0]->get_value(), variables[1]->get_value(), variables[2]->get_value() );
 //	std::string s = "Before simulation\n";
 //	for (int i = 0 ; i < 36 ; ++i)
 //	{
@@ -64,12 +64,12 @@ double PoboObjective::required_cost( const std::vector<ghost::Variable *> &varia
 //	}
 //	ALOG("%s", s.c_str());
 
-		score = heuristic( _simulation_grid,
-											 _blue_turn,
-											 _blue_pool,
-											 _blue_pool_size,
-											 _red_pool,
-											 _red_pool_size );
+	score = heuristic_state( _simulation_grid,
+	                         _blue_turn,
+	                         _blue_pool,
+	                         _blue_pool_size,
+	                         _red_pool,
+	                         _red_pool_size );
 
 //	std::cout << "diff_pieces: " << diff_pieces
 //	          << ", diff_pieces_central: " << diff_pieces_central
