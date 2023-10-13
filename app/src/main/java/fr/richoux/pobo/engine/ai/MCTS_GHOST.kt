@@ -271,7 +271,8 @@ class MCTS_GHOST (
             // Playout //
             /////////////
             if (!expandedNode.isTerminal) {
-                expandedNode.score = playout(expandedNode, first_n_strategy) // first n moves are GHOST-based
+                expandedNode.score = -playout(expandedNode, first_n_strategy) // first n moves are GHOST-based
+                // -playout because the score returned is the score for the selected node
                 numberPlayouts++
             }
 
@@ -408,9 +409,10 @@ class MCTS_GHOST (
         var isBlueVictory = game.checkVictoryFor(game.board, Color.Blue)
         var isRedVictory = game.checkVictoryFor(game.board, Color.Red)
         var score = 0.0
-        val expanded_node_color_is_blue = ( node.player == Color.Blue );
+        // if node.player == Color.Red, then the selected node, i.e., node's parent, is blue
+        val selectedNodeColorIsBlue = ( node.player == Color.Red );
 
-        Log.d(TAG,"### Playout: is expanded node color blue? ${expanded_node_color_is_blue}")
+        Log.d(TAG,"### Playout: is selected node color blue? ${selectedNodeColorIsBlue}")
 
 //        var ss = ""
 //        for (i in 0..35) {
@@ -488,7 +490,7 @@ class MCTS_GHOST (
             if (!isBlueVictory && !isRedVictory) {
                 val heuristic_score = heuristic_state_cpp(
                     game.board.grid,
-                    expanded_node_color_is_blue,
+                    selectedNodeColorIsBlue,
                     game.board.bluePool.toByteArray(),
                     game.board.bluePool.size,
                     game.board.redPool.toByteArray(),
