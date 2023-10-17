@@ -49,17 +49,6 @@ int	count_Po_in_a_row( int from_row,
 												Direction direction,
 												jbyte * const simulation_grid );
 
-double compute_partial_score( int from_row,
-															int from_col,
-															Direction direction,
-															int& jump_forward,
-															jbyte * const simulation_grid,
-															jboolean blue_turn,
-															jbyte * const blue_pool,
-															jint& blue_pool_size,
-															jbyte * const red_pool,
-															jint& red_pool_size );
-
 int get_next_row( int from_row,
 									Direction direction );
 
@@ -75,18 +64,16 @@ bool is_blue_piece_on( jbyte * const simulation_grid, int row, int col );
 bool is_empty_position( jbyte * const simulation_grid, const Position &position );
 bool is_blue_piece_on( jbyte * const simulation_grid, const Position &position );
 bool is_on_border( const std::vector<Position> &group );
+bool is_on_border( int from_row,
+                   int from_col,
+                   Direction direction,
+                   int length );
+bool is_in_center( const Position &position );
+bool next_to_other_own_pieces( jbyte *const simulation_grid, const Position &position );
 
 std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_grid,
 																											jboolean blue_turn,
 																											jint blue_pool_size,
 																											jint red_pool_size );
-
-void simulate_move( const std::vector<ghost::Variable *> &variables,
-										jbyte * const simulation_grid,
-										jboolean blue_turn,
-										jbyte * const blue_pool,
-										jint & blue_pool_size,
-										jbyte * const red_pool,
-										jint & red_pool_size );
 
 #endif //HELPERS_HPP

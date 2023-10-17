@@ -36,6 +36,7 @@ add_library(
         ${DIR}/model/builder.cpp
         ${DIR}/helpers.cpp
         ${DIR}/heuristics.cpp
+        ${DIR}/simulator.cpp
 )
 
 include_directories(${DIR}/lib/include/ ${DIR})
