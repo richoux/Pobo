@@ -3,7 +3,7 @@
 //
 
 #include "pobo_objective.hpp"
-#include "../helpers.hpp"
+#include "../simulator.hpp"
 #include "../heuristics.hpp"
 
 //#include <android/log.h>

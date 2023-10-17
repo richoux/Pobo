@@ -9,6 +9,17 @@
 #include <vector>
 #include "helpers.hpp"
 
+double compute_partial_score( int from_row,
+                              int from_col,
+                              Direction direction,
+                              int& jump_forward,
+                              jbyte * const simulation_grid,
+                              jboolean blue_turn,
+                              jbyte * const blue_pool,
+                              jint& blue_pool_size,
+                              jbyte * const red_pool,
+                              jint& red_pool_size );
+
 double heuristic_state( jbyte *const simulation_grid,
                         jboolean blue_turn,
                         jbyte *const blue_pool,
