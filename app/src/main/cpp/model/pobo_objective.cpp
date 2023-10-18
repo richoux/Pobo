@@ -6,8 +6,12 @@
 #include "../simulator.hpp"
 #include "../heuristics.hpp"
 
-//#include <android/log.h>
-//#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+#include <android/log.h>
+//*
+#define ALOG(...)
+/*/
+#define ALOG( ... ) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//*/
 
 PoboObjective::PoboObjective( const std::vector<ghost::Variable>& variables,
 															jbyte * const grid,
@@ -32,44 +36,74 @@ double PoboObjective::required_cost( const std::vector<ghost::Variable *> &varia
 	for( int i = 0; i < 36; ++i )
 		_simulation_grid[i] = _grid[i];
 
-//	std::string s = "Before simulation\n";
-//	for (int i = 0 ; i < 36 ; ++i)
-//	{
-//		int p = _simulation_grid[i];
-//		if (p < 0)
-//			p += 10;
-//		s += std::to_string(p) + " ";
-//		if( (i + 1) % 6 == 0 )
-//			s += "\n";
-//	}
-//	ALOG("%s", s.c_str());
+	_simulation_blue_pool_size = _blue_pool_size;
+	_simulation_red_pool_size = _red_pool_size;
+
+	for( int i = 0; i < 8; ++i )
+	{
+		if( i >= _simulation_blue_pool_size )
+			_simulation_blue_pool[ i ] = 0;
+		else
+			_simulation_blue_pool[ i ] = _blue_pool[ i ];
+
+		if( i >= _simulation_red_pool_size )
+			_simulation_red_pool[ i ] = 0;
+		else
+			_simulation_red_pool[ i ] = _red_pool[ i ];
+	}
+
+	std::string s = "Before simulation\n";
+	for( int i = 0; i < 36; ++i )
+	{
+		int p = _simulation_grid[i];
+		if (p < 0)
+			p += 10;
+		s += std::to_string(p) + " ";
+		if( (i + 1) % 6 == 0 )
+			s += "\n";
+	}
+	s += "Blue pool = ";
+	for( int i = 0 ; i < 8 ; ++i )
+		s += std::to_string(_simulation_blue_pool[i]) + " ";
+	s += "\nRed pool = ";
+	for( int i = 0 ; i < 8 ; ++i )
+		s += std::to_string(_simulation_red_pool[i]) + " ";
+	s += "\n";
+	ALOG("%s", s.c_str());
 
 	simulate_move( variables,
 								 _simulation_grid,
 								 _blue_turn,
-								 _blue_pool,
-								 _blue_pool_size,
-								 _red_pool,
-								 _red_pool_size );
+								 _simulation_blue_pool,
+								 _simulation_blue_pool_size,
+								 _simulation_red_pool,
+								 _simulation_red_pool_size );
 
-//	s = "After simulation\n";
-//	for (int i = 0 ; i < 36 ; ++i)
-//	{
-//		int p = _simulation_grid[i];
-//		if (p < 0)
-//			p += 10;
-//		s += std::to_string(p) + " ";
-//		if( (i + 1) % 6 == 0 )
-//			s += "\n";
-//	}
-//	ALOG("%s", s.c_str());
+	s = "After simulation\n";
+	for (int i = 0 ; i < 36 ; ++i)
+	{
+		int p = _simulation_grid[i];
+		if (p < 0)
+			p += 10;
+		s += std::to_string(p) + " ";
+		if( (i + 1) % 6 == 0 )
+			s += "\n";
+	}
+	s += "Blue pool = ";
+	for( int i = 0 ; i < 8 ; ++i )
+		s += std::to_string(_simulation_blue_pool[i]) + " ";
+	s += "\nRed pool = ";
+	for( int i = 0 ; i < 8 ; ++i )
+		s += std::to_string(_simulation_red_pool[i]) + " ";
+	s += "\n";
+	ALOG("%s", s.c_str());
 
 	score = heuristic_state( _simulation_grid,
 	                         _blue_turn,
-	                         _blue_pool,
-	                         _blue_pool_size,
-	                         _red_pool,
-	                         _red_pool_size );
+	                         _simulation_blue_pool,
+	                         _simulation_blue_pool_size,
+	                         _simulation_red_pool,
+	                         _simulation_red_pool_size );
 
 //	std::cout << "diff_pieces: " << diff_pieces
 //	          << ", diff_pieces_central: " << diff_pieces_central

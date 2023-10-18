@@ -1,6 +1,9 @@
 #include "simulator.hpp"
 #include "lib/include/ghost/thirdparty/randutils.hpp"
 
+#include <android/log.h>
+#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+
 void simulate_move( const std::vector<ghost::Variable *> &variables,
                     jbyte * const simulation_grid,
                     jboolean blue_turn,
@@ -9,10 +12,48 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
                     jbyte * const red_pool,
                     jint & red_pool_size )
 {
-	int p = variables[0]->get_value() * (blue_turn ? -1 : 1);
+	jbyte v_p = variables[0]->get_value();
+	int p = v_p * (blue_turn ? -1 : 1);
 	int row = variables[1]->get_value();
 	int col = variables[2]->get_value();
 	int index = row*6 + col;
+
+	if( blue_turn )
+	{
+		int i = blue_pool_size - 1;
+		while( blue_pool[i] != v_p && i >= 0 )
+			--i;
+
+		if( i < 0 )
+			ALOG("THIS SHOULD NEVER HAPPEN: piece selected by the solver not in Blue pool");
+
+		while( i < blue_pool_size - 1 )
+		{
+			blue_pool[i] = blue_pool[i+1];
+			++i;
+		}
+
+		blue_pool[blue_pool_size-1] = 0;
+		--blue_pool_size;
+	}
+	else
+	{
+		int i = red_pool_size - 1;
+		while( red_pool[i] != v_p && i >= 0 )
+			--i;
+
+		if( i < 0 )
+			ALOG("THIS SHOULD NEVER HAPPEN: piece selected by the solver not in Red pool");
+
+		while( i < red_pool_size - 1 )
+		{
+			red_pool[i] = red_pool[i+1];
+			++i;
+		}
+
+		red_pool[red_pool_size-1] = 0;
+		--red_pool_size;
+	}
 
 	simulation_grid[index] = p;
 

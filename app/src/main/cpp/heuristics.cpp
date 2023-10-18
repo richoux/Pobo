@@ -81,8 +81,8 @@ double compute_partial_score( int from_row,
 				{
 					if( is_two_in_a_row_in_corner( from_row, from_col, direction ))
 					{
-//						score += is_player_piece ? -20 : 20;
-						score += is_player_piece ? 0 : 0;
+						score += is_player_piece ? -5 : 10;
+//						score += is_player_piece ? 0 : 10;
 						ALOG( "compute_partial_score 2 Bo in the corner from (%d,%d), score=%.2f", from_row,
 						      from_col, score );
 					}
@@ -90,29 +90,20 @@ double compute_partial_score( int from_row,
 					{
 						if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
 						{
-//							score += is_player_piece ? -2 : 2;
-//							score += is_player_piece ? -15 : 15;
-							if( is_player_piece )
-							{
-								if( is_on_border( from_row, from_col, direction, 2 ) && do_opponent_has_bo_in_pool )
-									score += 0; // this can create the unique situation where making 2 lines of Bo on the border is not considered as interesting
-								else
-									if( do_current_player_has_bo_in_pool )
-										score += 30;
-									else
-										score += 10;
-							}
-							else
-							{
-								if( is_on_border( from_row, from_col, direction, 2 ) &&
-								    do_current_player_has_bo_in_pool )
-									score += 0; // this can create the unique situation where we are making/letting 2 lines of Bo on the border for our opponent
-								else
-									if( do_opponent_has_bo_in_pool )
-										score += -30;
-									else
-										score += -10;
-							}
+							score += is_player_piece ? -5 : 10;
+//							if( is_player_piece )
+//							{
+//								if( is_on_border( from_row, from_col, direction, 2 ) && do_opponent_has_bo_in_pool )
+//									score += 0; // this can create the unique situation where making 2 lines of Bo on the border is not considered as interesting
+//								else
+//									if( do_current_player_has_bo_in_pool )
+//										score += 30;
+//									else
+//										score += 10;
+//							}
+//							else
+//								score += do_opponent_has_bo_in_pool ? -30 : 10;
+
 							ALOG( "compute_partial_score 2 Bo aligned from (%d,%d) but blocked, score=%.2f",
 							      from_row, from_col, score );
 						}
@@ -131,13 +122,10 @@ double compute_partial_score( int from_row,
 							}
 							else
 							{
-								if( is_on_border( from_row, from_col, direction, 2 ) && !do_opponent_has_bo_in_pool )
-									score += 0; // this can create the unique situation where we are making/letting 2 lines of Bo on the border for our opponent
+								if( do_opponent_has_bo_in_pool )
+									score += -300; // because there is a severe risk to loose the game
 								else
-									if( do_opponent_has_bo_in_pool )
-										score += -300; // because there is a severe risk to loose the game
-									else
-										score += -20;
+									score += -40;
 							}
 							ALOG( "compute_partial_score 2 Bo aligned from (%d,%d), score=%.2f", from_row,
 							      from_col, score );
@@ -151,8 +139,8 @@ double compute_partial_score( int from_row,
 					{
 						if( is_two_in_a_row_in_corner( from_row, from_col, direction ))
 						{
-//							score += is_player_piece ? -5 : 5;
-							score += is_player_piece ? 0 : 0;
+							score += is_player_piece ? -1 : 5;
+//							score += is_player_piece ? 0 : 5;
 							ALOG( "compute_partial_score 2 Po in the corner from (%d,%d) but blocked, score=%.2f",
 							      from_row, from_col, score );
 						}
@@ -160,11 +148,11 @@ double compute_partial_score( int from_row,
 						{
 							if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
 							{
-//								score += is_player_piece ? -1 : 1;
-								if( is_on_border( from_row, from_col, direction, 2 ))
-									score += 0; // this can create the unique situation where 2 lines of Po on the border is not considered as important
-								else
-									score += is_player_piece ? 5 : -5;
+								score += is_player_piece ? -1 : 0;
+//								if( is_on_border( from_row, from_col, direction, 2 ))
+//									score += 0; // this can create the unique situation where 2 lines of Po on the border is not considered as important
+//								else
+//									score += is_player_piece ? 0 : 5;
 								ALOG( "compute_partial_score 2 Po aligned from (%d,%d) but blocked, score=%.2f",
 								      from_row, from_col, score );
 							}
@@ -416,9 +404,9 @@ double heuristic_state( jbyte *const simulation_grid,
 		diff_total_bo = total_red_bo - total_blue_bo;
 	}
 
-	score += 3 * (diff_bo + diff_bo_central + diff_bo_border)
-	         + 20 * diff_total_bo
-	         + diff_po + diff_po_central + diff_po_border;
+	score += 20*diff_total_bo
+	         + 9*diff_bo + 3*(diff_bo_central + diff_bo_border)
+	         + 3*diff_po + diff_po_central + diff_po_border;
 	return score;
 }
 
