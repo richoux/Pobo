@@ -212,14 +212,14 @@ bool is_blue_piece_on( jbyte * const simulation_grid, const Position &position )
 
 bool is_on_border( const std::vector<Position> &group )
 {
-	bool border = true;
+	bool border = false;
 
 	for( auto pos: group )
 	{
 		if( pos.row == 0 || pos.row == 5 || pos.column == 0 || pos.column == 5 )
-			border = false;
+			border = true;
 		else
-			return true;
+			return false;
 	}
 
 	return border;
