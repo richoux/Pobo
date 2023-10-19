@@ -314,14 +314,15 @@ double heuristic_state( jbyte *const simulation_grid,
 	                            32, 27, 22,
 	                            33, 28,
 	                            34 };
-	int fake_jump;
-	for( auto index: ascendant )
-		if( simulation_grid[index] != 0 )
+	for( int index = 0 ; index < ascendant.size() ; index = index + 1 + jump_forward )
+	{
+		jump_forward = 0;
+		if( simulation_grid[ ascendant[ index ] ] != 0 )
 		{
-			auto partial_score = compute_partial_score( index / 6,
-			                                            index % 6,
+			auto partial_score = compute_partial_score( ascendant[ index ] / 6,
+			                                            ascendant[ index ] % 6,
 			                                            TOPRIGHT,
-			                                            fake_jump,
+			                                            jump_forward,
 			                                            simulation_grid,
 			                                            blue_turn,
 			                                            blue_pool,
@@ -330,6 +331,7 @@ double heuristic_state( jbyte *const simulation_grid,
 			                                            red_pool_size );
 			score += partial_score;
 		}
+	}
 
 	// descendant diagonal scans
 	std::vector<int> descendant{ 24,
@@ -342,13 +344,15 @@ double heuristic_state( jbyte *const simulation_grid,
 	                             3, 10,
 	                             4 };
 
-	for( auto index: descendant )
-		if( simulation_grid[index] != 0 )
+	for( int index = 0 ; index < descendant.size() ; index = index + 1 + jump_forward )
+	{
+		jump_forward = 0;
+		if( simulation_grid[ descendant[ index ] ] != 0 )
 		{
-			auto partial_score = compute_partial_score( index / 6,
-			                                            index % 6,
+			auto partial_score = compute_partial_score( descendant[ index ] / 6,
+			                                            descendant[ index ] % 6,
 			                                            BOTTOMRIGHT,
-			                                            fake_jump,
+			                                            jump_forward,
 			                                            simulation_grid,
 			                                            blue_turn,
 			                                            blue_pool,
@@ -357,6 +361,7 @@ double heuristic_state( jbyte *const simulation_grid,
 			                                            red_pool_size );
 			score += partial_score;
 		}
+	}
 
 	int diff_po = 0;
 	int diff_bo = 0;
@@ -403,6 +408,22 @@ double heuristic_state( jbyte *const simulation_grid,
 
 		diff_total_bo = total_red_bo - total_blue_bo;
 	}
+
+	ALOG("diff_total_bo=%d\n"
+			 "diff_bo=%d\n"
+			 "diff_bo_central=%d\n"
+			 "diff_bo_border=%d\n"
+	     "diff_po=%d\n"
+	     "diff_po_central=%d\n"
+	     "diff_po_border=%d\n",
+	     diff_total_bo,
+			 diff_bo,
+			 diff_bo_central,
+			 diff_bo_border,
+			 diff_po,
+			 diff_po_central,
+			 diff_po_border
+			 );
 
 	score += 20*diff_total_bo
 	         + 9*diff_bo + 3*(diff_bo_central + diff_bo_border)

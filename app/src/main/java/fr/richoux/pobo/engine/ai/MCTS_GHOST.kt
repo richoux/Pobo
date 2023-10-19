@@ -167,6 +167,38 @@ class MCTS_GHOST (
             val selectedNode = UCT(actionMasking)
             val movesToRemove: MutableList<Move> = mutableListOf()
 
+            //TODO: to remove, this is just to test the state heuristic function
+//            val ggrid:ByteArray = byteArrayOf(
+//                0,-1,0,-1,0,-1,
+//                1,0,0,0,-1,1,
+//                0,0,0,0,0,-1,
+//                0,0,0,0,0,1,
+//                -1,0,0,0,-1,0,
+//                0,0,0,0,0,0 )
+//            val tturn = true
+//            val bpool:ByteArray = byteArrayOf(2)
+//            val rpool:ByteArray = byteArrayOf(2,2,2,1,1)
+//
+//            ss = "Pouet grid:\n"
+//            for( i in 0..35 ) {
+//                var p = ggrid[i].toInt()
+//                if( p < 0 )
+//                    p += 10;
+//                ss += (p.toString() + " ")
+//                if( (i+1) % 6 == 0 )
+//                    ss += "\n"
+//            }
+//            Log.d(TAG,"$ss")
+//            val pouet = heuristic_state_cpp(
+//                ggrid,
+//                tturn,
+//                bpool,
+//                1,
+//                rpool,
+//                5 )
+//            ss = pouet.toString() + "\n"
+//            Log.d(TAG,"$ss")
+
             //TODO: add actionMasking moves?
             for (child in selectedNode.childID)
                 nodes[child].move?.let { movesToRemove.add(it) }
