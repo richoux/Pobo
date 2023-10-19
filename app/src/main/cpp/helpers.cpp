@@ -4,8 +4,11 @@
 
 #include "helpers.hpp"
 
-//#include <android/log.h>
-//#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//*
+#define ALOG(...)
+/*/
+#define ALOG( ... ) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//*/
 
 bool check_three_in_a_row( int from_row,
 													 int from_col,
@@ -264,16 +267,23 @@ bool is_in_center( const Position &position )
 bool next_to_other_own_pieces( jbyte * const simulation_grid, const Position &position )
 {
 	auto piece = simulation_grid[ 6*position.row + position.column ];
-	for( int row = position.row - 1 ; row < position.row + 1 ; ++row )
-		for( int col = position.column - 1 ; col < position.column + 1 ; ++col )
+	for( int row = position.row - 1 ; row <= position.row + 1 ; ++row )
+		for( int col = position.column - 1 ; col <= position.column + 1 ; ++col )
 		{
 			if( row == position.row && col == position.column )
 				continue;
-			if( is_valid_position( Position( row, col )))
-				if( simulation_grid[ 6*row + col ] * piece > 0 ) // if we have 2 consecutive pieces of our player
+			if( is_valid_position( Position( row, col ) ) )
+			{
+				ALOG("Position (%d,%d) is valid\n", row, col);
+				if( simulation_grid[ 6 * row + col ] * piece > 0 ) // if we have 2 consecutive pieces of our player
+				{
+					ALOG("Piece at (%d,%d) is next to a friend at (%d,%d)\n", position.row, position.column, row, col);
 					return true;
+				}
+			}
 		}
 
+	ALOG("Piece at (%d,%d) is alone in the dark\n", position.row, position.column);
 	return false;
 }
 

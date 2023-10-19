@@ -1,8 +1,11 @@
 #include "simulator.hpp"
 #include "lib/include/ghost/thirdparty/randutils.hpp"
 
-#include <android/log.h>
-#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//*
+#define ALOG(...)
+/*/
+#define ALOG( ... ) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//*/
 
 void simulate_move( const std::vector<ghost::Variable *> &variables,
                     jbyte * const simulation_grid,
@@ -178,18 +181,29 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 
 			for( int i = 0; i < groups.size(); ++i )
 			{
+				if(groups[i].size() == 1)
+					ALOG("Group[%d] {(%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, scores[i]);
+				else
+					ALOG("Group[%d] {(%d,%d), (%d,%d), (%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, groups[i][1].row, groups[i][1].column, groups[i][2].row, groups[i][2].column, scores[i]);
+
 				if( best_score < scores[ i ] )
 				{
 					best_score = scores[ i ];
 					best_groups.clear();
 					best_groups.push_back( i );
+					ALOG("Group[%d] is the new best group\n", i);
 				}
 				else
 					if( best_score == scores[ i ] )
+					{
 						best_groups.push_back( i );
+						ALOG("Group[%d] is ex aequo\n", i);
+					}
 			}
 
-			group_to_graduate = groups[ rng.pick( best_groups ) ];
+			auto picked_group = rng.pick( best_groups );
+			ALOG("Group[%d] has been selected\n", picked_group);
+			group_to_graduate = groups[ picked_group ];
 		}
 
 		for( auto pos : group_to_graduate )
