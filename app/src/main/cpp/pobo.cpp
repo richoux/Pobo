@@ -8,8 +8,12 @@
 #include "heuristics.hpp"
 
 // From https://manski.net/2012/05/logging-from-c-on-android/
-//#include <android/log.h>
-//#define ALOG(...) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+#include <android/log.h>
+/*
+#define ALOG(...)
+/*/
+#define ALOG( ... ) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
+//*/
 
 using namespace std::literals::chrono_literals;
 
@@ -141,4 +145,63 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1state_1cpp(
 	                                 k_red_pool_size );
 
 	return score;
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1cpp( JNIEnv *env,
+                                          jobject thiz,
+																					jbyteArray k_grid,
+																					jboolean k_blue_turn,
+																					jint k_blue_pool_size,
+																					jint k_red_pool_size )
+{
+	jbyte cpp_grid[36];
+
+	env->GetByteArrayRegion( k_grid, 0, 36, cpp_grid );
+
+	ALOG("%d", __LINE__);
+	auto groups = get_graduations( cpp_grid,
+																 k_blue_turn,
+																 k_blue_pool_size,
+																 k_red_pool_size );
+	ALOG("%d", __LINE__);
+	std::vector< Position > group_to_graduate;
+
+	if( groups.size() > 0 )
+	{
+		if( groups.size() == 1 )
+			group_to_graduate = groups[0];
+		else
+		{
+			randutils::mt19937_rng rng;
+			auto scores = heuristic_graduation( cpp_grid, groups );
+			double best_score = -10000.0;
+			std::vector<int> best_groups;
+
+			for( int i = 0; i < groups.size(); ++i )
+			{
+				if(groups[i].size() == 1)
+					ALOG("Group[%d] {(%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, scores[i]);
+				else
+					ALOG("Group[%d] {(%d,%d), (%d,%d), (%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, groups[i][1].row, groups[i][1].column, groups[i][2].row, groups[i][2].column, scores[i]);
+
+				if( best_score < scores[ i ] )
+				{
+					best_score = scores[ i ];
+					best_groups.clear();
+					best_groups.push_back( i );
+					ALOG("Group[%d] is the new best group\n", i);
+				}
+				else
+					if( best_score == scores[ i ] )
+					{
+						best_groups.push_back( i );
+						ALOG("Group[%d] is ex aequo\n", i);
+					}
+			}
+		}
+	}
+
+	ALOG("%d", __LINE__);
+	return thiz;
 }

@@ -58,7 +58,7 @@ double compute_partial_score( int from_row,
 	{
 		if( check_three_in_a_row( from_row, from_col, direction, PO, simulation_grid ))
 		{
-			score += is_player_piece ? 40 : -40;
+			score += is_player_piece ? 40 : -44;
 //			score += is_player_piece ? 3 : -3;
 			ALOG( "compute_partial_score 3 Po aligned from (%d,%d), score=%.2f", from_row, from_col,
 			      score );
@@ -69,7 +69,7 @@ double compute_partial_score( int from_row,
 			if( check_three_in_a_row( from_row, from_col, direction, WHATEVER, simulation_grid ))
 			{
 				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid ) *
-				         (is_player_piece ? 10 : -10);
+				         (is_player_piece ? 10 : -11);
 //				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid );
 				ALOG( "compute_partial_score 3 pieces aligned from (%d,%d), score=%.2f", from_row, from_col,
 				      score );
@@ -93,7 +93,7 @@ double compute_partial_score( int from_row,
 							score += is_player_piece ? -5 : 10;
 //							if( is_player_piece )
 //							{
-//								if( is_on_border( from_row, from_col, direction, 2 ) && do_opponent_has_bo_in_pool )
+//								if( is_fully_on_border( from_row, from_col, direction, 2 ) && do_opponent_has_bo_in_pool )
 //									score += 0; // this can create the unique situation where making 2 lines of Bo on the border is not considered as interesting
 //								else
 //									if( do_current_player_has_bo_in_pool )
@@ -112,7 +112,7 @@ double compute_partial_score( int from_row,
 //							score += is_player_piece ? 100 : -100;
 							if( is_player_piece )
 							{
-								if( is_on_border( from_row, from_col, direction, 2 ) && do_opponent_has_bo_in_pool )
+								if( is_on_border( from_row, from_col, direction, 2, true ) && do_opponent_has_bo_in_pool )
 									score += 0; // this can create the unique situation where making 2 lines of Bo on the border is not considered as interesting
 								else
 									if( do_current_player_has_bo_in_pool )
@@ -130,8 +130,8 @@ double compute_partial_score( int from_row,
 							ALOG( "compute_partial_score 2 Bo aligned from (%d,%d), score=%.2f", from_row,
 							      from_col, score );
 						}
+						jump_forward = 1;
 					}
-					jump_forward = 1;
 				}
 				else // not 2 Bo aligned
 				{
@@ -149,7 +149,7 @@ double compute_partial_score( int from_row,
 							if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
 							{
 								score += is_player_piece ? -1 : 0;
-//								if( is_on_border( from_row, from_col, direction, 2 ))
+//								if( is_fully_on_border( from_row, from_col, direction, 2 ))
 //									score += 0; // this can create the unique situation where 2 lines of Po on the border is not considered as important
 //								else
 //									score += is_player_piece ? 0 : 5;
@@ -161,19 +161,53 @@ double compute_partial_score( int from_row,
 //							score += is_player_piece ? 10 : -10;
 								if( is_player_piece )
 								{
-									if( is_on_border( from_row, from_col, direction, 2 ) )
+									if( is_on_border( from_row, from_col, direction, 2, true ) )
 										score += 0;
 									else
 										score += 20;
 								}
 								else
-									score += -20;
+									score += -22;
 								ALOG( "compute_partial_score 2 Po aligned from (%d,%d), score=%.2f", from_row,
 								      from_col, score );
 							}
+							jump_forward = 1;
 						}
 					}
-					jump_forward = 1;
+					else
+						if( check_two_in_a_row( from_row, from_col, direction, WHATEVER, simulation_grid ) )
+						{
+							if( is_two_in_a_row_in_corner( from_row, from_col, direction ))
+							{
+								score += is_player_piece ? -1 : 5;
+								ALOG( "compute_partial_score 2 pieces in the corner from (%d,%d) but blocked, score=%.2f",
+								      from_row, from_col, score );
+							}
+							else
+							{
+								if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
+								{
+									score += is_player_piece ? -1 : 0;
+									ALOG( "compute_partial_score 2 pieces aligned from (%d,%d) but blocked, score=%.2f",
+									      from_row, from_col, score );
+								}
+								else // 2 pieces aligned, unblocked and not in the corner
+								{
+									if( is_player_piece )
+									{
+										if( is_on_border( from_row, from_col, direction, 2, true ) )
+											score += 0;
+										else
+											score += 10;
+									}
+									else
+										score += -11;
+									ALOG( "compute_partial_score 2 pieces aligned from (%d,%d), score=%.2f", from_row,
+									      from_col, score );
+								}
+								jump_forward = 1;
+							}
+						}
 				}
 			}
 		}
@@ -432,12 +466,7 @@ double heuristic_state( jbyte *const simulation_grid,
 }
 
 std::vector<double> heuristic_graduation( jbyte *const simulation_grid,
-                                          std::vector<std::vector<Position> > groups,
-                                          jboolean blue_turn,
-                                          jbyte *const blue_pool,
-                                          jint blue_pool_size,
-                                          jbyte *const red_pool,
-                                          jint red_pool_size )
+                                          std::vector<std::vector<Position> > groups )
 {
 	std::vector<double> scores( groups.size(), 0.0 );
 
@@ -449,14 +478,14 @@ std::vector<double> heuristic_graduation( jbyte *const simulation_grid,
 			if( std::abs( simulation_grid[ 6*group[0].row + group[0].column ] ) == 1 ) // if it is a Po
 			{
 				scores[i] += 5;
-				if( is_on_border( group ) )
+				if( is_fully_on_border( group ) )
 					scores[i] += 2;
 				else
 					if( is_in_center( group[0] ) )
-						scores[i] -= 2;
+						scores[i] += -2;
 
 				if( next_to_other_own_pieces( simulation_grid, group[0] ) )
-					scores[i] -= 3;
+					scores[i] += -3;
 			}
 
 			//TODO: situation where a Po is blocking and we do not have interest to remove it
@@ -470,8 +499,14 @@ std::vector<double> heuristic_graduation( jbyte *const simulation_grid,
 					++count_po;
 
 			scores[i] += count_po;
-			if( count_po == 3 && is_on_border( group ) )
-				scores[i] += 10;
+			if( count_po == 3 )
+			{
+				if( is_fully_on_border( group ) )
+					scores[i] += 10;
+				else
+					if( is_partially_on_border( group ) )
+						scores[i] += 1;
+			}
 		}
 	}
 

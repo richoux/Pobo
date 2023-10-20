@@ -70,6 +70,13 @@ class MCTS_GHOST (
             red_pool: ByteArray,
             red_pool_size: Int
         ): Double
+
+        external fun compute_graduations_cpp(
+            grid: ByteArray,
+            blue_turn: Boolean,
+            blue_pool_size: Int,
+            red_pool_size: Int
+        ): Void
     }
 
     override fun select_move(game: Game,
@@ -167,17 +174,17 @@ class MCTS_GHOST (
             val selectedNode = UCT(actionMasking)
             val movesToRemove: MutableList<Move> = mutableListOf()
 
-            //TODO: to remove, this is just to test the state heuristic function
+            //TODO: to remove, this is just to test heuristics
 //            val ggrid:ByteArray = byteArrayOf(
-//                0,-1,0,-1,0,-1,
-//                1,0,0,0,-1,1,
+//                0,1,0,1,0,0,
+//                1,-1,-1,0,-1,1,
+//                1,0,1,0,0,0,
+//                1,0,-1,0,0,0,
 //                0,0,0,0,0,-1,
-//                0,0,0,0,0,1,
-//                -1,0,0,0,-1,0,
-//                0,0,0,0,0,0 )
-//            val tturn = true
-//            val bpool:ByteArray = byteArrayOf(2)
-//            val rpool:ByteArray = byteArrayOf(2,2,2,1,1)
+//                -1,0,0,0,1,0 )
+//            val bturn = true
+//            val bpool:ByteArray = byteArrayOf()
+//            val rpool:ByteArray = byteArrayOf(1,1)
 //
 //            ss = "Pouet grid:\n"
 //            for( i in 0..35 ) {
@@ -189,14 +196,16 @@ class MCTS_GHOST (
 //                    ss += "\n"
 //            }
 //            Log.d(TAG,"$ss")
-//            val pouet = heuristic_state_cpp(
+//            compute_graduations_cpp( ggrid, false, 2, 0 )
+
+//            val state= heuristic_state_cpp(
 //                ggrid,
-//                tturn,
+//                bturn,
 //                bpool,
 //                1,
 //                rpool,
 //                5 )
-//            ss = pouet.toString() + "\n"
+//            ss = state.toString() + "\n"
 //            Log.d(TAG,"$ss")
 
             //TODO: add actionMasking moves?

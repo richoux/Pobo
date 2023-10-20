@@ -1,7 +1,8 @@
 #include "simulator.hpp"
 #include "lib/include/ghost/thirdparty/randutils.hpp"
 
-//*
+#include <android/log.h>
+/*
 #define ALOG(...)
 /*/
 #define ALOG( ... ) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
@@ -174,8 +175,9 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 		else
 		{
 			randutils::mt19937_rng rng;
-			auto scores = heuristic_graduation( simulation_grid, groups, blue_turn, blue_pool,
-			                                    blue_pool_size, red_pool, red_pool_size );
+//			auto scores = heuristic_graduation( simulation_grid, groups, blue_turn, blue_pool,
+//			                                    blue_pool_size, red_pool, red_pool_size );
+			auto scores = heuristic_graduation( simulation_grid, groups );
 			double best_score = -10000.0;
 			std::vector<int> best_groups;
 

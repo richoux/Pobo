@@ -63,11 +63,13 @@ bool is_empty_position( jbyte * const simulation_grid, int row, int col );
 bool is_blue_piece_on( jbyte * const simulation_grid, int row, int col );
 bool is_empty_position( jbyte * const simulation_grid, const Position &position );
 bool is_blue_piece_on( jbyte * const simulation_grid, const Position &position );
-bool is_on_border( const std::vector<Position> &group );
+bool is_fully_on_border( const std::vector<Position> &group );
+bool is_partially_on_border( const std::vector<Position> &group );
 bool is_on_border( int from_row,
                    int from_col,
                    Direction direction,
-                   int length );
+                   int length,
+                   bool fully );
 bool is_in_center( const Position &position );
 bool next_to_other_own_pieces( jbyte *const simulation_grid, const Position &position );
 

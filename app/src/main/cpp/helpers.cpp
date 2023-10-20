@@ -4,6 +4,7 @@
 
 #include "helpers.hpp"
 
+#include <android/log.h>
 //*
 #define ALOG(...)
 /*/
@@ -213,7 +214,7 @@ bool is_blue_piece_on( jbyte * const simulation_grid, const Position &position )
 	return is_blue_piece_on( simulation_grid, position.row, position.column );
 }
 
-bool is_on_border( const std::vector<Position> &group )
+bool is_fully_on_border( const std::vector<Position> &group )
 {
 	bool border = false;
 
@@ -228,10 +229,20 @@ bool is_on_border( const std::vector<Position> &group )
 	return border;
 }
 
+bool is_partially_on_border( const std::vector<Position> &group )
+{
+	for( auto pos: group )
+		if( pos.row == 0 || pos.row == 5 || pos.column == 0 || pos.column == 5 )
+			return true;
+
+	return false;
+}
+
 bool is_on_border( int from_row,
                    int from_col,
                    Direction direction,
-                   int length )
+                   int length,
+                   bool fully )
 {
 	if( length < 0 || length > 3 )
 		return false;
@@ -255,9 +266,8 @@ bool is_on_border( int from_row,
 		group.emplace_back( next_next_row, next_next_col );
 	}
 
-	return is_on_border( group );
+	return fully ? is_fully_on_border( group ) : is_partially_on_border( group );
 }
-
 
 bool is_in_center( const Position &position )
 {
@@ -303,7 +313,7 @@ std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_g
 				{
 					grads.emplace_back( std::vector<Position>{Position( row, col )} );
 				}
-				for( int dir = Direction::TOPRIGHT; dir < Direction::BOTTOM; ++dir )
+				for( int dir = Direction::TOPRIGHT; dir <= Direction::BOTTOM; ++dir )
 				{
 					Position next = get_position_toward( Position( row, col ), dir );
 					Position next_next = get_position_toward( next, dir );

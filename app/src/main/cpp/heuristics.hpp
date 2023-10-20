@@ -28,11 +28,11 @@ double heuristic_state( jbyte *const simulation_grid,
                         jint red_pool_size );
 
 std::vector<double> heuristic_graduation( jbyte *const simulation_grid,
-                                          std::vector< std::vector<Position> > groups,
-                                          jboolean blue_turn,
-                                          jbyte *const blue_pool,
-                                          jint blue_pool_size,
-                                          jbyte *const red_pool,
-                                          jint red_pool_size );
+                                          std::vector< std::vector<Position> > groups ); //,
+//                                          jboolean blue_turn,
+//                                          jbyte *const blue_pool,
+//                                          jint blue_pool_size,
+//                                          jbyte *const red_pool,
+//                                          jint red_pool_size );
 
 #endif //POBO_HEURISTICS_HPP
