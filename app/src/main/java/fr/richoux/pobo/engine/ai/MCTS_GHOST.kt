@@ -611,6 +611,7 @@ class MCTS_GHOST (
         }
     }
 
+    //TODO: cases where pool's player contains one piece only
     fun tryEachPossibleMove() {
         val game = currentNode.game
         val player = game.currentPlayer
