@@ -59,6 +59,7 @@ Position get_position_toward( const Position &position, Direction direction );
 Position get_position_toward( const Position &position, int direction );
 
 bool is_valid_position( const Position &position );
+bool is_valid_position( int row, int col );
 bool is_empty_position( jbyte * const simulation_grid, int row, int col );
 bool is_blue_piece_on( jbyte * const simulation_grid, int row, int col );
 bool is_empty_position( jbyte * const simulation_grid, const Position &position );
@@ -72,6 +73,8 @@ bool is_on_border( int from_row,
                    bool fully );
 bool is_in_center( const Position &position );
 bool next_to_other_own_pieces( jbyte *const simulation_grid, const Position &position );
+bool is_blocking( jbyte * const simulation_grid, int row, int col );
+bool is_blocking( jbyte * const simulation_grid, const Position &position );
 
 std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_grid,
 																											jboolean blue_turn,

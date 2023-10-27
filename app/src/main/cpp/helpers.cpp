@@ -194,6 +194,11 @@ bool is_valid_position( const Position &position )
 	return position.row >= 0 && position.row <= 5 && position.column >= 0 && position.column <= 5;
 }
 
+bool is_valid_position( int row, int col )
+{
+	return row >= 0 && row <= 5 && col >= 0 && col <= 5;
+}
+
 bool is_empty_position( jbyte * const simulation_grid, int row, int col )
 {
 	return simulation_grid[ 6*row + col ] == 0;
@@ -295,6 +300,80 @@ bool next_to_other_own_pieces( jbyte * const simulation_grid, const Position &po
 
 	ALOG("Piece at (%d,%d) is alone in the dark\n", position.row, position.column);
 	return false;
+}
+
+bool is_blocking( jbyte * const simulation_grid, int row, int col )
+{
+	// Top
+	if( is_valid_position( row-1, col ) && is_valid_position( row-2, col ) )
+	{
+		if ( simulation_grid[ row*6 + col ] * simulation_grid[ (row-1)*6 + col ] < 0
+		     && simulation_grid[ row*6 + col ] * simulation_grid[ (row-2)*6 + col ] < 0 )
+			return true;
+	}
+
+	// Top Right
+	if( is_valid_position( row-1, col+1 ) && is_valid_position( row-2, col+2 ) )
+	{
+		if( simulation_grid[ row*6 + col ] * simulation_grid[ (row-1)*6 + col+1 ] < 0
+		    && simulation_grid[ row*6 + col ] * simulation_grid[ (row-2)*6 + col+2 ] < 0 )
+			return true;
+	}
+
+	// Right
+	if( is_valid_position( row, col+1 ) && is_valid_position( row, col+2 ) )
+	{
+		if( simulation_grid[ row*6 + col ] * simulation_grid[ row*6 + col+1 ] < 0
+		    && simulation_grid[ row*6 + col ] * simulation_grid[ row*6 + col+2 ] < 0 )
+			return true;
+	}
+
+	// Bottom Right
+	if( is_valid_position( row+1, col+1 ) && is_valid_position( row+2, col+2 ) )
+	{
+		if( simulation_grid[ row*6 + col ] * simulation_grid[ (row+1)*6 + col+1 ] < 0
+		    && simulation_grid[ row*6 + col ] * simulation_grid[ (row+2)*6 + col+2 ] < 0 )
+			return true;
+	}
+
+	// Bottom
+	if( is_valid_position( row+1, col ) && is_valid_position( row+2, col ) )
+	{
+		if( simulation_grid[ row*6 + col ] * simulation_grid[ (row+1)*6 + col ] < 0
+		    && simulation_grid[ row*6 + col ] * simulation_grid[ (row+2)*6 + col ] < 0 )
+			return true;
+	}
+
+	// Bottom Left
+	if( is_valid_position( row+1, col-1 ) && is_valid_position( row+2, col-2 ) )
+	{
+		if( simulation_grid[ row*6 + col ] * simulation_grid[ (row+1)*6 + col-1 ] < 0
+		    && simulation_grid[ row*6 + col ] * simulation_grid[ (row+2)*6 + col-2 ] < 0 )
+			return true;
+	}
+
+	// Left
+	if( is_valid_position( row, col-1 ) && is_valid_position( row, col-2 ) )
+	{
+		if( simulation_grid[ row*6 + col ] * simulation_grid[ row*6 + col-1 ] < 0
+		    && simulation_grid[ row*6 + col ] * simulation_grid[ row*6 + col-2 ] < 0 )
+			return true;
+	}
+
+	// Top Left
+	if( is_valid_position( row-1, col-1 ) && is_valid_position( row-2, col-2 ) )
+	{
+		if( simulation_grid[ row*6 + col ] * simulation_grid[ (row-1)*6 + col-1 ] < 0
+		    && simulation_grid[ row*6 + col ] * simulation_grid[ (row-2)*6 + col-2 ] < 0 )
+			return true;
+	}
+
+	return false;
+}
+
+bool is_blocking( jbyte * const simulation_grid, const Position &position )
+{
+	return is_blocking( simulation_grid, position.row, position.column );
 }
 
 std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_grid,

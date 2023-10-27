@@ -486,10 +486,12 @@ std::vector<double> heuristic_graduation( jbyte *const simulation_grid,
 
 				if( next_to_other_own_pieces( simulation_grid, group[0] ) )
 					scores[i] += -3;
+
+				if( is_blocking( simulation_grid, group[0] ) )
+					scores[i] += -10;
 			}
 
-			//TODO: situation where a Po is blocking and we do not have interest to remove it
-			//TODO: also, sometimes removing a Bo is necessary (like in the situation of the comment above)
+			//TODO: sometimes removing a Bo is necessary (like in the situation of the comment above)
 		}
 		else
 		{
