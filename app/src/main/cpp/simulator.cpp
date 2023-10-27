@@ -2,7 +2,7 @@
 #include "lib/include/ghost/thirdparty/randutils.hpp"
 
 #include <android/log.h>
-/*
+//*
 #define ALOG(...)
 /*/
 #define ALOG( ... ) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
@@ -30,6 +30,7 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 
 		if( i < 0 )
 			ALOG("THIS SHOULD NEVER HAPPEN: piece selected by the solver not in Blue pool");
+
 
 		while( i < blue_pool_size - 1 )
 		{

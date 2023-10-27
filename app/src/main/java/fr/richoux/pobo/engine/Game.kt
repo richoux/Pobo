@@ -22,7 +22,7 @@ enum class Direction {
     TOPLEFT, TOP, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOM, BOTTOMLEFT, LEFT
 }
 
-val scanDirection = EnumSet.range(Direction.RIGHT, Direction.BOTTOMLEFT)
+val scanDirection = EnumSet.range(Direction.TOPRIGHT, Direction.BOTTOM)
 
 fun getPositionTowards(at: Position, direction: Direction) : Position {
     return at + when(direction) {

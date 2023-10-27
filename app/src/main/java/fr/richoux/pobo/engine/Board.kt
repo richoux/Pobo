@@ -175,6 +175,7 @@ data class Piece(val id: String, val code: Byte) {
     }
 }
 
+//TODO change (x,y) to (row,column), and beware of the reversed order
 data class Delta(val x: Int, val y: Int)
 data class Position(val x: Int, val y: Int) {
     operator fun plus(other: Position): Delta {

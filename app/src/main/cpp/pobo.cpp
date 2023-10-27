@@ -147,7 +147,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1state_1cpp(
 	return score;
 }
 extern "C"
-JNIEXPORT jobject JNICALL
+JNIEXPORT jdoubleArray JNICALL
 Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1cpp( JNIEnv *env,
                                           jobject thiz,
 																					jbyteArray k_grid,
@@ -165,16 +165,20 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1
 																 k_blue_pool_size,
 																 k_red_pool_size );
 	ALOG("%d", __LINE__);
-	std::vector< Position > group_to_graduate;
+	//std::vector< Position > group_to_graduate;
+	std::vector<double> scores;
 
 	if( groups.size() > 0 )
 	{
 		if( groups.size() == 1 )
-			group_to_graduate = groups[0];
+			//group_to_graduate = groups[0];
+			scores.push_back( 1.0 );
 		else
 		{
 			randutils::mt19937_rng rng;
-			auto scores = heuristic_graduation( cpp_grid, groups );
+			scores = heuristic_graduation( cpp_grid, groups );
+
+			/*
 			double best_score = -10000.0;
 			std::vector<int> best_groups;
 
@@ -199,9 +203,17 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1
 						ALOG("Group[%d] is ex aequo\n", i);
 					}
 			}
+		  */
 		}
 	}
+	else
+		scores.push_back( -1.0 );
+
+	jdoubleArray returned_scores = env->NewDoubleArray( scores.size() );
+	env->SetDoubleArrayRegion( returned_scores, 0, scores.size(), (jdouble *) &scores[0] );
+
 
 	ALOG("%d", __LINE__);
-	return thiz;
+	//return thiz;
+	return returned_scores;
 }
