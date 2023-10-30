@@ -2,6 +2,7 @@
 // Created by flo on 10/10/2023.
 //
 
+#include <algorithm>
 #include "heuristics.hpp"
 
 #include <android/log.h>
@@ -49,7 +50,7 @@ double compute_partial_score( int from_row,
 
 	if( check_three_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
 	{
-		score += is_player_piece ? 1000 : -1000;
+		score += is_player_piece ? 250 : -250;
 		ALOG( "compute_partial_score 3 Bo aligned from (%d,%d), score=%.2f", from_row, from_col,
 		      score );
 		jump_forward = 2;
@@ -123,7 +124,7 @@ double compute_partial_score( int from_row,
 							else
 							{
 								if( do_opponent_has_bo_in_pool )
-									score += -300; // because there is a severe risk to loose the game
+									score += -150; // because there is a severe risk to loose the game
 								else
 									score += -40;
 							}
@@ -462,6 +463,9 @@ double heuristic_state( jbyte *const simulation_grid,
 	score += 20*diff_total_bo
 	         + 9*diff_bo + 3*(diff_bo_central + diff_bo_border)
 	         + 3*diff_po + diff_po_central + diff_po_border;
+
+	// Score normalization [-1,1]
+	score = std::min( 250.0, std::max( -250.0, score ) ) / 250;
 	return score;
 }
 
