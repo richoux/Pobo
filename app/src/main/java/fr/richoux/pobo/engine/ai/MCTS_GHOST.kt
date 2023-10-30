@@ -39,6 +39,8 @@ class MCTS_GHOST (
     var currentNode: Node = root,
     val nodes: ArrayList<Node> = arrayListOf(),
     var numberNodes: Int = 1,
+    val number_preselected_actions: Int = 0,
+    val extensions_and_playouts_with_GHOST: Boolean = false,
     val first_n_strategy: Int = 21,
     val playout_depth: Int = 21,
     val action_masking_time: Int = 6,
@@ -346,11 +348,6 @@ class MCTS_GHOST (
         var mostSelected = 0
         var bestScore = -10000.0
         var bestRatio = -10000.0
-        val coeff = when( currentNode.player ) {
-            Color.Blue -> 1 // This is reversed,
-            //Color.Red -> -1 // because we are considering children's score
-            Color.Red -> 1
-        }
         Log.d( TAG,"Current node ID: ${currentNode.id}" )
         for (childID in currentNode.childID) {
             Log.d( TAG,"Current node's child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}" )
@@ -358,13 +355,13 @@ class MCTS_GHOST (
                 continue
 
             // Best score
-//            if (coeff * nodes[childID].score > bestScore) {
-//                bestRatio = (coeff.toDouble() * nodes[childID].score.toDouble()) / nodes[childID].visits
+//            if (nodes[childID].score > bestScore) {
+//                bestRatio = nodes[childID].score.toDouble() / nodes[childID].visits
 //                potentialChildrenID.clear()
-//                bestScore = coeff * nodes[childID].score
+//                bestScore = nodes[childID].score
 //                potentialChildrenID.add(childID)
-//            } else if (coeff * nodes[childID].score == bestScore) {
-//                val ratio = (coeff.toDouble() * nodes[childID].score.toDouble()) / nodes[childID].visits
+//            } else if (nodes[childID].score == bestScore) {
+//                val ratio = nodes[childID].score.toDouble() / nodes[childID].visits
 //                if (ratio > bestRatio) {
 //                    potentialChildrenID.clear()
 //                    bestRatio = ratio
@@ -375,7 +372,7 @@ class MCTS_GHOST (
 //            }
 
             //Best ratio
-            val currentRatio = ( coeff * nodes[childID].score ).toDouble() / nodes[childID].visits
+            val currentRatio = nodes[childID].score.toDouble() / nodes[childID].visits
             if (currentRatio > bestRatio) {
                 bestRatio = currentRatio
                 potentialChildrenID.clear()
@@ -405,9 +402,8 @@ class MCTS_GHOST (
         }
 
         val bestChildID = potentialChildrenID.random()
-        bestScore = coeff * nodes[bestChildID].score
-        bestRatio = bestScore.toDouble() / nodes[bestChildID].visits
-        Log.d(TAG,"Best child ID (new current node): ${bestChildID} ${nodes[bestChildID].move}, visits=${nodes[bestChildID].visits}, ratio=${bestRatio}, score=${bestScore}")
+        bestRatio = nodes[bestChildID].score.toDouble() / nodes[bestChildID].visits
+        Log.d(TAG,"Best child ID (new current node): ${bestChildID} ${nodes[bestChildID].move}, visits=${nodes[bestChildID].visits}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
         Log.d(TAG, "Tree size: ${nodes.size} nodes, number of playouts: ${numberPlayouts}, solver calls: ${numberSolverCalls}, solver failures: ${numberSolverFailures}")
 
         currentNode = nodes[bestChildID]
@@ -464,7 +460,7 @@ class MCTS_GHOST (
 
     fun UCTValue(node: Node, parentVisits: Int ): Double {
         val coeff = when( node.player ) {
-            Color.Blue -> -1
+            Color.Blue -> 1 //-1
             Color.Red -> 1
         }
         return if (node.visits == 0) {
@@ -472,7 +468,8 @@ class MCTS_GHOST (
             999999.9
         } else {
 //            Log.d(TAG, "UCT, node ${node.id} score=${( (coeff * node.score.toDouble()) / node.visits) + (2.0 / sqrt(2.0)) * sqrt(2 * ln(parentVisits.toDouble()) / node.visits)}")
-            ( (coeff * node.score) / node.visits) + (2.0 / sqrt(2.0)) * sqrt(2 * ln(parentVisits.toDouble()) / node.visits)
+//            ( (coeff * node.score) / node.visits) + (2.0 / sqrt(2.0)) * sqrt(2 * ln(parentVisits.toDouble()) / node.visits)
+            (node.score / node.visits) + sqrt(2.0) * sqrt(ln(parentVisits.toDouble()) / node.visits)
         }
     }
 
