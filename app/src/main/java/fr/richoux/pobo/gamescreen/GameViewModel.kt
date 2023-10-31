@@ -72,7 +72,7 @@ class GameViewModel : ViewModel() {
         this.aiEnabled = aiEnabled
         if( aiEnabled )
             //ai = SimpleHeuristics(Color.Red)
-            ai = MCTS_GHOST(Color.Red)
+            ai = MCTS_GHOST(Color.Red, number_preselected_actions=5)
 
         _history.clear()
         _forwardHistory.clear()

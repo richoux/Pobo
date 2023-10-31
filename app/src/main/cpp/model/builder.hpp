@@ -35,10 +35,10 @@ public:
 	         jbyte *const red_pool,
 	         jint red_pool_size,
 	         jboolean blue_turn,
-	         jbyte *const to_remove_row,
-	         jbyte *const to_remove_col,
-	         jbyte *const to_remove_p,
-	         jint number_to_remove );
+	         jbyte *const to_remove_row = nullptr,
+	         jbyte *const to_remove_col = nullptr,
+	         jbyte *const to_remove_p = nullptr,
+	         jint number_to_remove = 0 );
 
 	void declare_variables() override;
 
