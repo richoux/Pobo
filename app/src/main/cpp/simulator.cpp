@@ -31,7 +31,6 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 		if( i < 0 )
 			ALOG("THIS SHOULD NEVER HAPPEN: piece selected by the solver not in Blue pool");
 
-
 		while( i < blue_pool_size - 1 )
 		{
 			blue_pool[i] = blue_pool[i+1];

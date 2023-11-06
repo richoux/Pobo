@@ -126,7 +126,7 @@ double compute_partial_score( int from_row,
 								if( do_opponent_has_bo_in_pool )
 									score += -150; // because there is a severe risk to loose the game
 								else
-									score += -40;
+									score += -40; //TODO: reduce to -35, to favor taking 2 more Bo rather than blocking
 							}
 							ALOG( "compute_partial_score 2 Bo aligned from (%d,%d), score=%.2f", from_row,
 							      from_col, score );
@@ -224,6 +224,31 @@ double heuristic_state( jbyte *const simulation_grid,
                         jbyte *const red_pool,
                         jint red_pool_size )
 {
+	std::string ss = "";
+	for( int i = 0 ; i < 36 ; ++i )
+	{
+		int p = simulation_grid[i];
+		if( p < 0 )
+			p += 10;
+
+		ss += std::to_string(p) + " ";
+
+		if( (i+1) % 6 == 0 )
+		{
+			ss += "\n";
+		}
+	}
+	ALOG("%s", ss.c_str());
+	ss = "";
+	for( int i = 0 ; i < blue_pool_size ; ++i )
+		ss += std::to_string(blue_pool[i] ) + " ";
+	ALOG("Blue pool: %s", ss.c_str());
+	ss = "";
+	for( int i = 0 ; i < red_pool_size ; ++i )
+		ss += std::to_string(red_pool[i] ) + " ";
+	ALOG("Red pool: %s", ss.c_str());
+	ALOG("\n");
+
 	double score = 0.0;
 
 	int count_blue_po = 0;
@@ -464,8 +489,14 @@ double heuristic_state( jbyte *const simulation_grid,
 	         + 9*diff_bo + 3*(diff_bo_central + diff_bo_border)
 	         + 3*diff_po + diff_po_central + diff_po_border;
 
+	ALOG("score before normalization=%.2f\n", score);
+
 	// Score normalization [-1,1]
 	score = std::min( 250.0, std::max( -250.0, score ) ) / 250;
+
+	ALOG("score=%.2f\n", score);
+	ALOG("\n");
+
 	return score;
 }
 

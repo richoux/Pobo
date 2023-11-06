@@ -406,8 +406,11 @@ std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_g
 							if( is_valid_position( next_next )
 							    && !is_empty_position( simulation_grid, next_next ))
 							{
-								if((blue_turn && is_blue_piece_on( simulation_grid, next_next ))
+								if(((blue_turn && is_blue_piece_on( simulation_grid, next_next ))
 								   || (!blue_turn && !is_blue_piece_on( simulation_grid, next_next )))
+									 && !( std::abs( simulation_grid[ 6 * row + col ] ) == 2
+									       && std::abs( simulation_grid[ 6 * next.row + next.column ] ) == 2
+								         && std::abs( simulation_grid[ 6 * next_next.row + next_next.column ] ) == 2 ))
 								{
 									grads.emplace_back(
 													std::vector<Position>{Position( row, col ), next, next_next} );
