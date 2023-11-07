@@ -502,7 +502,7 @@ class MCTS_GHOST (
             if (!actionMasking.contains(nodeID) || ( number_preselected_actions == 0 && nodes[nodeID].game.moveNumber > action_masking_time ) ) {
 //                Log.d( TAG,"Selection: current node's child ID ${nodeID} moveNumber=${nodes[nodeID].game.moveNumber}")
                 val newNode = nodes[nodeID]
-                val value = UCTValue(newNode, newNode.visits)
+                val value = UCTValue(newNode, node.visits)
                 if ( value > bestValue ) {
                     potentialNodes.clear()
                     bestValue = value
@@ -524,24 +524,21 @@ class MCTS_GHOST (
         }
 
         val bestNode = potentialNodes.random()
-//        Log.d(TAG, "### Selection: best child ID=${bestNode.id}. Going deeper.")
+//        Log.d(TAG, "### Selection: best child ID=${bestNode.id}. Going deeper.\n")
+//        Log.d(TAG, " \n")
         return UCT(bestNode, actionMasking)
     }
 
     fun UCT(actionMasking: MutableList<Int>): Node = UCT(currentNode, actionMasking)
 
     fun UCTValue(node: Node, parentVisits: Int ): Double {
-        val coeff = when( node.player ) {
-            Color.Blue -> 1 //-1
-            Color.Red -> 1
-        }
         if (node.visits == 0) {
 //            Log.d(TAG, "UCT, node ${node.id} has ${node.visits} visits")
             return 999999.9
         } else {
-//            Log.d(TAG, "UCT, node ${node.id} score=${(node.score / node.visits) + sqrt(2.0) * sqrt(ln(parentVisits.toDouble()) / node.visits)}")
-//            ( (coeff * node.score) / node.visits) + (2.0 / sqrt(2.0)) * sqrt(2 * ln(parentVisits.toDouble()) / node.visits)
-            return (node.score / node.visits) + sqrt(2.0) * sqrt(ln(parentVisits.toDouble()) / node.visits)
+//            Log.d(TAG, "UCT, node ${node.id}, node.score=${node.score}, node.visits=${node.visits}, parent.visits=${parentVisits}")
+//            Log.d(TAG, "exploit=${node.score / node.visits}, explore=${sqrt(ln(parentVisits.toDouble()) / node.visits)}, score [exploit + sqrt(2).explore] =${(node.score / node.visits) + 0.3 * sqrt(ln(parentVisits.toDouble()) / node.visits)}")
+            return (node.score / node.visits) + 0.3 * sqrt(ln(parentVisits.toDouble()) / node.visits)
         }
     }
 
