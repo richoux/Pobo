@@ -144,6 +144,7 @@ class MCTS_GHOST (
 
         if( number_preselected_actions > 0 )
         {
+            /** Debug Action masking **/
 //            Log.d(TAG,"\n*** Action masking, current grid ***\nGrid:")
 //            var ss = ""
 //            for( i in 0..35 ) {
@@ -198,6 +199,8 @@ class MCTS_GHOST (
         }
 
         while (System.currentTimeMillis() - start < timeout_in_ms) {
+
+            /** Debug setup before selection **/
 //            Log.d(TAG,"\n*** Before selection ***\nGrid:")
 //            var ss = ""
 //            for( i in 0..35 ) {
@@ -241,7 +244,7 @@ class MCTS_GHOST (
             val selectedNode = UCT(actionMasking)
             val movesToRemove: MutableList<Move> = mutableListOf()
 
-            // The code below is just to test heuristics
+            /** Debug heuristics **/
 //            val ggrid:ByteArray = byteArrayOf(
 //                0,2,0,-2,0,0,
 //                0,0,0,-2,0,2,
@@ -285,12 +288,13 @@ class MCTS_GHOST (
 //                bturn,
 //                27
 //            )
-
             /////////// End test heuristics
+
             //TODO: add actionMasking moves?
             for (child in selectedNode.childID)
                 nodes[child].move?.let { movesToRemove.add(it) }
 
+            /** Debug selection **/
 //            ss = ""
 //            for( i in 0..35 ) {
 //                var p = selectedNode.game.board.grid[i].toInt()
@@ -340,7 +344,6 @@ class MCTS_GHOST (
                 movesToRemovePiece += abs( move.piece.code.toInt() ).toByte()
             }
             var move: Move
-//            Log.d(TAG,"Before solver call")
             val solution = ghost_solver_call(
                 selectedNode.game.board.grid,
                 selectedNode.game.board.bluePool.toByteArray(),
@@ -358,7 +361,7 @@ class MCTS_GHOST (
             if (solution[0] == 42) {
                 move = randomPlay(selectedNode.game, movesToRemove.toList())
                 numberSolverFailures++
-//                Log.d(TAG, "### Expansion: RANDOM move ${move}")
+                Log.d(TAG, "### Expansion: RANDOM move ${move}")
             }
             else {
                 val code = when (selectedNode.game.currentPlayer) {
@@ -380,6 +383,7 @@ class MCTS_GHOST (
 
             val expandedNode = createNode(selectedNode.game, move, selectedNode.id)
 
+            /** Debug expansion **/
 //            ss = "Expansion done, created node ${expandedNode.id}:\n"
 //            for( i in 0..35 ) {
 //                var p = expandedNode.game.board.grid[i].toInt()
@@ -417,9 +421,9 @@ class MCTS_GHOST (
         var mostSelected = 0
         var bestScore = -10000.0
         var bestRatio = -10000.0
-        Log.d( TAG,"Current node ID: ${currentNode.id}" )
+//        Log.d( TAG,"Current node ID: ${currentNode.id}" )
         for (childID in currentNode.childID) {
-            Log.d( TAG,"Current node's child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}" )
+//            Log.d( TAG,"Current node's child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}" )
             if( nodes[childID].visits == 0 )
                 continue
 
@@ -472,8 +476,8 @@ class MCTS_GHOST (
 
         val bestChildID = potentialChildrenID.random()
         bestRatio = nodes[bestChildID].score.toDouble() / nodes[bestChildID].visits
-        Log.d(TAG,"Best child ID (new current node): ${bestChildID} ${nodes[bestChildID].move}, visits=${nodes[bestChildID].visits}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
-        Log.d(TAG, "Tree size: ${nodes.size} nodes, number of playouts: ${numberPlayouts}, solver calls: ${numberSolverCalls}, solver failures: ${numberSolverFailures}")
+//        Log.d(TAG,"Best child ID (new current node): ${bestChildID} ${nodes[bestChildID].move}, visits=${nodes[bestChildID].visits}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
+//        Log.d(TAG, "Tree size: ${nodes.size} nodes, number of playouts: ${numberPlayouts}, solver calls: ${numberSolverCalls}, solver failures: ${numberSolverFailures}")
 
         currentNode = nodes[bestChildID]
         return currentNode.move!!
@@ -551,8 +555,8 @@ class MCTS_GHOST (
         // if node.player == Color.Red, then the selected node, i.e., node's parent, is blue
         val selectedNodeColorIsBlue = ( node.player == Color.Red );
 
+        /** Debug setup before playouts **/
 //        Log.d(TAG,"### Playout: is selected node color blue? ${selectedNodeColorIsBlue}")
-
 //        var ss = ""
 //        for (i in 0..35) {
 //            var p = game.board.grid[i].toInt()
@@ -664,6 +668,7 @@ class MCTS_GHOST (
 //                Log.d(TAG,"### Playout: discounted cumulative score = ${score}. Discount=${exponential_discount}, original score=${heuristic_score}")
             }
 
+            /** Debug playouts **/
 //            var ss = ""
 //            for (i in 0..35) {
 //                var p = game.board.grid[i].toInt()
@@ -697,6 +702,7 @@ class MCTS_GHOST (
 //            Log.d(TAG, "\n")
         }
 
+        /** Debug playouts results **/
 //        ss = ""
 //        for (i in 0..35) {
 //            var p = game.board.grid[i].toInt()
@@ -718,10 +724,9 @@ class MCTS_GHOST (
                 score += ( discount_score.pow(numberMoves-1) ) * 1000.0
 //                Log.d(TAG, "### Playout: Red victory, score = ${score}")
             }
-            else {
-                //score = heuristic_state_cpp( game.board.grid, game.currentPlayer == Color.Blue );
+//            else {
 //                Log.d(TAG, "### Playout: No victory, score = ${score}")
-            }
+//            }
         }
         return score
     }
@@ -823,6 +828,7 @@ class MCTS_GHOST (
             mutableListOf()
         )
 
+        /** Debug node creation **/
 //        var ss = "Create node number ${numberNodes} with move ${move}"
 //        Log.d(TAG, "${ss}")
 //        ss = ""
