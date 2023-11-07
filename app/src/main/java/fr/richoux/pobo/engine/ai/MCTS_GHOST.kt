@@ -716,12 +716,12 @@ class MCTS_GHOST (
 //        Log.d(TAG, "${ss}")
 
         if( isBlueVictory ) {
-            score += ( discount_score.pow(numberMoves-1) ) * -1000.0
+            score += -discount_score.pow(numberMoves-1) //* -1000.0
 //            Log.d(TAG, "### Playout: Blue victory, score = ${score}")
         }
         else {
             if( isRedVictory ) {
-                score += ( discount_score.pow(numberMoves-1) ) * 1000.0
+                score += discount_score.pow(numberMoves-1) //* 1000.0
 //                Log.d(TAG, "### Playout: Red victory, score = ${score}")
             }
 //            else {
@@ -805,10 +805,10 @@ class MCTS_GHOST (
 
         val score =
             if (isBlueVictory)
-                -1000.0
+                -1.0 //-1000.0
             else {
                 if (isRedVictory)
-                    1000.0
+                    1.0 //1000.0
                 else
                     0.0
                     //heuristic_state_cpp( newGame.board.grid, newGame.currentPlayer == Color.Blue ).toInt();

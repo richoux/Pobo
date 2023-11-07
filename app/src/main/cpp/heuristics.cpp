@@ -50,7 +50,7 @@ double compute_partial_score( int from_row,
 
 	if( check_three_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
 	{
-		score += is_player_piece ? 250 : -250;
+		score += is_player_piece ? 500 : -500; // 250/-250
 		ALOG( "compute_partial_score 3 Bo aligned from (%d,%d), score=%.2f", from_row, from_col,
 		      score );
 		jump_forward = 2;
@@ -70,7 +70,7 @@ double compute_partial_score( int from_row,
 			if( check_three_in_a_row( from_row, from_col, direction, WHATEVER, simulation_grid ))
 			{
 				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid ) *
-				         (is_player_piece ? 10 : -11);
+				         (is_player_piece ? 7 : -11); // 10/-11
 //				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid );
 				ALOG( "compute_partial_score 3 pieces aligned from (%d,%d), score=%.2f", from_row, from_col,
 				      score );
@@ -91,26 +91,12 @@ double compute_partial_score( int from_row,
 					{
 						if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
 						{
-							score += is_player_piece ? -5 : 10;
-//							if( is_player_piece )
-//							{
-//								if( is_fully_on_border( from_row, from_col, direction, 2 ) && do_opponent_has_bo_in_pool )
-//									score += 0; // this can create the unique situation where making 2 lines of Bo on the border is not considered as interesting
-//								else
-//									if( do_current_player_has_bo_in_pool )
-//										score += 30;
-//									else
-//										score += 10;
-//							}
-//							else
-//								score += do_opponent_has_bo_in_pool ? -30 : 10;
-
+							score += is_player_piece ? -5 : 0; // -5/10
 							ALOG( "compute_partial_score 2 Bo aligned from (%d,%d) but blocked, score=%.2f",
 							      from_row, from_col, score );
 						}
 						else // 2 Bo aligned, unblocked and not in the corner
 						{
-//							score += is_player_piece ? 100 : -100;
 							if( is_player_piece )
 							{
 								if( is_on_border( from_row, from_col, direction, 2, true ) && do_opponent_has_bo_in_pool )
@@ -126,7 +112,7 @@ double compute_partial_score( int from_row,
 								if( do_opponent_has_bo_in_pool )
 									score += -150; // because there is a severe risk to loose the game
 								else
-									score += -40; //TODO: reduce to -35, to favor taking 2 more Bo rather than blocking
+									score += -40;
 							}
 							ALOG( "compute_partial_score 2 Bo aligned from (%d,%d), score=%.2f", from_row,
 							      from_col, score );
@@ -141,7 +127,6 @@ double compute_partial_score( int from_row,
 						if( is_two_in_a_row_in_corner( from_row, from_col, direction ))
 						{
 							score += is_player_piece ? -1 : 5;
-//							score += is_player_piece ? 0 : 5;
 							ALOG( "compute_partial_score 2 Po in the corner from (%d,%d) but blocked, score=%.2f",
 							      from_row, from_col, score );
 						}
@@ -150,22 +135,17 @@ double compute_partial_score( int from_row,
 							if( is_two_in_a_row_blocked( from_row, from_col, direction, simulation_grid ))
 							{
 								score += is_player_piece ? -1 : 0;
-//								if( is_fully_on_border( from_row, from_col, direction, 2 ))
-//									score += 0; // this can create the unique situation where 2 lines of Po on the border is not considered as important
-//								else
-//									score += is_player_piece ? 0 : 5;
 								ALOG( "compute_partial_score 2 Po aligned from (%d,%d) but blocked, score=%.2f",
 								      from_row, from_col, score );
 							}
 							else // 2 Po aligned, unblocked and not in the corner
 							{
-//							score += is_player_piece ? 10 : -10;
 								if( is_player_piece )
 								{
 									if( is_on_border( from_row, from_col, direction, 2, true ) )
 										score += 0;
 									else
-										score += 20;
+										score += 15; //20
 								}
 								else
 									score += -22;
@@ -199,7 +179,7 @@ double compute_partial_score( int from_row,
 										if( is_on_border( from_row, from_col, direction, 2, true ) )
 											score += 0;
 										else
-											score += 10;
+											score += 7; //10
 									}
 									else
 										score += -11;
@@ -485,7 +465,7 @@ double heuristic_state( jbyte *const simulation_grid,
 			 diff_po_border
 			 );
 
-	score += 20*diff_total_bo
+	score += 25*diff_total_bo //20
 	         + 9*diff_bo + 3*(diff_bo_central + diff_bo_border)
 	         + 3*diff_po + diff_po_central + diff_po_border;
 
