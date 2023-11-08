@@ -64,39 +64,148 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 	if( col-1 >= 0 )
 	{
 		// Top Left
-		if( row-1 >= 0 )
+		if( row - 1 >= 0 )
 		{
-			if( simulation_grid[ ( row-1 )*6 + col-1 ] != 0 &&
-			    std::abs( simulation_grid[ ( row-1 )*6 + col-1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-			    ( col-2 < 0 || row-2 < 0 || simulation_grid[ ( row-2 )*6 + col-2 ] == 0 ))
+			if( simulation_grid[ (row - 1) * 6 + col - 1 ] != 0 &&
+			    std::abs( simulation_grid[ (row - 1) * 6 + col - 1 ] ) <=
+			    std::abs( simulation_grid[ index ] ) &&
+			    (col - 2 < 0 || row - 2 < 0 || simulation_grid[ (row - 2) * 6 + col - 2 ] == 0))
 			{
-				if( col-2 >= 0 && row-2 >= 0 && simulation_grid[ ( row-2 )*6 + col-2 ] == 0 )
-					simulation_grid[ ( row-2 )*6 + col-2 ] = simulation_grid[ ( row-1 )*6 + col-1 ];
-				simulation_grid[ ( row-1 )*6 + col-1 ] = 0;
+				if( col - 2 >= 0 && row - 2 >= 0 )
+				{
+					if( simulation_grid[ (row - 2) * 6 + col - 2 ] == 0 )
+						simulation_grid[ (row - 2) * 6 + col - 2 ] = simulation_grid[ (row - 1) * 6 + col - 1 ];
+				}
+				else // if a piece has been ejected out the board, we need to put it into the right pool
+				{
+					if( simulation_grid[ (row - 1) * 6 + col - 1 ] > 0 )
+					{
+						// in every case, either a Po or a Bo has been ejected out the board
+						red_pool[ red_pool_size ] = 1;
+
+						if( simulation_grid[ (row - 1) * 6 + col - 1 ] == 2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( red_pool[ i ] == 2 )
+								++i;
+							red_pool[ i ] = 2;
+						}
+
+						++red_pool_size;
+					}
+					else
+					{
+						blue_pool[ blue_pool_size ] = 1;
+
+						if( simulation_grid[ (row - 1) * 6 + col - 1 ] == -2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( blue_pool[ i ] == 2 )
+								++i;
+							blue_pool[ i ] = 2;
+						}
+
+						++blue_pool_size;
+					}
+				}
+
+				simulation_grid[ (row - 1) * 6 + col - 1 ] = 0;
 			}
 		}
 
 		// Bottom Left
-		if( row+1 <= 5 )
+		if( row + 1 <= 5 )
 		{
-			if( simulation_grid[ ( row+1 )*6 + col-1 ] != 0 &&
-			    std::abs( simulation_grid[ ( row+1 )*6 + col-1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-			    ( col-2 < 0 || row+2 > 5 || simulation_grid[ ( row+2 )*6 + col-2 ] == 0 ))
+			if( simulation_grid[ (row + 1) * 6 + col - 1 ] != 0 &&
+			    std::abs( simulation_grid[ (row + 1) * 6 + col - 1 ] ) <=
+			    std::abs( simulation_grid[ index ] ) &&
+			    (col - 2 < 0 || row + 2 > 5 || simulation_grid[ (row + 2) * 6 + col - 2 ] == 0))
 			{
-				if( col-2 >= 0 && row+2 <= 5 && simulation_grid[ ( row+2 )*6 + col-2 ] == 0 )
-					simulation_grid[ ( row+2 )*6 + col-2 ] = simulation_grid[ ( row+1 )*6 + col-1 ];
-				simulation_grid[ ( row+1 )*6 + col-1 ] = 0;
+				if( col - 2 >= 0 && row + 2 <= 5 )
+				{
+					if( simulation_grid[ (row + 2) * 6 + col - 2 ] == 0 )
+						simulation_grid[ (row + 2) * 6 + col - 2 ] = simulation_grid[ (row + 1) * 6 + col - 1 ];
+				}
+				else // if a piece has been ejected out the board, we need to put it into the right pool
+				{
+					if( simulation_grid[ (row + 1) * 6 + col - 1 ] > 0 )
+					{
+						// in every case, either a Po or a Bo has been ejected out the board
+						red_pool[ red_pool_size ] = 1;
+
+						if( simulation_grid[ (row + 1) * 6 + col - 1 ] == 2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( red_pool[ i ] == 2 )
+								++i;
+							red_pool[ i ] = 2;
+						}
+
+						++red_pool_size;
+					}
+					else
+					{
+						blue_pool[ blue_pool_size ] = 1;
+
+						if( simulation_grid[ (row + 1) * 6 + col - 1 ] == -2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( blue_pool[ i ] == 2 )
+								++i;
+							blue_pool[ i ] = 2;
+						}
+
+						++blue_pool_size;
+					}
+				}
+
+				simulation_grid[ (row + 1) * 6 + col - 1 ] = 0;
 			}
 		}
 
 		// Left
-		if( simulation_grid[ row*6 + col-1 ] != 0 &&
-		    std::abs( simulation_grid[ row*6 + col-1 ] ) <= std::abs( simulation_grid[ index ] ) &&
-		    ( col-2 < 0 || simulation_grid[ row*6 + col-2 ] == 0 ))
+		if( simulation_grid[ row * 6 + col - 1 ] != 0 &&
+		    std::abs( simulation_grid[ row * 6 + col - 1 ] ) <= std::abs( simulation_grid[ index ] ) &&
+		    (col - 2 < 0 || simulation_grid[ row * 6 + col - 2 ] == 0))
 		{
-			if( col-2 >= 0 && simulation_grid[ row*6 + col-2 ] == 0 )
-				simulation_grid[ row*6 + col-2 ] = simulation_grid[ row*6 + col-1 ];
-			simulation_grid[ row*6 + col-1 ] = 0;
+			if( col - 2 >= 0 )
+			{
+				if( simulation_grid[ row * 6 + col - 2 ] == 0 )
+					simulation_grid[ row * 6 + col - 2 ] = simulation_grid[ row * 6 + col - 1 ];
+			}
+			else // if a piece has been ejected out the board, we need to put it into the right pool
+			{
+				if( simulation_grid[ row * 6 + col - 1 ] > 0 )
+				{
+					// in every case, either a Po or a Bo has been ejected out the board
+					red_pool[ red_pool_size ] = 1;
+
+					if( simulation_grid[ row * 6 + col - 1 ] == 2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( red_pool[ i ] == 2 )
+							++i;
+						red_pool[ i ] = 2;
+					}
+
+					++red_pool_size;
+				}
+				else
+				{
+					blue_pool[ blue_pool_size ] = 1;
+
+					if( simulation_grid[ row * 6 + col - 1 ] == -2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( blue_pool[ i ] == 2 )
+							++i;
+						blue_pool[ i ] = 2;
+					}
+
+					++blue_pool_size;
+				}
+			}
+			simulation_grid[ row * 6 + col - 1 ] = 0;
 		}
 	}
 
@@ -109,9 +218,45 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 			    std::abs( simulation_grid[ ( row-1 )*6 + col+1 ] ) <= std::abs( simulation_grid[ index ] ) &&
 			    ( col+2 > 5 || row-2 < 0 || simulation_grid[ ( row-2 )*6 + col+2 ] == 0 ))
 			{
-				if( col+2 <= 5 && row-2 >= 0 && simulation_grid[ ( row-2 )*6 + col+2 ] == 0 )
-					simulation_grid[ ( row-2 )*6 + col+2 ] = simulation_grid[ ( row-1 )*6 + col+1 ];
-				simulation_grid[ ( row-1 )*6 + col+1 ] = 0;
+				if( col + 2 <= 5 && row - 2 >= 0 )
+				{
+					if( simulation_grid[ (row - 2) * 6 + col + 2 ] == 0 )
+						simulation_grid[ (row - 2) * 6 + col + 2 ] = simulation_grid[ (row - 1) * 6 + col + 1 ];
+				}
+				else // if a piece has been ejected out the board, we need to put it into the right pool
+				{
+					if( simulation_grid[ (row - 1) * 6 + col + 1 ] > 0 )
+					{
+						// in every case, either a Po or a Bo has been ejected out the board
+						red_pool[ red_pool_size ] = 1;
+
+						if( simulation_grid[ (row - 1) * 6 + col + 1 ] == 2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( red_pool[ i ] == 2 )
+								++i;
+							red_pool[ i ] = 2;
+						}
+
+						++red_pool_size;
+					}
+					else
+					{
+						blue_pool[ blue_pool_size ] = 1;
+
+						if( simulation_grid[ (row - 1) * 6 + col + 1 ] == -2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( blue_pool[ i ] == 2 )
+								++i;
+							blue_pool[ i ] = 2;
+						}
+
+						++blue_pool_size;
+					}
+				}
+
+				simulation_grid[ (row - 1) * 6 + col + 1 ] = 0;
 			}
 		}
 
@@ -122,9 +267,45 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 			    std::abs( simulation_grid[ ( row+1 )*6 + col+1 ] ) <= std::abs( simulation_grid[ index ] ) &&
 			    ( col+2 > 5 || row+2 > 5 || simulation_grid[ ( row+2 )*6 + col+2 ] == 0 ) )
 			{
-				if( col+2 <= 5 && row+2 <= 5 && simulation_grid[ ( row+2 )*6 + col+2 ] == 0 )
-					simulation_grid[ ( row+2 )*6 + col+2 ] = simulation_grid[ ( row+1 )*6 + col+1 ];
-				simulation_grid[ ( row+1 )*6 + col+1 ] = 0;
+				if( col + 2 <= 5 && row + 2 <= 5 )
+				{
+					if( simulation_grid[ (row + 2) * 6 + col + 2 ] == 0 )
+						simulation_grid[ (row + 2) * 6 + col + 2 ] = simulation_grid[ (row + 1) * 6 + col + 1 ];
+				}
+				else // if a piece has been ejected out the board, we need to put it into the right pool
+				{
+					if( simulation_grid[ (row + 1) * 6 + col + 1 ] > 0 )
+					{
+						// in every case, either a Po or a Bo has been ejected out the board
+						red_pool[ red_pool_size ] = 1;
+
+						if( simulation_grid[ (row + 1) * 6 + col + 1 ] == 2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( red_pool[ i ] == 2 )
+								++i;
+							red_pool[ i ] = 2;
+						}
+
+						++red_pool_size;
+					}
+					else
+					{
+						blue_pool[ blue_pool_size ] = 1;
+
+						if( simulation_grid[ (row + 1) * 6 + col + 1 ] == -2 ) // if it is a Bo though
+						{
+							int i = 0;
+							while( blue_pool[ i ] == 2 )
+								++i;
+							blue_pool[ i ] = 2;
+						}
+
+						++blue_pool_size;
+					}
+				}
+
+				simulation_grid[ (row + 1) * 6 + col + 1 ] = 0;
 			}
 		}
 
@@ -133,9 +314,45 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 		    std::abs( simulation_grid[ row*6 + col+1 ] ) <= std::abs( simulation_grid[ index ] ) &&
 		    ( col+2 > 5 || simulation_grid[ row*6 + col+2 ] == 0 ))
 		{
-			if( col+2 <= 5 && simulation_grid[ row*6 + col+2 ] == 0 )
-				simulation_grid[ row*6 + col+2 ] = simulation_grid[ row*6 + col+1 ];
-			simulation_grid[ row*6 + col+1 ] = 0;
+			if( col + 2 <= 5 )
+			{
+				if( simulation_grid[ row * 6 + col + 2 ] == 0 )
+					simulation_grid[ row * 6 + col + 2 ] = simulation_grid[ row * 6 + col + 1 ];
+			}
+			else // if a piece has been ejected out the board, we need to put it into the right pool
+			{
+				if( simulation_grid[ row * 6 + col + 1 ] > 0 )
+				{
+					// in every case, either a Po or a Bo has been ejected out the board
+					red_pool[ red_pool_size ] = 1;
+
+					if( simulation_grid[ row * 6 + col + 1 ] == 2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( red_pool[ i ] == 2 )
+							++i;
+						red_pool[ i ] = 2;
+					}
+
+					++red_pool_size;
+				}
+				else
+				{
+					blue_pool[ blue_pool_size ] = 1;
+
+					if( simulation_grid[ row * 6 + col + 1 ] == -2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( blue_pool[ i ] == 2 )
+							++i;
+						blue_pool[ i ] = 2;
+					}
+
+					++blue_pool_size;
+				}
+			}
+
+			simulation_grid[ row * 6 + col + 1 ] = 0;
 		}
 	}
 
@@ -146,9 +363,45 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 		    std::abs( simulation_grid[ ( row-1 )*6 + col ] ) <= std::abs( simulation_grid[ index ] ) &&
 		    ( row-2 < 0 || simulation_grid[ ( row-2 )*6 + col ] == 0 ))
 		{
-			if( row-2 >= 0 && simulation_grid[ ( row-2 )*6 + col ] == 0 )
-				simulation_grid[ ( row-2 )*6 + col ] = simulation_grid[ ( row-1 )*6 + col ];
-			simulation_grid[ ( row-1 )*6 + col ] = 0;
+			if( row - 2 >= 0 )
+			{
+				if( simulation_grid[ (row - 2) * 6 + col ] == 0 )
+					simulation_grid[ (row - 2) * 6 + col ] = simulation_grid[ (row - 1) * 6 + col ];
+			}
+			else // if a piece has been ejected out the board, we need to put it into the right pool
+			{
+				if( simulation_grid[ (row - 1) * 6 + col ] > 0 )
+				{
+					// in every case, either a Po or a Bo has been ejected out the board
+					red_pool[ red_pool_size ] = 1;
+
+					if( simulation_grid[ (row - 1) * 6 + col ] == 2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( red_pool[ i ] == 2 )
+							++i;
+						red_pool[ i ] = 2;
+					}
+
+					++red_pool_size;
+				}
+				else
+				{
+					blue_pool[ blue_pool_size ] = 1;
+
+					if( simulation_grid[ (row - 1) * 6 + col ] == -2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( blue_pool[ i ] == 2 )
+							++i;
+						blue_pool[ i ] = 2;
+					}
+
+					++blue_pool_size;
+				}
+			}
+
+			simulation_grid[ (row - 1) * 6 + col ] = 0;
 		}
 	}
 
@@ -159,9 +412,45 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 		    std::abs( simulation_grid[ ( row+1 )*6 + col ] ) <= std::abs( simulation_grid[ index ] ) &&
 		    ( row+2 > 5 || simulation_grid[ ( row+2 )*6 + col ] == 0 ))
 		{
-			if( row+2 <= 5 && simulation_grid[ ( row+2 )*6 + col ] == 0 )
-				simulation_grid[ ( row+2 )*6 + col ] = simulation_grid[ ( row+1 )*6 + col ];
-			simulation_grid[ ( row+1 )*6 + col ] = 0;
+			if( row + 2 <= 5 )
+			{
+				if( simulation_grid[ (row + 2) * 6 + col ] == 0 )
+					simulation_grid[ (row + 2) * 6 + col ] = simulation_grid[ (row + 1) * 6 + col ];
+			}
+			else // if a piece has been ejected out the board, we need to put it into the right pool
+			{
+				if( simulation_grid[ (row + 1) * 6 + col ] > 0 )
+				{
+					// in every case, either a Po or a Bo has been ejected out the board
+					red_pool[ red_pool_size ] = 1;
+
+					if( simulation_grid[ (row + 1) * 6 + col ] == 2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( red_pool[ i ] == 2 )
+							++i;
+						red_pool[ i ] = 2;
+					}
+
+					++red_pool_size;
+				}
+				else
+				{
+					blue_pool[ blue_pool_size ] = 1;
+
+					if( simulation_grid[ (row + 1) * 6 + col ] == -2 ) // if it is a Bo though
+					{
+						int i = 0;
+						while( blue_pool[ i ] == 2 )
+							++i;
+						blue_pool[ i ] = 2;
+					}
+
+					++blue_pool_size;
+				}
+			}
+
+			simulation_grid[ (row + 1) * 6 + col ] = 0;
 		}
 	}
 

@@ -474,7 +474,7 @@ double heuristic_state( jbyte *const simulation_grid,
 	// Score normalization [-1,1]
 	score = std::min( 250.0, std::max( -250.0, score ) ) / 250;
 
-	ALOG("score=%.2f\n", score);
+	ALOG("score=%.3f\n", score);
 	ALOG("\n");
 
 	return score;
