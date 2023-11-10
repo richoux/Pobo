@@ -22,19 +22,18 @@ using namespace std::literals::chrono_literals;
 
 extern "C"
 JNIEXPORT jintArray JNICALL
-Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
-				JNIEnv *env,
-				jobject thiz,
-				jbyteArray k_grid,
-				jbyteArray k_blue_pool,
-				jbyteArray k_red_pool,
-				jint k_blue_pool_size,
-				jint k_red_pool_size,
-				jboolean k_blue_turn,
-				jbyteArray k_to_remove_row,
-				jbyteArray k_to_remove_col,
-				jbyteArray k_to_remove_p,
-				jint k_number_to_remove )
+Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(	JNIEnv *env,
+																				jobject thiz,
+																				jbyteArray k_grid,
+																				jbyteArray k_blue_pool,
+																				jbyteArray k_red_pool,
+																				jint k_blue_pool_size,
+																				jint k_red_pool_size,
+																				jboolean k_blue_turn,
+																				jbyteArray k_to_remove_row,
+																				jbyteArray k_to_remove_col,
+																				jbyteArray k_to_remove_p,
+																				jint k_number_to_remove )
 {
 	randutils::mt19937_rng rng;
 
@@ -120,14 +119,14 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(
 extern "C"
 JNIEXPORT jintArray JNICALL
 Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call_1full( JNIEnv *env,
-                                                                                     jobject thiz,
-                                                                                     jbyteArray k_grid,
-                                                                                     jbyteArray k_blue_pool,
-                                                                                     jbyteArray k_red_pool,
-                                                                                     jint k_blue_pool_size,
-                                                                                     jint k_red_pool_size,
-                                                                                     jboolean k_blue_turn,
-                                                                                     jint k_number_preselected_actions )
+                                             jobject thiz,
+																						 jbyteArray k_grid,
+																						 jbyteArray k_blue_pool,
+																						 jbyteArray k_red_pool,
+																						 jint k_blue_pool_size,
+																						 jint k_red_pool_size,
+																						 jboolean k_blue_turn,
+																						 jint k_number_preselected_actions )
 {
 	randutils::mt19937_rng rng;
 
@@ -183,7 +182,9 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call_1f
 		else
 		{
 			rng.shuffle(solutions_index );
-			std::copy( solutions_index.begin(), solutions_index.begin() + (k_number_preselected_actions - best_solutions_index.size()),std::back_inserter( best_solutions_index ));
+			std::copy( solutions_index.begin(),
+								 solutions_index.begin() + (k_number_preselected_actions - best_solutions_index.size()),
+								 std::back_inserter( best_solutions_index ));
 		}
 	}
 
@@ -223,15 +224,14 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call_1f
 
 extern "C"
 JNIEXPORT jdouble JNICALL
-Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1state_1cpp(
-				JNIEnv *env,
-				jobject thiz,
-				jbyteArray k_grid,
-				jboolean k_blue_turn,
-				jbyteArray k_blue_pool,
-				jint k_blue_pool_size,
-				jbyteArray k_red_pool,
-				jint k_red_pool_size )
+Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1state_1cpp(	JNIEnv *env,
+																					jobject thiz,
+																					jbyteArray k_grid,
+																					jboolean k_blue_turn,
+																					jbyteArray k_blue_pool,
+																					jint k_blue_pool_size,
+																					jbyteArray k_red_pool,
+																					jint k_red_pool_size )
 {
 	jbyte cpp_grid[36];
 	jbyte blue_pool[k_blue_pool_size];
@@ -253,11 +253,11 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1state_1cpp(
 extern "C"
 JNIEXPORT jdoubleArray JNICALL
 Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1cpp( JNIEnv *env,
-                                          jobject thiz,
-																					jbyteArray k_grid,
-																					jboolean k_blue_turn,
-																					jint k_blue_pool_size,
-																					jint k_red_pool_size )
+                                              jobject thiz,
+																							jbyteArray k_grid,
+																							jboolean k_blue_turn,
+																							jint k_blue_pool_size,
+																							jint k_red_pool_size )
 {
 	jbyte cpp_grid[36];
 
