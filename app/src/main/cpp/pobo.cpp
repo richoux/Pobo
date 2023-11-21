@@ -277,35 +277,32 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1
 			scores.push_back( 1.0 );
 		else
 		{
-			randutils::mt19937_rng rng;
 			scores = heuristic_graduation( cpp_grid, groups );
 
-			/*
-			double best_score = -10000.0;
-			std::vector<int> best_groups;
-
-			for( int i = 0; i < groups.size(); ++i )
-			{
-				if(groups[i].size() == 1)
-					ALOG("Group[%d] {(%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, scores[i]);
-				else
-					ALOG("Group[%d] {(%d,%d), (%d,%d), (%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, groups[i][1].row, groups[i][1].column, groups[i][2].row, groups[i][2].column, scores[i]);
-
-				if( best_score < scores[ i ] )
-				{
-					best_score = scores[ i ];
-					best_groups.clear();
-					best_groups.push_back( i );
-					ALOG("Group[%d] is the new best group\n", i);
-				}
-				else
-					if( best_score == scores[ i ] )
-					{
-						best_groups.push_back( i );
-						ALOG("Group[%d] is ex aequo\n", i);
-					}
-			}
-		  */
+//			double best_score = -10000.0;
+//			std::vector<int> best_groups;
+//
+//			for( int i = 0; i < groups.size(); ++i )
+//			{
+//				if(groups[i].size() == 1)
+//					ALOG("Group[%d] {(%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, scores[i]);
+//				else
+//					ALOG("Group[%d] {(%d,%d), (%d,%d), (%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, groups[i][1].row, groups[i][1].column, groups[i][2].row, groups[i][2].column, scores[i]);
+//
+//				if( best_score < scores[ i ] )
+//				{
+//					best_score = scores[ i ];
+//					best_groups.clear();
+//					best_groups.push_back( i );
+//					ALOG("Group[%d] is the new best group\n", i);
+//				}
+//				else
+//					if( best_score == scores[ i ] )
+//					{
+//						best_groups.push_back( i );
+//						ALOG("Group[%d] is ex aequo\n", i);
+//					}
+//			}
 		}
 	}
 	else
