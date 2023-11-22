@@ -227,7 +227,7 @@ class MCTS_GHOST (
                             && nodes[childID].move?.to?.y == possible_moves[3 * i + 1]
                         ) {
                             actionToKeep = true
-//                            Log.d(TAG,"Action masking: move ${nodes[childID].move} from node ${childID} has been pre-selected.")
+                            Log.d(TAG,"Action masking: move ${nodes[childID].move} from node ${childID} has been pre-selected.")
                             break
                         }
                     }
@@ -295,6 +295,9 @@ class MCTS_GHOST (
             val selectedNode = UCT(actionMasking)
             val movesToRemove: MutableList<Move> = mutableListOf()
 
+            if( selectedNode.game.checkVictoryFor(selectedNode.game.board, selectedNode.player) )
+                return selectedNode.move!!
+
             /** Debug heuristics **/
 //            // -1/-2 is Blue
 //            val ggrid:ByteArray = byteArrayOf(
@@ -347,7 +350,7 @@ class MCTS_GHOST (
                 nodes[child].move?.let { movesToRemove.add(it) }
 
             /** Debug selection **/
-//            ss = ""
+//            var ss = ""
 //            for( i in 0..35 ) {
 //                var p = selectedNode.game.board.grid[i].toInt()
 //                if( p < 0 )
@@ -481,7 +484,7 @@ class MCTS_GHOST (
             if( nodes[childID].visits == 0 )
                 continue
             /*** Print visited nodes only ***/
-//            Log.d( TAG,"Current node's child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}" )
+            Log.d( TAG,"Current node's child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}" )
 
             // Best score
 //            if (nodes[childID].score > bestScore) {
@@ -532,8 +535,8 @@ class MCTS_GHOST (
 
         val bestChildID = potentialChildrenID.random()
         bestRatio = nodes[bestChildID].score.toDouble() / nodes[bestChildID].visits
-//        Log.d(TAG,"Best child ID (new current node): ${bestChildID} ${nodes[bestChildID].move}, visits=${nodes[bestChildID].visits}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
-//        Log.d(TAG, "Tree size: ${nodes.size} nodes, number of playouts: ${numberPlayouts}, solver calls: ${numberSolverCalls}, solver failures: ${numberSolverFailures}")
+        Log.d(TAG,"Best child ID (new current node): ${bestChildID} ${nodes[bestChildID].move}, visits=${nodes[bestChildID].visits}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
+        Log.d(TAG, "Tree size: ${nodes.size} nodes, number of playouts: ${numberPlayouts}, solver calls: ${numberSolverCalls}, solver failures: ${numberSolverFailures}")
 
         currentNode = nodes[bestChildID]
 

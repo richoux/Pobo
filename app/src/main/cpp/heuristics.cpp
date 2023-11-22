@@ -50,7 +50,7 @@ double compute_partial_score( int from_row,
 
 	if( check_three_in_a_row( from_row, from_col, direction, BO, simulation_grid ))
 	{
-		score += is_player_piece ? 500 : -500; // 250/-250
+		score += is_player_piece ? 800 : -800; // 250/-250
 		ALOG( "compute_partial_score 3 Bo aligned from (%d,%d), score=%.2f", from_row, from_col,
 		      score );
 		jump_forward = 2;
@@ -472,7 +472,7 @@ double heuristic_state( jbyte *const simulation_grid,
 	ALOG("score before normalization=%.2f\n", score);
 
 	// Score normalization [-1,1]
-	score = std::min( 250.0, std::max( -250.0, score ) ) / 250;
+	score = std::min( 400.0, std::max( -400.0, score ) ) / 400;
 
 	ALOG("score=%.3f\n", score);
 	ALOG("\n");
