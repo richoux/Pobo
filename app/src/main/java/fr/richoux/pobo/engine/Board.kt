@@ -303,6 +303,19 @@ data class Board(
 
     fun isPoolEmpty(player: Color): Boolean = getPlayerPool(player).isEmpty()
 
+    fun getNumberOfBoInPool(player: Color): Int {
+        val pool = getPlayerPool(player)
+        var count = 0
+        for( piece in pool )
+            if( piece.toInt() == 2 )
+                ++count
+        return count
+    }
+
+    fun getNumberOfPoInPool(player: Color): Int {
+        return getPlayerPool(player).size - getNumberOfBoInPool(player)
+    }
+
     fun hasPieceInPool(color: Color, type: PieceType): Boolean {
         val pool = getPlayerPool(color)
         return type.value == when (type) {

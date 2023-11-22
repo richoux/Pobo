@@ -64,11 +64,33 @@ data class Game(
             }
         }
     private var _finishPieceSelection: Boolean = false
+
     fun finishSelection() {
         _finishPieceSelection = true
     }
+
     fun unfinishSelection() {
         _finishPieceSelection = false
+    }
+
+    fun signature(): String {
+        var signature = ""
+        for (i in 0..35) {
+            var p = board.grid[i].toInt()
+            if (p < 0)
+                p += 10;
+            signature += p.toString()
+        }
+        signature += when( currentPlayer ) {
+            Color.Blue -> "B"
+            Color.Red -> "R"
+        }
+        signature += board.getNumberOfBoInPool(Color.Blue).toString()
+        signature += board.getNumberOfPoInPool(Color.Blue).toString()
+        signature += board.getNumberOfBoInPool(Color.Red).toString()
+        signature += board.getNumberOfPoInPool(Color.Red).toString()
+
+        return signature
     }
 
     fun canPlayAt(to: Position): Boolean = board.pieceAt(to) == null
