@@ -1,7 +1,9 @@
 package fr.richoux.pobo.gamescreen
 
 import android.content.res.Configuration
+import android.view.Gravity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
@@ -10,13 +12,18 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
@@ -267,6 +274,11 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.goToNextState()
         }
         GameState.END -> {
+            MainView(
+                viewModel,
+                lastMove = lastMove,
+                displayGameState = viewModel.displayGameState
+            )
             val style = TextStyle(
                 color = if(player == fr.richoux.pobo.engine.Color.Blue) Color.Blue else Color.Red,
                 fontSize = MaterialTheme.typography.body1.fontSize,
@@ -277,43 +289,100 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 viewModel.newGame(viewModel.aiEnabled)
             }
             val declineNewGame: () -> Unit = {
-                viewModel.resume()
+                //viewModel.resume()
             }
-            AlertDialog(
-                onDismissRequest = {},
-                buttons = {
-                    Row() {
-                        Button(
-                            { acceptNewGame() }
-                        ) {
-                            Text(text = "Sure!")
+//            Dialog(
+//                onDismissRequest = {},
+//            ) {
+//                (LocalView.current.parent as DialogWindowProvider)?.window?.setDimAmount(0f)
+//                Column(
+//                    modifier = Modifier
+//                        .fillMaxSize(),
+//                    verticalArrangement = Arrangement.Center,
+//                    horizontalAlignment = Alignment.CenterHorizontally,
+//                ) {
+//                    Text(
+//                        text = "${player} wins!",
+//                        style = style
+//                    )
+//                    Text(
+//                        text = "New game?"
+//                    )
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.Center,
+//                    ) {
+//                        TextButton(
+//                            onClick = { acceptNewGame() },
+//                            modifier = Modifier.padding(8.dp),
+//                        ) {
+//                            Text("Sure!")
+//                        }
+//                        TextButton(
+//                            onClick = { declineNewGame() },
+//                            modifier = Modifier.padding(8.dp),
+//                        ) {
+//                            Text("Next time")
+//                        }
+//                    }
+//                }
+//            }
+                AlertDialog(
+                    onDismissRequest = {},
+                    buttons = {
+                        Row() {
+                            Button(
+                                { acceptNewGame() }
+                            ) {
+                                Text(text = "Sure!")
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Button(
+                                { declineNewGame() }
+                            ) {
+                                Text(text = "Next time")
+                            }
                         }
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Button(
-                            { declineNewGame() }
-                        ) {
-                            Text(text = "Next time")
+                    },
+                    title = {
+                        Row()
+                        {
+                            Text(
+                                text = "$player",
+                                style = style
+                            )
+                            Text(
+                                text = " wins!"
+                            )
                         }
-                    }
-                },
-                title = {
-                    Row()
-                    {
+                    },
+                    text = {
                         Text(
-                            text = "$player",
-                            style = style
+                            text = "New game?"
                         )
-                        Text(
-                            text = " wins!"
-                        )
-                    }
-                },
-                text = {
-                    Text(
-                        text = "New game?"
-                    )
-                }
+                    },
+                    modifier = Modifier.customDialogModifier(CustomDialogPosition.BOTTOM).background(Color.Transparent)
             )
+        }
+    }
+}
+
+enum class CustomDialogPosition {
+    BOTTOM, TOP
+}
+
+fun Modifier.customDialogModifier(pos: CustomDialogPosition) = layout { measurable, constraints ->
+
+    val placeable = measurable.measure(constraints);
+    layout(constraints.maxWidth, constraints.maxHeight){
+        when(pos) {
+            CustomDialogPosition.BOTTOM -> {
+                placeable.place((constraints.maxWidth - placeable.width)/2, 9*(constraints.maxHeight - placeable.height)/10, 10f)
+            }
+            CustomDialogPosition.TOP -> {
+                placeable.place(0,0,10f)
+            }
         }
     }
 }

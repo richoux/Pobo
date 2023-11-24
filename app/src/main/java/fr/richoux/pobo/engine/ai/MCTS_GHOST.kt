@@ -295,9 +295,6 @@ class MCTS_GHOST (
             val selectedNode = UCT(actionMasking)
             val movesToRemove: MutableList<Move> = mutableListOf()
 
-            if( selectedNode.game.checkVictoryFor(selectedNode.game.board, selectedNode.player) )
-                return selectedNode.move!!
-
             /** Debug heuristics **/
 //            // -1/-2 is Blue
 //            val ggrid:ByteArray = byteArrayOf(
@@ -479,6 +476,11 @@ class MCTS_GHOST (
         var bestRatio = -10000.0
 //        Log.d( TAG,"Current node ID: ${currentNode.id}" )
         for (childID in currentNode.childID) {
+            if( nodes[childID].game.checkVictoryFor(nodes[childID].game.board, color) ) {
+                Log.d(TAG,"Child ${childID} with move ${nodes[childID].move} is a winning move for Player ${color}")
+                return nodes[childID].move!!
+            }
+
             /*** Print all nodes, even unvisited ones ***/
 //            Log.d( TAG,"Current node's child ID: ${childID}, ${nodes[childID].move}, visits=${nodes[childID].visits}, score=${nodes[childID].score}" )
             if( nodes[childID].visits == 0 )
