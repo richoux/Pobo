@@ -69,11 +69,36 @@ double compute_partial_score( int from_row,
 		{
 			if( check_three_in_a_row( from_row, from_col, direction, WHATEVER, simulation_grid ))
 			{
-				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid ) *
-				         (is_player_piece ? 7 : -11); // 10/-11
+				if( is_two_unblocked_bo_and_one_po(from_row, from_col, direction, simulation_grid) )
+				{
+					// to be treated as a 2 unblocked, not-in-the-corner, aligned Bo
+					if( is_player_piece )
+					{
+						if( is_on_border( from_row, from_col, direction, 2, true ) && do_opponent_has_bo_in_pool )
+							score += 0; // this can create the unique situation where making 2 lines of Bo on the border is not considered as interesting
+						else
+							if( do_current_player_has_bo_in_pool )
+								score += 60;
+							else
+								score += 20;
+					}
+					else
+					{
+						if( do_opponent_has_bo_in_pool )
+							score += -300; // because there is a severe risk to loose the game
+						else
+							score += -40;
+					}
+				}
+				else
+				{
+					score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid ) *
+					         (is_player_piece ? 7 : -11); // 10/-11
 //				score += count_Po_in_a_row( from_row, from_col, direction, simulation_grid );
-				ALOG( "compute_partial_score 3 pieces aligned from (%d,%d), score=%.2f", from_row, from_col,
-				      score );
+					ALOG( "compute_partial_score 3 pieces aligned from (%d,%d), score=%.2f", from_row,
+					      from_col,
+					      score );
+				}
 				jump_forward = 1;
 			}
 			else
@@ -110,7 +135,7 @@ double compute_partial_score( int from_row,
 							else
 							{
 								if( do_opponent_has_bo_in_pool )
-									score += -150; // because there is a severe risk to loose the game
+									score += -300; // because there is a severe risk to loose the game
 								else
 									score += -40;
 							}
