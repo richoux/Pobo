@@ -189,6 +189,26 @@ Position get_position_toward( const Position &position, int direction )
 	return get_position_toward( position, static_cast<Direction>( direction ) );
 }
 
+Position get_previous_position( const Position &position, Direction direction )
+{
+	switch( direction )
+	{
+		case TOPRIGHT:
+			return Position( position.row + 1, position.column - 1 );
+		case RIGHT:
+			return Position( position.row, position.column - 1 );
+		case BOTTOMRIGHT:
+			return Position( position.row - 1, position.column - 1 );
+		default: //BOTTOM
+			return Position( position.row - 1, position.column );
+	}
+}
+
+Position get_previous_position( const Position &position, int direction )
+{
+	return get_previous_position( position, static_cast<Direction>( direction ) );
+}
+
 bool is_valid_position( const Position &position )
 {
 	return position.row >= 0 && position.row <= 5 && position.column >= 0 && position.column <= 5;
@@ -374,6 +394,41 @@ bool is_blocking( jbyte * const simulation_grid, int row, int col )
 bool is_blocking( jbyte * const simulation_grid, const Position &position )
 {
 	return is_blocking( simulation_grid, position.row, position.column );
+}
+
+bool is_two_unblocked_bo_and_one_po( int from_row,
+                                     int from_col,
+                                     Direction direction,
+                                     jbyte * const simulation_grid )
+{
+	Position position_1( from_row, from_col );
+	Position position_2 = get_position_toward( position_1, direction );
+	Position position_3 = get_position_toward( position_2, direction );
+	Position previous = get_previous_position( position_1, direction );
+	Position after = get_position_toward( position_3, direction );
+
+	if(
+			std::abs( simulation_grid[ 6 * position_2.row + position_2.column ] ) == 2
+			&&
+			(
+				(
+					is_valid_position( previous )
+					&& is_empty_position( simulation_grid, previous )
+					&& std::abs( simulation_grid[ 6 * position_1.row + position_1.column ] ) == 2
+				)
+				||
+				(
+					is_valid_position( after )
+					&& is_empty_position( simulation_grid, after )
+					&& std::abs( simulation_grid[ 6 * position_3.row + position_3.column ] ) == 2
+				)
+			)
+	  )
+	{
+		return true;
+	}
+	else
+		return false;
 }
 
 std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_grid,

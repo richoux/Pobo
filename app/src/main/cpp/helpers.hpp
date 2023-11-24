@@ -57,6 +57,8 @@ int get_next_col( int from_col,
 
 Position get_position_toward( const Position &position, Direction direction );
 Position get_position_toward( const Position &position, int direction );
+Position get_previous_position( const Position &position, Direction direction );
+Position get_previous_position( const Position &position, int direction );
 
 bool is_valid_position( const Position &position );
 bool is_valid_position( int row, int col );
@@ -75,6 +77,10 @@ bool is_in_center( const Position &position );
 bool next_to_other_own_pieces( jbyte *const simulation_grid, const Position &position );
 bool is_blocking( jbyte * const simulation_grid, int row, int col );
 bool is_blocking( jbyte * const simulation_grid, const Position &position );
+bool is_two_unblocked_bo_and_one_po( int from_row,
+                                     int from_col,
+                                     Direction direction,
+                                     jbyte * const simulation_grid );
 
 std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_grid,
 																											jboolean blue_turn,
