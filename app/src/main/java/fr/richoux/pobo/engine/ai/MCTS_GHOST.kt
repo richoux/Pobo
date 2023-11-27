@@ -37,7 +37,7 @@ class MCTS_GHOST (
         mutableListOf()
     ),
     var currentNode: Node = root,
-    val nodes: ArrayList<Node> = arrayListOf(),
+    var nodes: ArrayList<Node> = arrayListOf(),
     var numberNodes: Int = 1,
     val number_preselected_actions: Int = 0,
     val extensions_and_playouts_with_GHOST: Boolean = false,
@@ -97,63 +97,27 @@ class MCTS_GHOST (
         val start = System.currentTimeMillis()
         currentGame = game.copyForPlayout()
         lastMove = lastOpponentMove
-        var opponentMoveExistsInTree = false
+
+        // Reset tree
         var numberPlayouts = 0
         var numberSolverCalls = 0
         var numberSolverFailures = 0
 
-        // First move of the game from the opponent (for the moment, the AI in always playing second)
-        if (numberNodes == 1) {
-            root = Node(
-                0,
-                currentGame,
-                currentGame.currentPlayer.other(), // because we want the player who played the move of the node
-                lastMove,
-                0.0,
-                1,
-                false,
-                0,
-                mutableListOf() )
-            currentNode = root
-            nodes.add(root)
-        }
-        // Otherwise, the opponent played 'lastOpponentMove', we have to look for it in the tree
-        else {
-            for (child in currentNode.childID)
-                if (nodes[child].move?.isSame(lastMove) == true) {
-//                    Log.d(TAG,"Mode ${lastMove} found in the tree")
-//                    Log.d(TAG,"nodes[child].game.signature: ${nodes[child].game.signature()}")
-//                    Log.d(TAG,"currentGame.signature():     ${currentGame.signature()}")
-                    currentNode = nodes[child]
-                    if (nodes[child].game.signature() != currentGame.signature()) {
-                        nodes[child].game.board = currentGame.board.copy()
-                        val score_to_reset = -nodes[child].score
-                        val visits_to_reset = -nodes[child].visits
-                        nodes[child].score = 0.0
-                        nodes[child].visits = 0
-                        nodes[child].childID = mutableListOf()
-                        nodes[nodes[child].parentID].visits -= visits_to_reset
-                        backpropagate(nodes[child].id, score_to_reset)
-                    }
-                    opponentMoveExistsInTree = true
-                    break
-                }
-
-            if (!opponentMoveExistsInTree) {
-                tryEachPossibleMove()
-//                Log.d(TAG,"Mode ${lastMove} NOT found in the tree, generating children")
-                for (child in currentNode.childID)
-                    if (nodes[child].move?.isSame(lastMove) == true) {
-//                        Log.d(TAG,"nodes[child].game.signature: ${nodes[child].game.signature()}")
-//                        Log.d(TAG,"currentGame.signature():     ${currentGame.signature()}")
-                        currentNode = nodes[child]
-                        if (nodes[child].game.signature() != currentGame.signature()) {
-                            nodes[child].game.board = currentGame.board.copy()
-                        }
-                        break
-                    }
-            }
-        }
+        root = Node(
+            0,
+            currentGame,
+            currentGame.currentPlayer.other(), // because we want the player who played the move of the node
+            lastMove,
+            0.0,
+            1,
+            false,
+            0,
+            mutableListOf()
+        )
+        currentNode = root
+        nodes = arrayListOf()
+        nodes.add(root)
+        numberNodes = 1
 
         // generate our moves
         tryEachPossibleMove()
@@ -252,42 +216,42 @@ class MCTS_GHOST (
         while (System.currentTimeMillis() - start < timeout_in_ms) {
 
             /** Debug setup before selection **/
-//            Log.d(TAG,"\n*** Before selection ***\nGrid:")
-//            var ss = ""
-//            for( i in 0..35 ) {
-//                var p = game.board.grid[i].toInt()
-//                if( p < 0 )
-//                    p += 10;
-//                ss += (p.toString() + " ")
-//                if( (i+1) % 6 == 0 )
-//                    ss += "\n"
-//            }
-//            Log.d(TAG,"$ss")
-//            ss = ""
-//            Log.d(TAG,"Blue player pool:")
-//            for( i in 0..game.board.bluePool.size-1 ) {
-//                var p = game.board.bluePool[i].toInt()
-//                ss += (p.toString() + " ")
-//            }
-//            Log.d(TAG,"$ss")
-//            ss = "Blue player pool size: " + game.board.bluePool.size.toString()
-//            Log.d(TAG,"$ss")
-//            if( game.board.bluePool.size == 1 )
-//                Log.d(TAG,"Blue pool contains one unit only!")
-//            ss = ""
-//            Log.d(TAG,"Red player pool:")
-//            for( i in 0..game.board.redPool.size-1 ) {
-//                var p = game.board.redPool[i].toInt()
-//                ss += (p.toString() + " ")
-//            }
-//            Log.d(TAG,"$ss")
-//            ss = "Red player pool size: " + game.board.redPool.size.toString()
-//            Log.d(TAG,"$ss")
-//            if( game.board.redPool.size == 1 )
-//                Log.d(TAG,"Red pool contains one unit only!")
-//            var blueTurn = game.currentPlayer == Color.Blue
-//            Log.d(TAG, "Is Blue turn: $blueTurn")
-//            Log.d(TAG, "\n")
+            Log.d(TAG,"\n*** Before selection ***\nGrid:")
+            var ss = ""
+            for( i in 0..35 ) {
+                var p = game.board.grid[i].toInt()
+                if( p < 0 )
+                    p += 10;
+                ss += (p.toString() + " ")
+                if( (i+1) % 6 == 0 )
+                    ss += "\n"
+            }
+            Log.d(TAG,"$ss")
+            ss = ""
+            Log.d(TAG,"Blue player pool:")
+            for( i in 0..game.board.bluePool.size-1 ) {
+                var p = game.board.bluePool[i].toInt()
+                ss += (p.toString() + " ")
+            }
+            Log.d(TAG,"$ss")
+            ss = "Blue player pool size: " + game.board.bluePool.size.toString()
+            Log.d(TAG,"$ss")
+            if( game.board.bluePool.size == 1 )
+                Log.d(TAG,"Blue pool contains one unit only!")
+            ss = ""
+            Log.d(TAG,"Red player pool:")
+            for( i in 0..game.board.redPool.size-1 ) {
+                var p = game.board.redPool[i].toInt()
+                ss += (p.toString() + " ")
+            }
+            Log.d(TAG,"$ss")
+            ss = "Red player pool size: " + game.board.redPool.size.toString()
+            Log.d(TAG,"$ss")
+            if( game.board.redPool.size == 1 )
+                Log.d(TAG,"Red pool contains one unit only!")
+            var blueTurn = game.currentPlayer == Color.Blue
+            Log.d(TAG, "Is Blue turn: $blueTurn")
+            Log.d(TAG, "\n")
 
             /////////////////
             // Select node //
@@ -347,41 +311,52 @@ class MCTS_GHOST (
                 nodes[child].move?.let { movesToRemove.add(it) }
 
             /** Debug selection **/
-//            var ss = ""
-//            for( i in 0..35 ) {
-//                var p = selectedNode.game.board.grid[i].toInt()
-//                if( p < 0 )
-//                    p += 10;
-//                ss += (p.toString() + " ")
-//                if( (i+1) % 6 == 0 )
-//                    ss += "\n"
-//            }
-//            Log.d(TAG,"$ss")
-//            ss = ""
-//            Log.d(TAG,"Blue player pool:")
-//            for( i in 0..selectedNode.game.board.bluePool.size-1 ) {
-//                var p = selectedNode.game.board.bluePool[i].toInt()
-//                ss += (p.toString() + " ")
-//            }
-//            Log.d(TAG,"$ss")
-//            ss = "Blue player pool size: " + selectedNode.game.board.bluePool.size.toString()
-//            Log.d(TAG,"$ss")
-//            ss = ""
-//            Log.d(TAG,"Red player pool:")
-//            for( i in 0..selectedNode.game.board.redPool.size-1 ) {
-//                var p = selectedNode.game.board.redPool[i].toInt()
-//                ss += (p.toString() + " ")
-//            }
-//            Log.d(TAG,"$ss")
-//            ss = "Red player pool size: " + selectedNode.game.board.redPool.size.toString()
-//            Log.d(TAG,"$ss")
-//            blueTurn = selectedNode.game.currentPlayer == Color.Blue
-//            Log.d(TAG, "Is Blue turn: $blueTurn")
-//            Log.d(TAG, "\n")
+            Log.d(TAG,"\n*** Selection ***\nSelected node's grid:")
+            ss = ""
+            for( i in 0..35 ) {
+                var p = selectedNode.game.board.grid[i].toInt()
+                if( p < 0 )
+                    p += 10;
+                ss += (p.toString() + " ")
+                if( (i+1) % 6 == 0 )
+                    ss += "\n"
+            }
+            Log.d(TAG,"$ss")
+            ss = ""
+            Log.d(TAG,"Blue player pool:")
+            for( i in 0..selectedNode.game.board.bluePool.size-1 ) {
+                var p = selectedNode.game.board.bluePool[i].toInt()
+                ss += (p.toString() + " ")
+            }
+            Log.d(TAG,"$ss")
+            ss = "Blue player pool size: " + selectedNode.game.board.bluePool.size.toString()
+            Log.d(TAG,"$ss")
+            ss = ""
+            Log.d(TAG,"Red player pool:")
+            for( i in 0..selectedNode.game.board.redPool.size-1 ) {
+                var p = selectedNode.game.board.redPool[i].toInt()
+                ss += (p.toString() + " ")
+            }
+            Log.d(TAG,"$ss")
+            ss = "Red player pool size: " + selectedNode.game.board.redPool.size.toString()
+            Log.d(TAG,"$ss")
+            blueTurn = selectedNode.game.currentPlayer == Color.Blue
+            Log.d(TAG, "Is Blue turn: $blueTurn")
+            Log.d(TAG, "\n")
+
+            // if the selected node is terminal, backpropagate its score and move on
+            if( selectedNode.isTerminal )
+            {
+                selectedNode.visits++
+                Log.d( TAG,"\nSelected node ${selectedNode.id} is terminal: backpropogating its score = ${selectedNode.score}, visits = ${selectedNode.visits}" )
+                backpropagate(selectedNode.parentID, selectedNode.score)
+                continue
+            }
 
             ////////////
             // Expand //
             ////////////
+
             //val move = randomPlay( selectNode.game, movesToRemove.toList() )
 
             var movesToRemoveRow: ByteArray = byteArrayOf()
@@ -396,7 +371,7 @@ class MCTS_GHOST (
                 movesToRemovePiece += abs( move.piece.code.toInt() ).toByte()
             }
             var move: Move
-//            Log.d(TAG, "GHOST call in Expansion")
+            Log.d(TAG, "GHOST call in Expansion")
             val solution = ghost_solver_call(
                 selectedNode.game.board.grid,
                 selectedNode.game.board.bluePool.toByteArray(),
@@ -414,7 +389,7 @@ class MCTS_GHOST (
             if (solution[0] == 42) {
                 move = randomPlay(selectedNode.game, movesToRemove.toList())
                 numberSolverFailures++
-//                Log.d(TAG, "### Expansion: RANDOM move ${move}")
+                Log.d(TAG, "### Expansion: RANDOM move ${move}")
             }
             else {
                 val code = when (selectedNode.game.currentPlayer) {
@@ -431,23 +406,23 @@ class MCTS_GHOST (
                 val piece = Piece(id, code.toByte())
                 val position = Position(solution[2], solution[1])
                 move = Move(piece, position)
-//                Log.d(TAG, "### Expansion: solver move ${move}, cost ${solution[3]}")
+                Log.d(TAG, "### Expansion: solver move ${move}, cost ${solution[3]}")
             }
 
             val expandedNode = createNode(selectedNode.game, move, selectedNode.id)
 
             /** Debug expansion **/
-//            ss = "Expansion done, created node ${expandedNode.id}:\n"
-//            for( i in 0..35 ) {
-//                var p = expandedNode.game.board.grid[i].toInt()
-//                if( p < 0 )
-//                    p += 10;
-//                ss += (p.toString() + " ")
-//                if( (i+1) % 6 == 0 )
-//                    ss += "\n"
-//            }
-//            Log.d(TAG,"$ss")
-//            Log.d(TAG, "\n")
+            ss = "Expansion done, created node ${expandedNode.id}:\n"
+            for( i in 0..35 ) {
+                var p = expandedNode.game.board.grid[i].toInt()
+                if( p < 0 )
+                    p += 10;
+                ss += (p.toString() + " ")
+                if( (i+1) % 6 == 0 )
+                    ss += "\n"
+            }
+            Log.d(TAG,"$ss")
+            Log.d(TAG, "\n")
 
             /////////////
             // Playout //
@@ -462,7 +437,7 @@ class MCTS_GHOST (
             /////////////////////////
             // Backpropagate score //
             /////////////////////////
-//            Log.d( TAG,"\nExpanded node ${expandedNode.id} score = ${expandedNode.score}, visits = ${expandedNode.visits}" )
+            Log.d( TAG,"\nExpanded node ${expandedNode.id} score = ${expandedNode.score}, visits = ${expandedNode.visits}" )
             backpropagate(selectedNode.id, expandedNode.score)
         }
 
@@ -654,39 +629,39 @@ class MCTS_GHOST (
         val selectedNodeColorIsBlue = ( node.player == Color.Red );
 
         /** Debug setup before playouts **/
-//        Log.d(TAG,"### Playout: is selected node color blue? ${selectedNodeColorIsBlue}")
-//        var ss = ""
-//        for (i in 0..35) {
-//            var p = game.board.grid[i].toInt()
-//            if (p < 0)
-//                p += 10;
-//            ss += (p.toString() + " ")
-//            if ((i + 1) % 6 == 0)
-//                ss += "\n"
-//        }
-//        ss += "\n"
-//        Log.d(TAG, "${ss}")
-//        ss = ""
-//        Log.d(TAG,"Blue player pool:")
-//        for( i in 0..game.board.bluePool.size-1 ) {
-//            var p = game.board.bluePool[i].toInt()
-//            ss += (p.toString() + " ")
-//        }
-//        Log.d(TAG,"$ss")
-//        ss = "Blue player pool size: " + game.board.bluePool.size.toString()
-//        Log.d(TAG,"$ss")
-//        ss = ""
-//        Log.d(TAG,"Red player pool:")
-//        for( i in 0..game.board.redPool.size-1 ) {
-//            var p = game.board.redPool[i].toInt()
-//            ss += (p.toString() + " ")
-//        }
-//        Log.d(TAG,"$ss")
-//        ss = "Red player pool size: " + game.board.redPool.size.toString()
-//        Log.d(TAG,"$ss")
-//        val blueTurn = game.currentPlayer == Color.Blue
-//        Log.d(TAG, "Is Blue turn: $blueTurn")
-//        Log.d(TAG, "\n")
+        Log.d(TAG,"### Playout: is selected node color blue? ${selectedNodeColorIsBlue}")
+        var ss = ""
+        for (i in 0..35) {
+            var p = game.board.grid[i].toInt()
+            if (p < 0)
+                p += 10;
+            ss += (p.toString() + " ")
+            if ((i + 1) % 6 == 0)
+                ss += "\n"
+        }
+        ss += "\n"
+        Log.d(TAG, "${ss}")
+        ss = ""
+        Log.d(TAG,"Blue player pool:")
+        for( i in 0..game.board.bluePool.size-1 ) {
+            var p = game.board.bluePool[i].toInt()
+            ss += (p.toString() + " ")
+        }
+        Log.d(TAG,"$ss")
+        ss = "Blue player pool size: " + game.board.bluePool.size.toString()
+        Log.d(TAG,"$ss")
+        ss = ""
+        Log.d(TAG,"Red player pool:")
+        for( i in 0..game.board.redPool.size-1 ) {
+            var p = game.board.redPool[i].toInt()
+            ss += (p.toString() + " ")
+        }
+        Log.d(TAG,"$ss")
+        ss = "Red player pool size: " + game.board.redPool.size.toString()
+        Log.d(TAG,"$ss")
+        val blueTurn = game.currentPlayer == Color.Blue
+        Log.d(TAG, "Is Blue turn: $blueTurn")
+        Log.d(TAG, "\n")
 
         while (!isBlueVictory && !isRedVictory && ( numberMoves < playout_depth ) ) {
             val move: Move
@@ -823,39 +798,39 @@ class MCTS_GHOST (
         }
 
         /** Debug playouts results **/
-//        ss = ""
-//        for (i in 0..35) {
-//            var p = game.board.grid[i].toInt()
-//            if (p < 0)
-//                p += 10;
-//            ss += (p.toString() + " ")
-//            if ((i + 1) % 6 == 0)
-//                ss += "\n"
-//        }
-//        ss += "\n"
-//        Log.d(TAG, "${ss}")
+        ss = ""
+        for (i in 0..35) {
+            var p = game.board.grid[i].toInt()
+            if (p < 0)
+                p += 10;
+            ss += (p.toString() + " ")
+            if ((i + 1) % 6 == 0)
+                ss += "\n"
+        }
+        ss += "\n"
+        Log.d(TAG, "${ss}")
 
         if( isBlueVictory ) {
             score += -discount_score.pow(numberMoves-1) //* -1000.0
-//            Log.d(TAG, "### Playout: Blue victory, score = ${score}")
+            Log.d(TAG, "### Playout: Blue victory, score = ${score}")
         }
         else {
             if( isRedVictory ) {
                 score += discount_score.pow(numberMoves-1) //* 1000.0
-//                Log.d(TAG, "### Playout: Red victory, score = ${score}")
+                Log.d(TAG, "### Playout: Red victory, score = ${score}")
             }
             else {
-//                Log.d(TAG, "### Playout: No victory, score = ${score}")
+                Log.d(TAG, "### Playout: No victory, score = ${score}")
             }
         }
         return score
     }
 
     fun backpropagate(parentID: Int, score: Double) {
-//        Log.d( TAG,"### Backprop: Node ${parentID} old score = ${nodes[parentID].score}, old visits = ${nodes[parentID].visits}" )
+        Log.d( TAG,"### Backprop: Node ${parentID} old score = ${nodes[parentID].score}, old visits = ${nodes[parentID].visits}" )
         nodes[parentID].score += -score
         nodes[parentID].visits++
-//        Log.d( TAG,"### Backprop: Node ${parentID} new score = ${nodes[parentID].score}, new visits = ${nodes[parentID].visits}" )
+        Log.d( TAG,"### Backprop: Node ${parentID} new score = ${nodes[parentID].score}, new visits = ${nodes[parentID].visits}" )
         if (parentID != 0) { // if not root
             backpropagate(nodes[parentID].parentID, -score)
         }
@@ -924,11 +899,19 @@ class MCTS_GHOST (
         }
 
         val score =
-            if (isBlueVictory)
-                -1.0 //-1000.0
+            if (isBlueVictory) {
+                if (newGame.currentPlayer == Color.Blue)
+                    1.0
+                else
+                    -1.0
+            }
             else {
-                if (isRedVictory)
-                    1.0 //1000.0
+                if (isRedVictory) {
+                    if (newGame.currentPlayer == Color.Red)
+                        1.0
+                    else
+                        -1.0
+                }
                 else
                     0.0
                     //heuristic_state_cpp( newGame.board.grid, newGame.currentPlayer == Color.Blue ).toInt();
@@ -949,8 +932,8 @@ class MCTS_GHOST (
         )
 
         /** Debug node creation **/
-//        var ss = "Create node number ${numberNodes} with move ${move}"
-//        Log.d(TAG, "${ss}")
+        var ss = "Create node number ${numberNodes} with move ${move}"
+        Log.d(TAG, "${ss}")
 //        ss = ""
 //        for (i in 0..35) {
 //            var p = newGame.board.grid[i].toInt()
