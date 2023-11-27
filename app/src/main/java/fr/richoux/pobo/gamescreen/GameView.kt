@@ -1,7 +1,6 @@
 package fr.richoux.pobo.gamescreen
 
 import android.content.res.Configuration
-import android.view.Gravity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,18 +11,14 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogWindowProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
@@ -285,12 +280,12 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 fontWeight = FontWeight.Bold,
                 fontStyle = MaterialTheme.typography.body1.fontStyle
             )
-            val acceptNewGame: () -> Unit = {
-                viewModel.newGame(viewModel.aiEnabled)
-            }
-            val declineNewGame: () -> Unit = {
-                //viewModel.resume()
-            }
+//            val acceptNewGame: () -> Unit = {
+//                viewModel.newGame(viewModel.aiEnabled)
+//            }
+//            val declineNewGame: () -> Unit = {
+//                //viewModel.resume()
+//            }
 //            Dialog(
 //                onDismissRequest = {},
 //            ) {
@@ -328,42 +323,44 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 //                    }
 //                }
 //            }
-                AlertDialog(
-                    onDismissRequest = {},
-                    buttons = {
-                        Row() {
-                            Button(
-                                { acceptNewGame() }
-                            ) {
-                                Text(text = "Sure!")
-                            }
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Button(
-                                { declineNewGame() }
-                            ) {
-                                Text(text = "Next time")
-                            }
-                        }
-                    },
-                    title = {
-                        Row()
-                        {
-                            Text(
-                                text = "$player",
-                                style = style
-                            )
-                            Text(
-                                text = " wins!"
-                            )
-                        }
-                    },
-                    text = {
-                        Text(
-                            text = "New game?"
-                        )
-                    },
-                    modifier = Modifier.customDialogModifier(CustomDialogPosition.BOTTOM).background(Color.Transparent)
-            )
+
+            EndOfGameDialog(player, style, viewModel)
+//                AlertDialog(
+//                    onDismissRequest = {},
+//                    buttons = {
+//                        Row() {
+//                            Button(
+//                                { acceptNewGame() }
+//                            ) {
+//                                Text(text = "Sure!")
+//                            }
+//                            Spacer(modifier = Modifier.width(4.dp))
+//                            Button(
+//                                { declineNewGame() }
+//                            ) {
+//                                Text(text = "Next time")
+//                            }
+//                        }
+//                    },
+//                    title = {
+//                        Row()
+//                        {
+//                            Text(
+//                                text = "$player",
+//                                style = style
+//                            )
+//                            Text(
+//                                text = " wins!"
+//                            )
+//                        }
+//                    },
+//                    text = {
+//                        Text(
+//                            text = "New game?"
+//                        )
+//                    },
+//                    modifier = Modifier.customDialogModifier(CustomDialogPosition.BOTTOM).background(Color.Transparent)
+//            )
         }
     }
 }
@@ -386,6 +383,56 @@ fun Modifier.customDialogModifier(pos: CustomDialogPosition) = layout { measurab
         }
     }
 }
+
+@Composable
+fun EndOfGameDialog(player: fr.richoux.pobo.engine.Color, style: TextStyle, viewModel: GameViewModel) {
+    val openAlertDialog = remember { mutableStateOf(true) }
+    when {
+        // ...
+        openAlertDialog.value -> {
+            AlertDialog(
+                onDismissRequest = { openAlertDialog.value = false },
+                buttons = {
+                    Row() {
+                        Button(
+                            {
+                                openAlertDialog.value = false
+                                viewModel.newGame(viewModel.aiEnabled)
+                            }
+                        ) {
+                            Text(text = "Sure!")
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Button(
+                            { openAlertDialog.value = false }
+                        ) {
+                            Text(text = "Next time")
+                        }
+                    }
+                },
+                title = {
+                    Row()
+                    {
+                        Text(
+                            text = "$player",
+                            style = style
+                        )
+                        Text(
+                            text = " wins!"
+                        )
+                    }
+                },
+                text = {
+                    Text(
+                        text = "New game?"
+                    )
+                },
+                modifier = Modifier.customDialogModifier(CustomDialogPosition.BOTTOM).background(Color.Transparent)
+            )
+        }
+    }
+}
+
 
 @Composable
 fun RadioButtonPoBo(player: fr.richoux.pobo.engine.Color, viewModel: GameViewModel) {
