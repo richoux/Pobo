@@ -157,15 +157,15 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call_1f
 	bool success = solver.complete_search( costs, solutions );
 
 	/*** For debug purpose only ***/
-	for( int i = 0; i < static_cast<int>( solutions.size()); ++i )
-	{
-		ALOG("Solution %d: [%d, (%c,%d)], score=%f",
-		     i,
-		     solutions[i][0],
-		     'a'+solutions[i][2],
-		     6-solutions[i][1],
-		     costs[i] );
-	}
+//	for( int i = 0; i < static_cast<int>( solutions.size()); ++i )
+//	{
+//		ALOG("Solution %d: [%d, (%c,%d)], score=%f",
+//		     i,
+//		     solutions[i][0],
+//		     'a'+solutions[i][2],
+//		     6-solutions[i][1],
+//		     costs[i] );
+//	}
 
 	std::vector<int> best_solutions_index;
 	while( best_solutions_index.size() < k_number_preselected_actions )

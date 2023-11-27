@@ -22,7 +22,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
     var _blue_turn = false
 
     override fun select_move(game: Game,
-                             lastOpponentMove: Move,
+                             lastOpponentMove: Move?,
                              timeout_in_ms: Long): Move {
         Log.d(TAG, "*************")
         Log.d(TAG, "New call to SimpleHeuristics::select_move")

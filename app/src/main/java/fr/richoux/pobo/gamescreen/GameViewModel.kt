@@ -27,9 +27,12 @@ class GameViewModel : ViewModel() {
     var moveNumber: Int = 0
         private set
 
-    var aiEnabled = true
+    var p1IsAI = true
         private set
-    private var ai: AI = SimpleHeuristics(Color.Red)
+    var p2IsAI = true
+        private set
+    private var aiP1: AI = SimpleHeuristics(Color.Blue)
+    private var aiP2: AI = SimpleHeuristics(Color.Red)
 
     private var _promotionListIndex: MutableList<Int> = mutableListOf()
     private var _promotionListMask: MutableList<Boolean> = mutableListOf()
@@ -49,7 +52,7 @@ class GameViewModel : ViewModel() {
     private var _gameState = MutableStateFlow<GameState>(_game.gameState)
     var gameState = _gameState.asStateFlow()
 
-    var canGoBack = MutableStateFlow<Boolean>(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+    var canGoBack = MutableStateFlow<Boolean>(if (p2IsAI) _history.size > 1 else _history.isNotEmpty())
     var canGoForward = MutableStateFlow<Boolean>(_forwardHistory.isNotEmpty())
 
     var displayGameState: String  = _game.displayGameState
@@ -63,16 +66,23 @@ class GameViewModel : ViewModel() {
         _piecesToPromoteIndex = hashMapOf()
         piecesToPromote = mutableListOf()
         displayGameState  = _game.displayGameState
-        canGoBack.tryEmit(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+        canGoBack.tryEmit(if (p2IsAI) _history.size > 1 else _history.isNotEmpty())
         canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         pieceTypeToPlay = null
     }
 
-    fun newGame(aiEnabled: Boolean) {
-        this.aiEnabled = aiEnabled
-        if( aiEnabled )
+    fun newGame(p1IsAI: Boolean, p2IsAI: Boolean) {
+        this.p1IsAI = p1IsAI
+        this.p2IsAI = p2IsAI
+
+        if( p1IsAI ) {
             //ai = SimpleHeuristics(Color.Red)
-            ai = MCTS_GHOST(Color.Red, number_preselected_actions=5)
+            aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5)
+        }
+        if( p2IsAI ) {
+            //ai = SimpleHeuristics(Color.Red)
+            aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5)
+        }
 
         _history.clear()
         _forwardHistory.clear()
@@ -95,7 +105,7 @@ class GameViewModel : ViewModel() {
         var lastMove = _moveHistory.removeLast()
         _forwardMoveHistory.add(lastMove)
 
-        if (aiEnabled) {
+        if (p1IsAI || p2IsAI) {
             _forwardHistory.add(last)
             last = _history.removeLast()
 
@@ -119,7 +129,7 @@ class GameViewModel : ViewModel() {
         var lastMove = _forwardMoveHistory.removeLast()
         _moveHistory.add(lastMove)
 
-        if (aiEnabled) {
+        if (p1IsAI || p2IsAI) {
             _history.add(last)
             last = _forwardHistory.removeLast()
 
@@ -149,24 +159,35 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        var newState = _game.nextGameState()
+        var newState: GameState
+//        if( _game.gameState == GameState.INIT && p1IsAI ) {
+//            newState = _game.nextGameState()
+//            _game.gameState = newState
+//        }
+
+        newState = _game.nextGameState()
         _game.gameState = newState
 //        if( aiEnabled && currentPlayer == Color.Red)
 //            Log.d(TAG, "New game state: $newState")
 
-        if( newState == GameState.SELECTPIECE && aiEnabled && currentPlayer == Color.Red) {
+        if( newState == GameState.SELECTPIECE
+            && ( ( p1IsAI && currentPlayer == Color.Blue ) || ( p2IsAI && currentPlayer == Color.Red) ) ) {
             newState = _game.nextGameState()
             _game.gameState = newState
 //            Log.d(TAG, "New game state 2: $newState")
         }
 
         hasStarted = true
-        canGoBack.tryEmit(if (aiEnabled) _history.size > 1 else _history.isNotEmpty())
+        canGoBack.tryEmit(if (p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
         canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         displayGameState  = _game.displayGameState
 
-        if( aiEnabled && currentPlayer == Color.Red &&  _game.gameState == GameState.SELECTGRADUATION ) {
-            piecesToPromote = ai.select_graduation( _game ).toMutableList()
+        if( ( ( p1IsAI && currentPlayer == Color.Blue ) || ( p2IsAI && currentPlayer == Color.Red) )
+            &&  _game.gameState == GameState.SELECTGRADUATION ) {
+            if( p1IsAI && currentPlayer == Color.Blue )
+                piecesToPromote = aiP1.select_graduation( _game ).toMutableList()
+            else
+                piecesToPromote = aiP2.select_graduation( _game ).toMutableList()
             validateGraduationSelection()
         } else {
             _gameState.tryEmit(newState)
@@ -360,9 +381,21 @@ class GameViewModel : ViewModel() {
         currentPlayer = _game.currentPlayer
 
         // if we play against an AI and it is its turn
-        if( aiEnabled && currentPlayer == Color.Red ) {
+        if( ( p1IsAI && currentPlayer == Color.Blue ) || ( p2IsAI && currentPlayer == Color.Red) ) {
             // val move = randomPlay(_game)
-            val move = ai.select_move( _game, _moveHistory.last(), 1000 )
+
+            val lastMove: Move? = when( _moveHistory.isEmpty() ) {
+                true -> null
+                false -> _moveHistory.last()
+            }
+
+            var move: Move
+            if( p1IsAI && currentPlayer == Color.Blue ) {
+                move = aiP1.select_move(_game, lastMove, 1000)
+            }
+            else {
+                move = aiP2.select_move(_game, lastMove, 1000)
+            }
             pieceTypeToPlay = move.piece.getType()
             playAt( move.to )
         }

@@ -1,6 +1,7 @@
 package fr.richoux.pobo.gamescreen
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -194,6 +195,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 
     when (gameState) {
         GameState.INIT -> {
+//            Log.d(TAG, "INIT ${player}")
             MainView(
                 viewModel,
                 displayGameState = viewModel.displayGameState
@@ -201,6 +203,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.goToNextState()
         }
         GameState.PLAY -> {
+//            Log.d(TAG, "PLAY ${player}")
             if(viewModel.historyCall)
                 lastMove = null
 
@@ -214,12 +217,14 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.goToNextState()
         }
         GameState.SELECTPIECE -> {
+//            Log.d(TAG, "SELECTPIECE ${player}")
             MainView(
                 viewModel,
                 lastMove = lastMove,
                 displayGameState = viewModel.displayGameState)
         }
         GameState.SELECTPOSITION -> {
+//            Log.d(TAG, "SELECTPOSITION ${player}")
             val onSelect: (Position) -> Unit = {
                 if (viewModel.canPlayAt(it)) {
                     lastMove = it
@@ -234,6 +239,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             )
         }
         GameState.CHECKGRADUATION -> {
+//            Log.d(TAG, "CHECKGRADUATION ${player}")
             MainView(
                 viewModel,
                 displayGameState = viewModel.displayGameState
@@ -241,6 +247,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.checkGraduation()
         }
         GameState.AUTOGRADUATION -> {
+//            Log.d(TAG, "AUTOGRADUATION ${player}")
             MainView(
                 viewModel,
                 displayGameState = viewModel.displayGameState
@@ -248,6 +255,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.autograduation()
         }
         GameState.SELECTGRADUATION -> {
+//            Log.d(TAG, "SELECTGRADUATION ${player}")
             lastMove = null
             val onSelect: (Position) -> Unit = {
                 viewModel.selectForGraduationOrCancel(it)
@@ -260,6 +268,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             )
         }
         GameState.REFRESHSELECTGRADUATION -> {
+//            Log.d(TAG, "REFRESHSELECTGRADUATION ${player}")
             lastMove = null
             MainView(
                 viewModel,
@@ -269,6 +278,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.goToNextState()
         }
         GameState.END -> {
+//            Log.d(TAG, "END ${player}")
             MainView(
                 viewModel,
                 lastMove = lastMove,
@@ -280,107 +290,16 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
                 fontWeight = FontWeight.Bold,
                 fontStyle = MaterialTheme.typography.body1.fontStyle
             )
-//            val acceptNewGame: () -> Unit = {
-//                viewModel.newGame(viewModel.aiEnabled)
-//            }
-//            val declineNewGame: () -> Unit = {
-//                //viewModel.resume()
-//            }
-//            Dialog(
-//                onDismissRequest = {},
-//            ) {
-//                (LocalView.current.parent as DialogWindowProvider)?.window?.setDimAmount(0f)
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxSize(),
-//                    verticalArrangement = Arrangement.Center,
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                ) {
-//                    Text(
-//                        text = "${player} wins!",
-//                        style = style
-//                    )
-//                    Text(
-//                        text = "New game?"
-//                    )
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.Center,
-//                    ) {
-//                        TextButton(
-//                            onClick = { acceptNewGame() },
-//                            modifier = Modifier.padding(8.dp),
-//                        ) {
-//                            Text("Sure!")
-//                        }
-//                        TextButton(
-//                            onClick = { declineNewGame() },
-//                            modifier = Modifier.padding(8.dp),
-//                        ) {
-//                            Text("Next time")
-//                        }
-//                    }
-//                }
-//            }
-
             EndOfGameDialog(player, style, viewModel)
-//                AlertDialog(
-//                    onDismissRequest = {},
-//                    buttons = {
-//                        Row() {
-//                            Button(
-//                                { acceptNewGame() }
-//                            ) {
-//                                Text(text = "Sure!")
-//                            }
-//                            Spacer(modifier = Modifier.width(4.dp))
-//                            Button(
-//                                { declineNewGame() }
-//                            ) {
-//                                Text(text = "Next time")
-//                            }
-//                        }
-//                    },
-//                    title = {
-//                        Row()
-//                        {
-//                            Text(
-//                                text = "$player",
-//                                style = style
-//                            )
-//                            Text(
-//                                text = " wins!"
-//                            )
-//                        }
-//                    },
-//                    text = {
-//                        Text(
-//                            text = "New game?"
-//                        )
-//                    },
-//                    modifier = Modifier.customDialogModifier(CustomDialogPosition.BOTTOM).background(Color.Transparent)
-//            )
         }
     }
 }
 
-enum class CustomDialogPosition {
-    BOTTOM, TOP
-}
-
-fun Modifier.customDialogModifier(pos: CustomDialogPosition) = layout { measurable, constraints ->
+fun Modifier.customDialogModifier() = layout { measurable, constraints ->
 
     val placeable = measurable.measure(constraints);
     layout(constraints.maxWidth, constraints.maxHeight){
-        when(pos) {
-            CustomDialogPosition.BOTTOM -> {
-                placeable.place((constraints.maxWidth - placeable.width)/2, 9*(constraints.maxHeight - placeable.height)/10, 10f)
-            }
-            CustomDialogPosition.TOP -> {
-                placeable.place(0,0,10f)
-            }
-        }
+        placeable.place((constraints.maxWidth - placeable.width)/2, 9*(constraints.maxHeight - placeable.height)/10, 10f)
     }
 }
 
@@ -397,7 +316,7 @@ fun EndOfGameDialog(player: fr.richoux.pobo.engine.Color, style: TextStyle, view
                         Button(
                             {
                                 openAlertDialog.value = false
-                                viewModel.newGame(viewModel.aiEnabled)
+                                viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI)
                             }
                         ) {
                             Text(text = "Sure!")
@@ -427,7 +346,7 @@ fun EndOfGameDialog(player: fr.richoux.pobo.engine.Color, style: TextStyle, view
                         text = "New game?"
                     )
                 },
-                modifier = Modifier.customDialogModifier(CustomDialogPosition.BOTTOM).background(Color.Transparent)
+                modifier = Modifier.customDialogModifier().background(Color.Transparent)
             )
         }
     }
