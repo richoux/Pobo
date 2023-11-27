@@ -311,6 +311,7 @@ class MCTS_GHOST (
                 nodes[child].move?.let { movesToRemove.add(it) }
 
             /** Debug selection **/
+            Log.d(TAG,"\n*** Selection ***\nSelected node's grid:")
             ss = ""
             for( i in 0..35 ) {
                 var p = selectedNode.game.board.grid[i].toInt()
@@ -343,9 +344,19 @@ class MCTS_GHOST (
             Log.d(TAG, "Is Blue turn: $blueTurn")
             Log.d(TAG, "\n")
 
+            // if the selected node is terminal, backpropagate its score and move on
+            if( selectedNode.isTerminal )
+            {
+                selectedNode.visits++
+                Log.d( TAG,"\nSelected node ${selectedNode.id} is terminal: backpropogating its score = ${selectedNode.score}, visits = ${selectedNode.visits}" )
+                backpropagate(selectedNode.parentID, selectedNode.score)
+                continue
+            }
+
             ////////////
             // Expand //
             ////////////
+
             //val move = randomPlay( selectNode.game, movesToRemove.toList() )
 
             var movesToRemoveRow: ByteArray = byteArrayOf()
@@ -888,11 +899,19 @@ class MCTS_GHOST (
         }
 
         val score =
-            if (isBlueVictory)
-                -1.0 //-1000.0
+            if (isBlueVictory) {
+                if (newGame.currentPlayer == Color.Blue)
+                    1.0
+                else
+                    -1.0
+            }
             else {
-                if (isRedVictory)
-                    1.0 //1000.0
+                if (isRedVictory) {
+                    if (newGame.currentPlayer == Color.Red)
+                        1.0
+                    else
+                        -1.0
+                }
                 else
                     0.0
                     //heuristic_state_cpp( newGame.board.grid, newGame.currentPlayer == Color.Blue ).toInt();
