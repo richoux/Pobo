@@ -9,7 +9,7 @@
 
 // From https://manski.net/2012/05/logging-from-c-on-android/
 #include <android/log.h>
-/*
+//*
 #define ALOG(...)
 /*/
 #define ALOG( ... ) __android_log_print(ANDROID_LOG_INFO, "pobotag C++", __VA_ARGS__)
