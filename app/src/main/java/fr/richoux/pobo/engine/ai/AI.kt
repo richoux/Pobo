@@ -7,7 +7,7 @@ import fr.richoux.pobo.engine.Position
 
 abstract class AI(val color: Color) {
     open fun select_move( game: Game,
-                          lastOpponentMove: Move,
+                          lastOpponentMove: Move?,
                           timeout_in_ms: Long = 1000 ): Move {
         return randomPlay( game )
     }
