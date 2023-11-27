@@ -2,9 +2,19 @@
     <string name="app_name">pobo</string>
     <string name="app_name_jp">ポボ</string>
 
+    <string name="resume_en">Resume</string>
+    <string name="resume_fr">Reprendre</string>
+    <string name="resume_jp">ゲームを再開</string>
+
     <string name="human_game_en">Two Players</string>
     <string name="human_game_fr">Deux joueurs</string>
+    <string name="human_game_jp">ふたりプレー</string>
 
     <string name="ai_game_en">vs Computer</string>
     <string name="ai_game_fr">Contre une IA</string>
+    <string name="ai_game_jp">AIと対戦</string>
+
+    <string name="ai_vs_ai_game_en">Computer vs Computer</string>
+    <string name="ai_vs_ai_game_fr">IA contre IA</string>
+    <string name="ai_vs_ai_game_jp">AI対AI</string>
 </resources>

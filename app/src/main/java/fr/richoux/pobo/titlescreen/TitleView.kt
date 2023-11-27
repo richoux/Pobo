@@ -30,7 +30,7 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
         GameButton(
             onClick = { resume(navController, gameViewModel) },
             enabled = gameViewModel.hasStarted,
-            text = "Resume"
+            text = context.getResources().getString(R.string.resume_fr)
         )
         Spacer(modifier = Modifier.height(16.dp))
         GameButton(
@@ -41,6 +41,11 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
         GameButton(
             onClick = { newGame(navController, gameViewModel, aiEnabled = true) },
             text = context.getResources().getString(R.string.ai_game_fr)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        GameButton(
+            onClick = { newGame(navController, gameViewModel, aiEnabled = true) },
+            text = context.getResources().getString(R.string.ai_vs_ai_game_fr)
         )
         Spacer(
             modifier = Modifier.weight(1f)
@@ -75,9 +80,10 @@ private fun GameButtonPreview() {
 private fun newGame(
     navController: NavController,
     gameViewModel: GameViewModel,
-    aiEnabled: Boolean
+    I: Boolean,
+    p2IsAI: Boolean
 ) {
-    gameViewModel.newGame(aiEnabled)
+    gameViewModel.newGame(p1IsAI, p2IsAI)
     navController.navigate(Screen.Game.route)
 }
 
