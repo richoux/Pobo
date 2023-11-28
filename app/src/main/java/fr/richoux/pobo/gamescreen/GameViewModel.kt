@@ -31,6 +31,9 @@ class GameViewModel : ViewModel() {
         private set
     var p2IsAI = true
         private set
+    var p1HasAlreadyPlayed = false
+        private set
+
     private var aiP1: AI = SimpleHeuristics(Color.Blue)
     private var aiP2: AI = SimpleHeuristics(Color.Red)
 
@@ -159,20 +162,42 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        var newState: GameState
-//        if( _game.gameState == GameState.INIT && p1IsAI ) {
-//            newState = _game.nextGameState()
+        var newState: GameState = _game.gameState
+        if (_game.gameState == GameState.INIT && p1IsAI) {
+//            Log.d(TAG, "INIT and P1 is AI")
+//            _game.changePlayer() // hack
+//            Log.d(TAG, "Player changed (hack)")
+//            newState = _game.nextGameState() // semi-hack
+//            Log.d(TAG, "Next state (semi-hack)")
+//            hasStarted = true
+//            canGoBack.tryEmit(if (p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
+//            canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+//            displayGameState = _game.displayGameState
+//            Log.d(TAG, "Before state update")
 //            _game.gameState = newState
-//        }
+//            Log.d(TAG, "After state update")
+//            nextTurn()
+//            Log.d(TAG, "After nextTurn call")
+//            Log.d(TAG, "Emit PLAY")
+//            _game.gameState = GameState.PLAY
+//            val move = aiP1.select_move(_game, null, 1000)
+//            pieceTypeToPlay = move.piece.getType()
+//            playAt( move.to )
+//            _gameState.tryEmit(GameState.PLAY)
+        }
 
         newState = _game.nextGameState()
+        Log.d(TAG, "Change to next state: ${_game.gameState} -> ${newState}")
         _game.gameState = newState
+
 //        if( aiEnabled && currentPlayer == Color.Red)
 //            Log.d(TAG, "New game state: $newState")
 
-        if( newState == GameState.SELECTPIECE
-            && ( ( p1IsAI && currentPlayer == Color.Blue ) || ( p2IsAI && currentPlayer == Color.Red) ) ) {
+        if (newState == GameState.SELECTPIECE
+            && ((p1IsAI && currentPlayer == Color.Blue) || (p2IsAI && currentPlayer == Color.Red))
+        ) {
             newState = _game.nextGameState()
+            Log.d(TAG, "Change to next state again because AI: ${_game.gameState} -> ${newState}")
             _game.gameState = newState
 //            Log.d(TAG, "New game state 2: $newState")
         }
@@ -180,16 +205,19 @@ class GameViewModel : ViewModel() {
         hasStarted = true
         canGoBack.tryEmit(if (p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
         canGoForward.tryEmit(_forwardHistory.isNotEmpty())
-        displayGameState  = _game.displayGameState
+        displayGameState = _game.displayGameState
 
-        if( ( ( p1IsAI && currentPlayer == Color.Blue ) || ( p2IsAI && currentPlayer == Color.Red) )
-            &&  _game.gameState == GameState.SELECTGRADUATION ) {
-            if( p1IsAI && currentPlayer == Color.Blue )
-                piecesToPromote = aiP1.select_graduation( _game ).toMutableList()
+        if (((p1IsAI && currentPlayer == Color.Blue) || (p2IsAI && currentPlayer == Color.Red))
+            && _game.gameState == GameState.SELECTGRADUATION
+        ) {
+            if (p1IsAI && currentPlayer == Color.Blue)
+                piecesToPromote = aiP1.select_graduation(_game).toMutableList()
             else
-                piecesToPromote = aiP2.select_graduation( _game ).toMutableList()
+                piecesToPromote = aiP2.select_graduation(_game).toMutableList()
             validateGraduationSelection()
-        } else {
+        }
+        else {
+            Log.d(TAG, "Emitting ${newState}, color=${currentPlayer}")
             _gameState.tryEmit(newState)
         }
     }
@@ -389,6 +417,8 @@ class GameViewModel : ViewModel() {
                 false -> _moveHistory.last()
             }
 
+            Log.d(TAG, "NextTurn call, AI section")
+
             var move: Move
             if( p1IsAI && currentPlayer == Color.Blue ) {
                 move = aiP1.select_move(_game, lastMove, 1000)
@@ -399,6 +429,25 @@ class GameViewModel : ViewModel() {
             pieceTypeToPlay = move.piece.getType()
             playAt( move.to )
         }
+    }
+
+    fun makeP1AIMove() {
+        Log.d(TAG, "Make P1 move")
+        val move = aiP1.select_move(_game, null, 1000)
+        pieceTypeToPlay = move.piece.getType()
+        playAt( move.to )
+        if(!p1HasAlreadyPlayed) {
+            p1HasAlreadyPlayed = true
+            _game.changePlayer()
+            currentPlayer = _game.currentPlayer
+        }
+    }
+
+    fun makeP2AIMove() {
+        Log.d(TAG, "Make P2 move")
+        val move = aiP2.select_move(_game, null, 1000)
+        pieceTypeToPlay = move.piece.getType()
+        playAt( move.to )
     }
 
     fun twoTypesInPool(): Boolean = currentBoard.hasTwoTypesInPool(currentPlayer)

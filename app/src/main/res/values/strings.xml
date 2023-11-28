@@ -14,6 +14,14 @@
     <string name="ai_game_fr">Contre une IA</string>
     <string name="ai_game_jp">AIと対戦</string>
 
+    <string name="blue_en">Blue</string>
+    <string name="blue_fr">Bleu</string>
+    <string name="blue_jp">青</string>
+
+    <string name="red_en">Red</string>
+    <string name="red_fr">Rouge</string>
+    <string name="red_jp">赤</string>
+
     <string name="ai_vs_ai_game_en">Computer vs Computer</string>
     <string name="ai_vs_ai_game_fr">IA contre IA</string>
     <string name="ai_vs_ai_game_jp">AI対AI</string>
