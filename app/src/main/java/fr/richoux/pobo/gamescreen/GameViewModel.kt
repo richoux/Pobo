@@ -31,8 +31,7 @@ class GameViewModel : ViewModel() {
         private set
     var p2IsAI = true
         private set
-    var p1HasAlreadyPlayed = false
-        private set
+    private var p1HasAlreadyPlayed = false
 
     private var aiP1: AI = SimpleHeuristics(Color.Blue)
     private var aiP2: AI = SimpleHeuristics(Color.Red)
@@ -97,6 +96,7 @@ class GameViewModel : ViewModel() {
         currentPlayer = _game.currentPlayer
         reset()
         hasStarted = false
+        //p1HasAlreadyPlayed = false
         _gameState.tryEmit(GameState.INIT)
         gameState = _gameState.asStateFlow()
     }
@@ -437,6 +437,7 @@ class GameViewModel : ViewModel() {
         pieceTypeToPlay = move.piece.getType()
         playAt( move.to )
         if(!p1HasAlreadyPlayed) {
+            Log.d(TAG, "Make P1 move: first play!")
             p1HasAlreadyPlayed = true
             _game.changePlayer()
             currentPlayer = _game.currentPlayer
