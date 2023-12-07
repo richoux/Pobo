@@ -1017,4 +1017,25 @@ class MCTS_GHOST (
 
         return child
     }
+
+    override fun toString(): String {
+        if(number_preselected_actions == 0)
+        {
+          if( first_n_strategy == 0 ) {
+              return "Vanilla-MCTS"
+          }
+          else {
+              return "MCTS with GHOST-playouts"
+          }
+        }
+        else
+        {
+            if( first_n_strategy == 0 ) {
+                return "MCTS with GHOST-masking"
+            }
+            else {
+                return "Full MCTS GHOST"
+            }
+        }
+    }
 }

@@ -77,4 +77,8 @@ class RandomPlay(color: Color) : AI(color) {
     override fun select_graduation(game: Game, timeout_in_ms: Long): List<Position> {
         return randomGraduation(game)
     }
+
+    override fun toString(): String {
+        return "RandomPlay"
+    }
 }

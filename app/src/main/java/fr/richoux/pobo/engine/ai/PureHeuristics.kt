@@ -85,4 +85,8 @@ class PureHeuristics(color: Color) : AI(color) {
 
 		return potentialGraduations[ best_groups.random() ]
 	}
+
+	override fun toString(): String {
+		return "Pure Heuristics"
+	}
 }
