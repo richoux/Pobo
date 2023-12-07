@@ -97,8 +97,7 @@ class GameViewModel : ViewModel() {
     if(IsAIToPLay()) {
       canGoBack.tryEmit(false)
       canGoForward.tryEmit(false)
-    }
-    else {
+    } else {
       canGoBack.tryEmit(if(p2IsAI) _history.size > 1 else _history.isNotEmpty())
       canGoForward.tryEmit(_forwardHistory.isNotEmpty())
     }
@@ -118,7 +117,8 @@ class GameViewModel : ViewModel() {
       Log.d(TAG, "Blue: ${aiP1.toString()}")
     }
     if(p2IsAI) {
-      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0) // Vanilla-MCTS
+      aiP2 =
+        MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0) // Vanilla-MCTS
 //      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0) // MCTS with GHOST-playouts
 //      aiP2 = MCTS_GHOST(Color.Red, first_n_strategy = 0) // MCTS with GHOST-masking
 //      aiP2 = MCTS_GHOST(Color.Red) // full MCTS GHOST
@@ -143,9 +143,9 @@ class GameViewModel : ViewModel() {
   }
 
   fun IsAIToPLay(): Boolean {
-    return ( p1IsAI && _game.currentPlayer == Color.Blue)
-           ||
-           ( p2IsAI && _game.currentPlayer == Color.Red)
+    return (p1IsAI && _game.currentPlayer == Color.Blue)
+    ||
+    (p2IsAI && _game.currentPlayer == Color.Red)
   }
 
   fun goBackMove() {
@@ -375,8 +375,7 @@ class GameViewModel : ViewModel() {
     if(IsAIToPLay()) {
       canGoBack.tryEmit(false)
       canGoForward.tryEmit(false)
-    }
-    else {
+    } else {
       canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
       canGoForward.tryEmit(_forwardHistory.isNotEmpty())
     }

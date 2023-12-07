@@ -9,26 +9,27 @@ import androidx.compose.ui.unit.dp
 import fr.richoux.pobo.engine.*
 
 private val PIECES_STOCK_SIZE = 48.dp
+
 @Composable
 fun PiecesStocksView(pool: List<Byte>, color: Color, modifier: Modifier = Modifier) {
-    var numberPo = 0
-    var numberBo = 0
+  var numberPo = 0
+  var numberBo = 0
 
-    pool.forEach {
-        if(it == PieceType.Po.value)
-            numberPo++
-        else
-            numberBo++
-    }
+  pool.forEach {
+    if(it == PieceType.Po.value)
+      numberPo++
+    else
+      numberBo++
+  }
 
-    //Column() {
-        Row(
-            modifier = Modifier
-                .background(MaterialTheme.colors.surface)
-                .height(PIECES_STOCK_SIZE)
-                .then(modifier),
-            horizontalArrangement = Arrangement.Center
-        ) {
+  //Column() {
+  Row(
+    modifier = Modifier
+      .background(MaterialTheme.colors.surface)
+      .height(PIECES_STOCK_SIZE)
+      .then(modifier),
+    horizontalArrangement = Arrangement.Center
+  ) {
 //            pool.forEach {
 //                PieceView(
 //                    piece = it, modifier = Modifier
@@ -38,25 +39,25 @@ fun PiecesStocksView(pool: List<Byte>, color: Color, modifier: Modifier = Modifi
 //                        )
 //                )
 //        }
-            PieceNumberView(
-                piece = getPoInstanceOfColor(color),
-                number = numberPo,
-                modifier = Modifier
-                    .width(PIECES_STOCK_SIZE)
-                    .height(
-                        PIECES_STOCK_SIZE
-                    )
-            )
-            Spacer(modifier = Modifier.width(32.dp))
-            PieceNumberView(
-                piece = getBoInstanceOfColor(color),
-                number = numberBo,
-                modifier = Modifier
-                    .width(PIECES_STOCK_SIZE)
-                    .height(
-                        PIECES_STOCK_SIZE
-                    )
-            )
-        }
-    //}
+    PieceNumberView(
+      piece = getPoInstanceOfColor(color),
+      number = numberPo,
+      modifier = Modifier
+        .width(PIECES_STOCK_SIZE)
+        .height(
+          PIECES_STOCK_SIZE
+        )
+    )
+    Spacer(modifier = Modifier.width(32.dp))
+    PieceNumberView(
+      piece = getBoInstanceOfColor(color),
+      number = numberBo,
+      modifier = Modifier
+        .width(PIECES_STOCK_SIZE)
+        .height(
+          PIECES_STOCK_SIZE
+        )
+    )
+  }
+  //}
 }

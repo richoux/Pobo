@@ -6,10 +6,14 @@ import fr.richoux.pobo.engine.Color
 import fr.richoux.pobo.engine.Position
 
 abstract class AI(val color: Color) {
-  abstract fun select_move( game: Game,
-                            lastOpponentMove: Move?,
-                            timeout_in_ms: Long = 1000 ): Move
+  abstract fun select_move(
+    game: Game,
+    lastOpponentMove: Move?,
+    timeout_in_ms: Long = 1000
+  ): Move
 
-  abstract fun select_graduation( game: Game,
-                                  timeout_in_ms: Long = 1000 ): List<Position>
+  abstract fun select_graduation(
+    game: Game,
+    timeout_in_ms: Long = 1000
+  ): List<Position>
 }

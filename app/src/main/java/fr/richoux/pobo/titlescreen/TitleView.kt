@@ -23,107 +23,115 @@ import androidx.compose.material.AlertDialog as AlertDialog
 
 @Composable
 fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
-    val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.primaryVariant)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = context.getResources().getString(R.string.app_name_jp),
-            style = MaterialTheme.typography.h2,
-            color = MaterialTheme.colors.onPrimary
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        GameButton(
-            onClick = { resume(navController, gameViewModel) },
-            enabled = gameViewModel.hasStarted,
-            text = context.getResources().getString(R.string.resume_fr)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        GameButton(
-            onClick = { newGame(navController, gameViewModel, p1IsAI = false, p2IsAI = false) },
-            text = context.getResources().getString(R.string.human_game_fr)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        DropMenuButton(
-            navController,
-            gameViewModel,
-            text = context.getResources().getString(R.string.ai_game_fr),
-            blue = context.getResources().getString(R.string.blue_fr),
-            red = context.getResources().getString(R.string.red_fr)
-        )
+  val context = LocalContext.current
+  Column(
+    modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colors.primaryVariant)
+        .padding(16.dp),
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    Text(
+      text = context.getResources().getString(R.string.app_name_jp),
+      style = MaterialTheme.typography.h2,
+      color = MaterialTheme.colors.onPrimary
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+    GameButton(
+      onClick = { resume(navController, gameViewModel) },
+      enabled = gameViewModel.hasStarted,
+      text = context.getResources().getString(R.string.resume_fr)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    GameButton(
+      onClick = { newGame(navController, gameViewModel, p1IsAI = false, p2IsAI = false) },
+      text = context.getResources().getString(R.string.human_game_fr)
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+    DropMenuButton(
+      navController,
+      gameViewModel,
+      text = context.getResources().getString(R.string.ai_game_fr),
+      blue = context.getResources().getString(R.string.blue_fr),
+      red = context.getResources().getString(R.string.red_fr)
+    )
 //        GameButton(
 //            onClick = { askForPlayerColor = true },
 //            text = context.getResources().getString(R.string.ai_game_fr)
 //        )
-        Spacer(modifier = Modifier.height(16.dp))
-        GameButton(
-            onClick = { newGame(navController, gameViewModel, p1IsAI = true, p2IsAI = true) },
-            text = context.getResources().getString(R.string.ai_vs_ai_game_fr)
-        )
-        Spacer(
-            modifier = Modifier.weight(1f)
-        )
-        Text(
-            "v0.6.1",
-            color = MaterialTheme.colors.onPrimary,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-    }
+    Spacer(modifier = Modifier.height(16.dp))
+    GameButton(
+      onClick = { newGame(navController, gameViewModel, p1IsAI = true, p2IsAI = true) },
+      text = context.getResources().getString(R.string.ai_vs_ai_game_fr)
+    )
+    Spacer(
+      modifier = Modifier.weight(1f)
+    )
+    Text(
+      "v0.6.1",
+      color = MaterialTheme.colors.onPrimary,
+      modifier = Modifier.align(Alignment.CenterHorizontally)
+    )
+  }
 }
 
 @Composable
 private fun GameButton(onClick: () -> Unit, text: String, enabled: Boolean = true) {
-    Button(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(text = text, style = MaterialTheme.typography.h4)
-    }
+  Button(
+    onClick = onClick,
+    enabled = enabled,
+    modifier = Modifier.fillMaxWidth()
+  ) {
+    Text(text = text, style = MaterialTheme.typography.h4)
+  }
 }
 
 @Composable
-private fun DropMenuButton(navController: NavController, gameViewModel: GameViewModel, text: String, blue: String, red: String) {
-    var expanded by remember { mutableStateOf(false) }
-    Column(modifier = Modifier
+private fun DropMenuButton(
+  navController: NavController,
+  gameViewModel: GameViewModel,
+  text: String,
+  blue: String,
+  red: String
+) {
+  var expanded by remember { mutableStateOf(false) }
+  Column(
+    modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.colors.primaryVariant),
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Button(
-            onClick = { expanded = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = text, style = MaterialTheme.typography.h4)
-        }
-        Row()
-        {
-            Button(
-                onClick = { newGame(navController, gameViewModel, p1IsAI = false, p2IsAI = true) },
-                enabled = expanded,
-                modifier = Modifier.padding(4.dp)
-            ) {
-                Text(
-                    text = blue,
-                    style = MaterialTheme.typography.h4,
-                    color = Color.Blue
-                )
-            }
-            Button(
-                onClick = { newGame(navController, gameViewModel, p1IsAI = true, p2IsAI = false) },
-                enabled = expanded,
-                modifier = Modifier.padding(4.dp)
-            ) {
-                Text(
-                    text = red,
-                    style = MaterialTheme.typography.h4,
-                    color = Color.Red
-                )
-            }
-        }
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    Button(
+      onClick = { expanded = true },
+      modifier = Modifier.fillMaxWidth()
+    ) {
+      Text(text = text, style = MaterialTheme.typography.h4)
+    }
+    Row()
+    {
+      Button(
+        onClick = { newGame(navController, gameViewModel, p1IsAI = false, p2IsAI = true) },
+        enabled = expanded,
+        modifier = Modifier.padding(4.dp)
+      ) {
+        Text(
+          text = blue,
+          style = MaterialTheme.typography.h4,
+          color = Color.Blue
+        )
+      }
+      Button(
+        onClick = { newGame(navController, gameViewModel, p1IsAI = true, p2IsAI = false) },
+        enabled = expanded,
+        modifier = Modifier.padding(4.dp)
+      ) {
+        Text(
+          text = red,
+          style = MaterialTheme.typography.h4,
+          color = Color.Red
+        )
+      }
+    }
 //
 //        DropdownMenu(
 //            expanded = expanded,
@@ -142,32 +150,32 @@ private fun DropMenuButton(navController: NavController, gameViewModel: GameView
 //                Text("Play Red")
 //            }
 //        }
-    }
+  }
 }
 
 
 @Preview
 @Composable
 private fun GameButtonPreview() {
-    PoboTheme {
-        GameButton(onClick = { }, text = "Two Players")
-    }
+  PoboTheme {
+    GameButton(onClick = { }, text = "Two Players")
+  }
 }
 
 private fun newGame(
-    navController: NavController,
-    gameViewModel: GameViewModel,
-    p1IsAI: Boolean,
-    p2IsAI: Boolean
+  navController: NavController,
+  gameViewModel: GameViewModel,
+  p1IsAI: Boolean,
+  p2IsAI: Boolean
 ) {
-    gameViewModel.newGame(p1IsAI, p2IsAI)
-    navController.navigate(Screen.Game.route)
+  gameViewModel.newGame(p1IsAI, p2IsAI)
+  navController.navigate(Screen.Game.route)
 }
 
 private fun resume(
-    navController: NavController,
-    gameViewModel: GameViewModel
+  navController: NavController,
+  gameViewModel: GameViewModel
 ) {
-    gameViewModel.resume()
-    navController.navigate(Screen.Game.route)
+  gameViewModel.resume()
+  navController.navigate(Screen.Game.route)
 }
