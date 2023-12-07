@@ -109,6 +109,10 @@ class SimpleHeuristics(color: Color) : AI(color) {
         return best_move
     }
 
+    override fun select_graduation(game: Game, timeout_in_ms: Long): List<Position> {
+        return randomGraduation(game)
+    }
+
     private fun check_three_in_a_row(from_row: Int,
                                      from_col: Int,
                                      direction: Direction,

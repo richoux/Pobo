@@ -93,7 +93,8 @@ class MCTS_GHOST (
 
     override fun select_move(game: Game,
                              lastOpponentMove: Move?,
-                             timeout_in_ms: Long): Move {
+                             timeout_in_ms: Long): Move
+    {
         val start = System.currentTimeMillis()
         currentGame = game.copyForPlayout()
         lastMove = lastOpponentMove
@@ -564,6 +565,31 @@ class MCTS_GHOST (
 //        Log.d(TAG, "\n")
 
         return currentNode.move!!
+    }
+
+    override fun select_graduation(game: Game, timeout_in_ms: Long): List<Position> {
+        val potentialGraduations = game.getGraduations()
+        val graduationScores = compute_graduations_cpp(
+            game.board.grid,
+            game.currentPlayer == Color.Blue,
+            game.board.bluePool.size,
+            game.board.redPool.size
+        )
+        var best_score = -10000.0
+        var best_groups: MutableList<Int> = mutableListOf()
+
+        graduationScores.forEachIndexed { index, score ->
+            if( best_score < score ) {
+                best_score = score
+                best_groups.clear()
+                best_groups.add( index )
+            }
+            else if( best_score == score ) {
+                best_groups.add( index )
+            }
+        }
+
+        return potentialGraduations[ best_groups.random() ]
     }
 
     fun UCT(node: Node, actionMasking: MutableList<Int>): Node {
