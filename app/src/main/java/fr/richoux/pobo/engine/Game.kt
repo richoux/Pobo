@@ -15,7 +15,8 @@ data class Move(val piece: Piece, val to: Position) {
 data class History(val board: Board, val player: Color, val moveNumber: Int) {}
 
 enum class GameState {
-    INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
+    //INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
+    INIT, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
 }
 
 enum class Direction {
@@ -53,7 +54,7 @@ data class Game(
         get() {
             return when (gameState) {
                 GameState.INIT -> ""
-                GameState.PLAY -> ""
+                //GameState.PLAY -> ""
                 GameState.SELECTPIECE -> "Select a small or a large piece:"
                 GameState.SELECTPOSITION -> ""
                 GameState.CHECKGRADUATION -> ""
@@ -146,14 +147,14 @@ data class Game(
             GameState.INIT -> {
                 GameState.SELECTPOSITION
             }
-            GameState.PLAY -> {
-                if(board.hasTwoTypesInPool(currentPlayer)) {
-                    GameState.SELECTPIECE
-                }
-                else {
-                    GameState.SELECTPOSITION
-                }
-            }
+//            GameState.PLAY -> {
+//                if(board.hasTwoTypesInPool(currentPlayer)) {
+//                    GameState.SELECTPIECE
+//                }
+//                else {
+//                    GameState.SELECTPOSITION
+//                }
+//            }
             GameState.SELECTPIECE -> {
                 GameState.SELECTPOSITION
             }
@@ -166,7 +167,13 @@ data class Game(
             }
             GameState.CHECKGRADUATION -> {
                 if(getGraduations(board).isEmpty()) {
-                    GameState.PLAY
+                    //GameState.PLAY
+                    if(board.hasTwoTypesInPool(currentPlayer)) {
+                        GameState.SELECTPIECE
+                    }
+                    else {
+                        GameState.SELECTPOSITION
+                    }
                 }
                 else {
                     if(getGraduations(board).size == 1)
@@ -176,12 +183,22 @@ data class Game(
                 }
             }
             GameState.AUTOGRADUATION -> {
-                GameState.PLAY
+                //GameState.PLAY
+                if (board.hasTwoTypesInPool(currentPlayer)) {
+                    GameState.SELECTPIECE
+                } else {
+                    GameState.SELECTPOSITION
+                }
             }
             GameState.SELECTGRADUATION -> {
-                if(_finishPieceSelection)
-                    GameState.PLAY
-                else
+                if (_finishPieceSelection) {
+                    //GameState.PLAY
+                    if (board.hasTwoTypesInPool(currentPlayer)) {
+                        GameState.SELECTPIECE
+                    } else {
+                        GameState.SELECTPOSITION
+                    }
+                } else
                     GameState.REFRESHSELECTGRADUATION
             }
             GameState.REFRESHSELECTGRADUATION -> {
@@ -336,7 +353,11 @@ data class Game(
         board = history.board
         moveNumber = history.moveNumber
         currentPlayer = history.player
-        gameState = GameState.PLAY
+        //gameState = GameState.PLAY
+        gameState = when(board.hasTwoTypesInPool(currentPlayer)) {
+            true -> GameState.SELECTPIECE
+            false -> GameState.SELECTPOSITION
+        }
         checkVictory()
     }
 }

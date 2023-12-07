@@ -202,26 +202,27 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             )
             viewModel.goToNextState()
         }
-        GameState.PLAY -> {
-            Log.d(TAG, "PLAY ${player}")
-            if(viewModel.historyCall)
-                lastMove = null
-
-            MainView(
-                viewModel,
-                lastMove = lastMove,
-                displayGameState = viewModel.displayGameState
-            )
-            if(!viewModel.historyCall)
-                viewModel.nextTurn()
-            viewModel.goToNextState()
-        }
+//        GameState.PLAY -> {
+//            Log.d(TAG, "PLAY ${player}")
+//            if(viewModel.historyCall)
+//                lastMove = null
+//
+//            MainView(
+//                viewModel,
+//                lastMove = lastMove,
+//                displayGameState = viewModel.displayGameState
+//            )
+//            if(!viewModel.historyCall)
+//                viewModel.nextTurn()
+//            viewModel.goToNextState()
+//        }
         GameState.SELECTPIECE -> {
             Log.d(TAG, "SELECTPIECE ${player}")
             MainView(
                 viewModel,
                 lastMove = lastMove,
-                displayGameState = viewModel.displayGameState)
+                displayGameState = viewModel.displayGameState
+            )
         }
         GameState.SELECTPOSITION -> {
             Log.d(TAG, "SELECTPOSITION ${player}")

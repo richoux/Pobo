@@ -122,7 +122,11 @@ class GameViewModel : ViewModel() {
         moveNumber = last.moveNumber
         reset()
         historyCall = true
-        _gameState.tryEmit(GameState.PLAY)
+        //_gameState.tryEmit(GameState.PLAY)
+        when( twoTypesInPool() ) {
+            true -> _gameState.tryEmit(GameState.SELECTPIECE)
+            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
+        }
     }
 
     fun goForwardMove() {
@@ -146,7 +150,11 @@ class GameViewModel : ViewModel() {
         moveNumber = last.moveNumber
         reset()
         historyCall = true
-        _gameState.tryEmit(GameState.PLAY)
+        //_gameState.tryEmit(GameState.PLAY)
+        when( twoTypesInPool() ) {
+            true -> _gameState.tryEmit(GameState.SELECTPIECE)
+            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
+        }
     }
 
     fun cancelPieceSelection() {
@@ -270,6 +278,7 @@ class GameViewModel : ViewModel() {
         var groupOfAtLeast3 = false
         if(groups.isEmpty() || historyCall) {
             state = GameViewModelState.IDLE
+            changePlayer()
         }
         else {
             if(groups.size >= 8) {
@@ -296,6 +305,7 @@ class GameViewModel : ViewModel() {
             }
         }
         _game.board = currentBoard
+        changePlayer()
         goToNextState()
     }
 
@@ -401,7 +411,13 @@ class GameViewModel : ViewModel() {
         _promotionListIndex.clear()
         piecesToPromote.clear()
         state = GameViewModelState.IDLE
+        changePlayer()
         goToNextState()
+    }
+
+    fun changePlayer() {
+        _game.changePlayer()
+        currentPlayer = _game.currentPlayer
     }
 
     fun nextTurn() {
@@ -409,26 +425,26 @@ class GameViewModel : ViewModel() {
         currentPlayer = _game.currentPlayer
 
         // if we play against an AI and it is its turn
-        if( ( p1IsAI && currentPlayer == Color.Blue ) || ( p2IsAI && currentPlayer == Color.Red) ) {
-            // val move = randomPlay(_game)
-
-            val lastMove: Move? = when( _moveHistory.isEmpty() ) {
-                true -> null
-                false -> _moveHistory.last()
-            }
-
-            Log.d(TAG, "NextTurn call, AI section")
-
-            var move: Move
-            if( p1IsAI && currentPlayer == Color.Blue ) {
-                move = aiP1.select_move(_game, lastMove, 1000)
-            }
-            else {
-                move = aiP2.select_move(_game, lastMove, 1000)
-            }
-            pieceTypeToPlay = move.piece.getType()
-            playAt( move.to )
-        }
+//        if( ( p1IsAI && currentPlayer == Color.Blue ) || ( p2IsAI && currentPlayer == Color.Red) ) {
+//            // val move = randomPlay(_game)
+//
+//            val lastMove: Move? = when( _moveHistory.isEmpty() ) {
+//                true -> null
+//                false -> _moveHistory.last()
+//            }
+//
+//            Log.d(TAG, "NextTurn call, AI section")
+//
+//            var move: Move
+//            if( p1IsAI && currentPlayer == Color.Blue ) {
+//                move = aiP1.select_move(_game, lastMove, 1000)
+//            }
+//            else {
+//                move = aiP2.select_move(_game, lastMove, 1000)
+//            }
+//            pieceTypeToPlay = move.piece.getType()
+//            playAt( move.to )
+//        }
     }
 
     fun makeP1AIMove() {
@@ -436,12 +452,12 @@ class GameViewModel : ViewModel() {
         val move = aiP1.select_move(_game, null, 1000)
         pieceTypeToPlay = move.piece.getType()
         playAt( move.to )
-        if(!p1HasAlreadyPlayed) {
-            Log.d(TAG, "Make P1 move: first play!")
-            p1HasAlreadyPlayed = true
-            _game.changePlayer()
-            currentPlayer = _game.currentPlayer
-        }
+//        if(!p1HasAlreadyPlayed) {
+//            Log.d(TAG, "Make P1 move: first play!")
+//            p1HasAlreadyPlayed = true
+//            _game.changePlayer()
+//            currentPlayer = _game.currentPlayer
+//        }
     }
 
     fun makeP2AIMove() {
