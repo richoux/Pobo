@@ -15,7 +15,7 @@ enum class GameViewModelState {
 
 enum class GameState {
   //INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
-  INIT, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
+  INIT, HISTORY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
 }
 
 class GameViewModel : ViewModel() {
@@ -75,6 +75,7 @@ class GameViewModel : ViewModel() {
       return when(_gameState.value) {
         GameState.INIT -> ""
         //GameState.PLAY -> ""
+        GameState.HISTORY -> ""
         GameState.SELECTPIECE -> "Select a small or a large piece:"
         GameState.SELECTPOSITION -> ""
         GameState.CHECKGRADUATION -> ""
@@ -93,10 +94,15 @@ class GameViewModel : ViewModel() {
     _promotionListMask = mutableListOf()
     _piecesToPromoteIndex = hashMapOf()
     piecesToPromote = mutableListOf()
-    canGoBack.tryEmit(if(p2IsAI) _history.size > 1 else _history.isNotEmpty())
-    canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+    if(IsAIToPLay()) {
+      canGoBack.tryEmit(false)
+      canGoForward.tryEmit(false)
+    }
+    else {
+      canGoBack.tryEmit(if(p2IsAI) _history.size > 1 else _history.isNotEmpty())
+      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+    }
     pieceTypeToPlay = null
-    lastMovePosition = null
   }
 
   fun newGame(p1IsAI: Boolean, p2IsAI: Boolean) {
@@ -129,10 +135,17 @@ class GameViewModel : ViewModel() {
     currentBoard = _game.board
     currentPlayer = _game.currentPlayer
     reset()
+    lastMovePosition = null
     hasStarted = false
     //p1HasAlreadyPlayed = false
     _gameState.tryEmit(GameState.INIT)
     gameState = _gameState.asStateFlow()
+  }
+
+  fun IsAIToPLay(): Boolean {
+    return ( p1IsAI && _game.currentPlayer == Color.Blue)
+           ||
+           ( p2IsAI && _game.currentPlayer == Color.Red)
   }
 
   fun goBackMove() {
@@ -161,13 +174,21 @@ class GameViewModel : ViewModel() {
     moveNumber = last.moveNumber
     reset()
     historyCall = true
+
     //_gameState.tryEmit(GameState.PLAY)
-    when(twoTypesInPool()) {
-      true -> _gameState.value = GameState.SELECTPIECE
-      false -> _gameState.value = GameState.SELECTPOSITION
-//            true -> _gameState.tryEmit(GameState.SELECTPIECE)
-//            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
-    }
+    _gameState.value = GameState.HISTORY
+//    when(twoTypesInPool()) {
+////      true -> _gameState.value = GameState.SELECTPIECE
+////      false -> _gameState.value = GameState.SELECTPOSITION
+//      true -> {
+//        Log.d(TAG, "goBackward and emit SELECTPIECE")
+//        _gameState.tryEmit(GameState.SELECTPIECE)
+//      }
+//      false -> {
+//        Log.d(TAG, "goBackward and emit SELECTPOSITION")
+//        _gameState.tryEmit(GameState.SELECTPOSITION)
+//      }
+//    }
   }
 
   fun goForwardMove() {
@@ -196,13 +217,21 @@ class GameViewModel : ViewModel() {
     moveNumber = last.moveNumber
     reset()
     historyCall = true
+
     //_gameState.tryEmit(GameState.PLAY)
-    when(twoTypesInPool()) {
-      true -> _gameState.value = GameState.SELECTPIECE
-      false -> _gameState.value = GameState.SELECTPOSITION
-//            true -> _gameState.tryEmit(GameState.SELECTPIECE)
-//            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
-    }
+    _gameState.value = GameState.HISTORY
+//    when(twoTypesInPool()) {
+////      true -> _gameState.value = GameState.SELECTPIECE
+////      false -> _gameState.value = GameState.SELECTPOSITION
+//        true -> {
+//          Log.d(TAG, "goForward and emit SELECTPIECE")
+//          _gameState.tryEmit(GameState.SELECTPIECE)
+//        }
+//        false -> {
+//          Log.d(TAG, "goForward and emit SELECTPOSITION")
+//          _gameState.tryEmit(GameState.SELECTPOSITION)
+//        }
+//    }
   }
 
   fun cancelPieceSelection() {
@@ -283,6 +312,13 @@ class GameViewModel : ViewModel() {
       GameState.REFRESHSELECTGRADUATION -> {
         GameState.SELECTGRADUATION
       }
+      GameState.HISTORY -> {
+        if(twoTypesInPool()) {
+          GameState.SELECTPIECE
+        } else {
+          GameState.SELECTPOSITION
+        }
+      }
       else -> { //GameState.END, but it should be caught before the when
         GameState.END
       }
@@ -336,8 +372,14 @@ class GameViewModel : ViewModel() {
     }
 
     hasStarted = true
-    canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
-    canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+    if(IsAIToPLay()) {
+      canGoBack.tryEmit(false)
+      canGoForward.tryEmit(false)
+    }
+    else {
+      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
+      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+    }
 
     if(((p1IsAI && currentPlayer == Color.Blue) || (p2IsAI && currentPlayer == Color.Red))
       && _gameState.value == GameState.SELECTGRADUATION
