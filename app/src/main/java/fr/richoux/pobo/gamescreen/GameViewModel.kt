@@ -3,9 +3,7 @@ package fr.richoux.pobo.gamescreen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import fr.richoux.pobo.engine.*
-import fr.richoux.pobo.engine.ai.AI
-import fr.richoux.pobo.engine.ai.MCTS_GHOST
-import fr.richoux.pobo.engine.ai.SimpleHeuristics
+import fr.richoux.pobo.engine.ai.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -33,8 +31,8 @@ class GameViewModel : ViewModel() {
         private set
     private var p1HasAlreadyPlayed = false
 
-    private var aiP1: AI = SimpleHeuristics(Color.Blue)
-    private var aiP2: AI = SimpleHeuristics(Color.Red)
+    private var aiP1: AI = RandomPlay(Color.Blue) //SimpleHeuristics(Color.Blue)
+    private var aiP2: AI = RandomPlay(Color.Red) //SimpleHeuristics(Color.Red)
 
     private var _promotionListIndex: MutableList<Int> = mutableListOf()
     private var _promotionListMask: MutableList<Boolean> = mutableListOf()
@@ -78,12 +76,12 @@ class GameViewModel : ViewModel() {
         this.p2IsAI = p2IsAI
 
         if( p1IsAI ) {
-            //ai = SimpleHeuristics(Color.Red)
-            aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5)
+//            aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5)
+            aiP1 = PureHeuristics(Color.Blue)
         }
         if( p2IsAI ) {
-            //ai = SimpleHeuristics(Color.Red)
             aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5)
+//            aiP2 = PureHeuristics(Color.Red)
         }
 
         _history.clear()

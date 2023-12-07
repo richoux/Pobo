@@ -20,20 +20,19 @@ using namespace std::literals::chrono_literals;
 // From https://www.baeldung.com/jni
 // See also https://developer.android.com/training/articles/perf-jni
 
-extern "C"
 JNIEXPORT jintArray JNICALL
-Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(	JNIEnv *env,
-																				jobject thiz,
-																				jbyteArray k_grid,
-																				jbyteArray k_blue_pool,
-																				jbyteArray k_red_pool,
-																				jint k_blue_pool_size,
-																				jint k_red_pool_size,
-																				jboolean k_blue_turn,
-																				jbyteArray k_to_remove_row,
-																				jbyteArray k_to_remove_col,
-																				jbyteArray k_to_remove_p,
-																				jint k_number_to_remove )
+ghost_solver_call( JNIEnv *env,
+                   jobject thiz,
+                   jbyteArray k_grid,
+                   jbyteArray k_blue_pool,
+                   jbyteArray k_red_pool,
+                   jint k_blue_pool_size,
+                   jint k_red_pool_size,
+                   jboolean k_blue_turn,
+                   jbyteArray k_to_remove_row,
+                   jbyteArray k_to_remove_col,
+                   jbyteArray k_to_remove_p,
+                   jint k_number_to_remove )
 {
 	randutils::mt19937_rng rng;
 
@@ -114,6 +113,102 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call(	J
 	env->SetIntArrayRegion( sol, 0, 4, (jint *) &solution[0] );
 
 	return sol;
+}
+
+JNIEXPORT jdoubleArray JNICALL
+compute_graduations_cpp( JNIEnv *env,
+                         jobject thiz,
+                         jbyteArray k_grid,
+                         jboolean k_blue_turn,
+                         jint k_blue_pool_size,
+                         jint k_red_pool_size )
+{
+	jbyte cpp_grid[36];
+
+	env->GetByteArrayRegion( k_grid, 0, 36, cpp_grid );
+
+	auto groups = get_graduations( cpp_grid,
+	                               k_blue_turn,
+	                               k_blue_pool_size,
+	                               k_red_pool_size );
+	//std::vector< Position > group_to_graduate;
+	std::vector<double> scores;
+
+	if( groups.size() > 0 )
+	{
+		if( groups.size() == 1 )
+			//group_to_graduate = groups[0];
+			scores.push_back( 1.0 );
+		else
+		{
+			scores = heuristic_graduation( cpp_grid, groups );
+
+//			double best_score = -10000.0;
+//			std::vector<int> best_groups;
+//
+//			for( int i = 0; i < groups.size(); ++i )
+//			{
+//				if(groups[i].size() == 1)
+//					ALOG("Group[%d] {(%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, scores[i]);
+//				else
+//					ALOG("Group[%d] {(%d,%d), (%d,%d), (%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, groups[i][1].row, groups[i][1].column, groups[i][2].row, groups[i][2].column, scores[i]);
+//
+//				if( best_score < scores[ i ] )
+//				{
+//					best_score = scores[ i ];
+//					best_groups.clear();
+//					best_groups.push_back( i );
+//					ALOG("Group[%d] is the new best group\n", i);
+//				}
+//				else
+//					if( best_score == scores[ i ] )
+//					{
+//						best_groups.push_back( i );
+//						ALOG("Group[%d] is ex aequo\n", i);
+//					}
+//			}
+		}
+	}
+	else
+		scores.push_back( -1.0 );
+
+	jdoubleArray returned_scores = env->NewDoubleArray( scores.size() );
+	env->SetDoubleArrayRegion( returned_scores, 0, scores.size(), (jdouble *) &scores[0] );
+
+	//return thiz;
+	return returned_scores;
+}
+
+/************/
+/*** MCTS ***/
+/************/
+extern "C"
+JNIEXPORT jintArray JNICALL
+Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call( JNIEnv *env,
+																				jobject thiz,
+																				jbyteArray k_grid,
+																				jbyteArray k_blue_pool,
+																				jbyteArray k_red_pool,
+																				jint k_blue_pool_size,
+																				jint k_red_pool_size,
+																				jboolean k_blue_turn,
+																				jbyteArray k_to_remove_row,
+																				jbyteArray k_to_remove_col,
+																				jbyteArray k_to_remove_p,
+																				jint k_number_to_remove )
+{
+	return ghost_solver_call( env,
+	                          thiz,
+	                          k_grid,
+	                          k_blue_pool,
+	                          k_red_pool,
+	                          k_blue_pool_size,
+	                          k_red_pool_size,
+	                          k_blue_turn,
+	                          k_to_remove_row,
+	                          k_to_remove_col,
+	                          k_to_remove_p,
+	                          k_number_to_remove );
 }
 
 extern "C"
@@ -261,6 +356,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_heuristic_1state_1cpp(
 
 	return score;
 }
+
 extern "C"
 JNIEXPORT jdoubleArray JNICALL
 Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1cpp( JNIEnv *env,
@@ -270,58 +366,60 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_compute_1graduations_1
 																							jint k_blue_pool_size,
 																							jint k_red_pool_size )
 {
-	jbyte cpp_grid[36];
+	return compute_graduations_cpp( env,
+	                                thiz,
+																	k_grid,
+																	k_blue_turn,
+																	k_blue_pool_size,
+																	k_red_pool_size );
+}
 
-	env->GetByteArrayRegion( k_grid, 0, 36, cpp_grid );
 
-	auto groups = get_graduations( cpp_grid,
-																 k_blue_turn,
-																 k_blue_pool_size,
-																 k_red_pool_size );
-	//std::vector< Position > group_to_graduate;
-	std::vector<double> scores;
+/***********************/
+/*** Pure Heuristics ***/
+/***********************/
+extern "C"
+JNIEXPORT jintArray JNICALL
+Java_fr_richoux_pobo_engine_ai_PureHeuristics_00024Companion_ghost_1solver_1call( JNIEnv *env,
+                                                                                  jobject thiz,
+                                                                                  jbyteArray k_grid,
+                                                                                  jbyteArray k_blue_pool,
+                                                                                  jbyteArray k_red_pool,
+                                                                                  jint k_blue_pool_size,
+                                                                                  jint k_red_pool_size,
+                                                                                  jboolean k_blue_turn,
+                                                                                  jbyteArray k_to_remove_row,
+                                                                                  jbyteArray k_to_remove_col,
+                                                                                  jbyteArray k_to_remove_p,
+                                                                                  jint k_number_to_remove )
+{
+	return ghost_solver_call( env,
+	                          thiz,
+	                          k_grid,
+	                          k_blue_pool,
+	                          k_red_pool,
+	                          k_blue_pool_size,
+	                          k_red_pool_size,
+	                          k_blue_turn,
+	                          k_to_remove_row,
+	                          k_to_remove_col,
+	                          k_to_remove_p,
+	                          k_number_to_remove );
+}
 
-	if( groups.size() > 0 )
-	{
-		if( groups.size() == 1 )
-			//group_to_graduate = groups[0];
-			scores.push_back( 1.0 );
-		else
-		{
-			scores = heuristic_graduation( cpp_grid, groups );
-
-//			double best_score = -10000.0;
-//			std::vector<int> best_groups;
-//
-//			for( int i = 0; i < groups.size(); ++i )
-//			{
-//				if(groups[i].size() == 1)
-//					ALOG("Group[%d] {(%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, scores[i]);
-//				else
-//					ALOG("Group[%d] {(%d,%d), (%d,%d), (%d,%d)} score = %.2f\n", i, groups[i][0].row, groups[i][0].column, groups[i][1].row, groups[i][1].column, groups[i][2].row, groups[i][2].column, scores[i]);
-//
-//				if( best_score < scores[ i ] )
-//				{
-//					best_score = scores[ i ];
-//					best_groups.clear();
-//					best_groups.push_back( i );
-//					ALOG("Group[%d] is the new best group\n", i);
-//				}
-//				else
-//					if( best_score == scores[ i ] )
-//					{
-//						best_groups.push_back( i );
-//						ALOG("Group[%d] is ex aequo\n", i);
-//					}
-//			}
-		}
-	}
-	else
-		scores.push_back( -1.0 );
-
-	jdoubleArray returned_scores = env->NewDoubleArray( scores.size() );
-	env->SetDoubleArrayRegion( returned_scores, 0, scores.size(), (jdouble *) &scores[0] );
-
-	//return thiz;
-	return returned_scores;
+extern "C"
+JNIEXPORT jdoubleArray JNICALL
+Java_fr_richoux_pobo_engine_ai_PureHeuristics_00024Companion_compute_1graduations_1cpp( JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jbyteArray k_grid,
+                                                                                        jboolean k_blue_turn,
+                                                                                        jint k_blue_pool_size,
+                                                                                        jint k_red_pool_size )
+{
+	return compute_graduations_cpp( env,
+	                                thiz,
+	                                k_grid,
+	                                k_blue_turn,
+	                                k_blue_pool_size,
+	                                k_red_pool_size );
 }
