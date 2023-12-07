@@ -13,8 +13,13 @@ enum class GameViewModelState {
     IDLE, SELECT1, SELECT3, SELECT1OR3
 }
 
+enum class GameState {
+    //INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
+    INIT, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
+}
+
 class GameViewModel : ViewModel() {
-    var state = GameViewModelState.IDLE
+    var stateSelection = GameViewModelState.IDLE
         private set
 
     private val _history: MutableList<History> = mutableListOf()
@@ -49,13 +54,13 @@ class GameViewModel : ViewModel() {
     var currentPlayer: Color = _game.currentPlayer
         private set
 
-    private var _gameState = MutableStateFlow<GameState>(_game.gameState)
+//    private var _state: GameState = GameState.SELECTPOSITION
+    private var _gameState = MutableStateFlow<GameState>(GameState.SELECTPOSITION)
     var gameState = _gameState.asStateFlow()
 
     var canGoBack = MutableStateFlow<Boolean>(if (p2IsAI) _history.size > 1 else _history.isNotEmpty())
     var canGoForward = MutableStateFlow<Boolean>(_forwardHistory.isNotEmpty())
 
-    var displayGameState: String  = _game.displayGameState
     var hasStarted: Boolean = false
 
     var selectedValue = MutableStateFlow<String>("")
@@ -63,12 +68,28 @@ class GameViewModel : ViewModel() {
     var lastMovePosition: Position? = null
         private set
 
+    private var _finishPieceSelection: Boolean = false
+
+    val displayGameState: String
+        get() {
+            return when (_gameState.value) {
+                GameState.INIT -> ""
+                //GameState.PLAY -> ""
+                GameState.SELECTPIECE -> "Select a small or a large piece:"
+                GameState.SELECTPOSITION -> ""
+                GameState.CHECKGRADUATION -> ""
+                GameState.AUTOGRADUATION -> ""
+                GameState.SELECTGRADUATION -> "Select small pieces to graduate or large pieces to remove"
+                GameState.REFRESHSELECTGRADUATION -> ""
+                GameState.END -> ""
+            }
+        }
+
     fun reset() {
         _promotionListIndex = mutableListOf()
         _promotionListMask = mutableListOf()
         _piecesToPromoteIndex = hashMapOf()
         piecesToPromote = mutableListOf()
-        displayGameState  = _game.displayGameState
         canGoBack.tryEmit(if (p2IsAI) _history.size > 1 else _history.isNotEmpty())
         canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         pieceTypeToPlay = null
@@ -125,6 +146,10 @@ class GameViewModel : ViewModel() {
         }
 
         _game.changeWithHistory(last)
+//        _state = when(_game.board.hasTwoTypesInPool(currentPlayer)) {
+//            true -> GameState.SELECTPIECE
+//            false -> GameState.SELECTPOSITION
+//        }
         currentBoard = last.board
         currentPlayer = last.player
         lastMovePosition = lastMove.to
@@ -133,8 +158,10 @@ class GameViewModel : ViewModel() {
         historyCall = true
         //_gameState.tryEmit(GameState.PLAY)
         when( twoTypesInPool() ) {
-            true -> _gameState.tryEmit(GameState.SELECTPIECE)
-            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
+            true -> _gameState.value = GameState.SELECTPIECE
+            false -> _gameState.value = GameState.SELECTPOSITION
+//            true -> _gameState.tryEmit(GameState.SELECTPIECE)
+//            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
         }
     }
 
@@ -154,6 +181,10 @@ class GameViewModel : ViewModel() {
         }
 
         _game.changeWithHistory(last)
+//        _state = when(_game.board.hasTwoTypesInPool(currentPlayer)) {
+//            true -> GameState.SELECTPIECE
+//            false -> GameState.SELECTPOSITION
+//        }
         currentBoard = last.board
         currentPlayer = last.player
         lastMovePosition = lastMove.to
@@ -162,16 +193,97 @@ class GameViewModel : ViewModel() {
         historyCall = true
         //_gameState.tryEmit(GameState.PLAY)
         when( twoTypesInPool() ) {
-            true -> _gameState.tryEmit(GameState.SELECTPIECE)
-            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
+            true -> _gameState.value = GameState.SELECTPIECE
+            false -> _gameState.value = GameState.SELECTPOSITION
+//            true -> _gameState.tryEmit(GameState.SELECTPIECE)
+//            false -> _gameState.tryEmit(GameState.SELECTPOSITION)
         }
     }
 
     fun cancelPieceSelection() {
         val newState = GameState.SELECTPIECE
-        _game.gameState = newState
-        displayGameState  = _game.displayGameState
+        _gameState.value = newState
         _gameState.tryEmit(newState)
+    }
+
+    fun nextGameState(): GameState {
+        if(_game.victory) {
+            return GameState.END
+        }
+        return when(_gameState.value) {
+            GameState.INIT -> {
+                GameState.SELECTPOSITION
+            }
+//            GameState.PLAY -> {
+//                if(board.hasTwoTypesInPool(currentPlayer)) {
+//                    GameState.SELECTPIECE
+//                }
+//                else {
+//                    GameState.SELECTPOSITION
+//                }
+//            }
+            GameState.SELECTPIECE -> {
+                GameState.SELECTPOSITION
+            }
+            GameState.SELECTPOSITION -> {
+                _game.checkVictory()
+                if(_game.victory)
+                    GameState.END
+                else
+                    GameState.CHECKGRADUATION
+            }
+            GameState.CHECKGRADUATION -> {
+                val graduations = _game.getGraduations(_game.board)
+                var currentPlayerCanGraduate: Boolean = false
+                graduations.forEach {
+                    it.forEach{
+                        if( _game.board.getGridPosition( it ) * currentPlayer.value > 0 )
+                            currentPlayerCanGraduate = true
+                    }
+                }
+
+                if(currentPlayerCanGraduate && stateSelection != GameViewModelState.IDLE ) {
+                    if(_game.getGraduations(_game.board).size == 1)
+                        GameState.AUTOGRADUATION
+                    else
+                        GameState.SELECTGRADUATION
+                }
+                else {
+                    //GameState.PLAY
+                    if(_game.board.hasTwoTypesInPool(currentPlayer)) {
+                        GameState.SELECTPIECE
+                    }
+                    else {
+                        GameState.SELECTPOSITION
+                    }
+                }
+            }
+            GameState.AUTOGRADUATION -> {
+                //GameState.PLAY
+                if (_game.board.hasTwoTypesInPool(currentPlayer)) {
+                    GameState.SELECTPIECE
+                } else {
+                    GameState.SELECTPOSITION
+                }
+            }
+            GameState.SELECTGRADUATION -> {
+                if (_finishPieceSelection) {
+                    //GameState.PLAY
+                    if (_game.board.hasTwoTypesInPool(currentPlayer)) {
+                        GameState.SELECTPIECE
+                    } else {
+                        GameState.SELECTPOSITION
+                    }
+                } else
+                    GameState.REFRESHSELECTGRADUATION
+            }
+            GameState.REFRESHSELECTGRADUATION -> {
+                GameState.SELECTGRADUATION
+            }
+            else -> { //GameState.END, but it should be caught before the when
+                GameState.END
+            }
+        }
     }
 
     fun goToNextState() {
@@ -180,8 +292,8 @@ class GameViewModel : ViewModel() {
             return
         }
 
-        var newState: GameState = _game.gameState
-        if (_game.gameState == GameState.INIT && p1IsAI) {
+        var newState: GameState = _gameState.value
+        if (_gameState.value == GameState.INIT && p1IsAI) {
 //            Log.d(TAG, "INIT and P1 is AI")
 //            _game.changePlayer() // hack
 //            Log.d(TAG, "Player changed (hack)")
@@ -204,9 +316,9 @@ class GameViewModel : ViewModel() {
 //            _gameState.tryEmit(GameState.PLAY)
         }
 
-        newState = _game.nextGameState()
+        newState = nextGameState()
 //        Log.d(TAG, "Change to next state: ${_game.gameState} -> ${newState}")
-        _game.gameState = newState
+        _gameState.value = newState
 
 //        if( aiEnabled && currentPlayer == Color.Red)
 //            Log.d(TAG, "New game state: $newState")
@@ -214,19 +326,18 @@ class GameViewModel : ViewModel() {
         if (newState == GameState.SELECTPIECE
             && ((p1IsAI && currentPlayer == Color.Blue) || (p2IsAI && currentPlayer == Color.Red))
         ) {
-            newState = _game.nextGameState()
+            newState = nextGameState()
 //            Log.d(TAG, "Change to next state again because AI: ${_game.gameState} -> ${newState}")
-            _game.gameState = newState
+            _gameState.value = newState
 //            Log.d(TAG, "New game state 2: $newState")
         }
 
         hasStarted = true
         canGoBack.tryEmit(if (p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
         canGoForward.tryEmit(_forwardHistory.isNotEmpty())
-        displayGameState = _game.displayGameState
 
         if (((p1IsAI && currentPlayer == Color.Blue) || (p2IsAI && currentPlayer == Color.Red))
-            && _game.gameState == GameState.SELECTGRADUATION
+            && _gameState.value == GameState.SELECTGRADUATION
         ) {
             if (p1IsAI && currentPlayer == Color.Blue)
                 piecesToPromote = aiP1.select_graduation(_game).toMutableList()
@@ -291,8 +402,8 @@ class GameViewModel : ViewModel() {
         val groups = _game.getGraduations(currentBoard)
         var groupOfAtLeast3 = false
         if(groups.isEmpty() || historyCall) {
-            state = GameViewModelState.IDLE
-            Log.d(TAG, "call changePlayer in checkGraduation")
+            stateSelection = GameViewModelState.IDLE
+//            Log.d(TAG, "call changePlayer in checkGraduation")
             changePlayer()
         }
         else {
@@ -302,25 +413,25 @@ class GameViewModel : ViewModel() {
                         groupOfAtLeast3 = true
                 }
                 if(groupOfAtLeast3)
-                    state = GameViewModelState.SELECT1OR3
+                    stateSelection = GameViewModelState.SELECT1OR3
                 else
-                    state = GameViewModelState.SELECT1
+                    stateSelection = GameViewModelState.SELECT1
             }
             else
-                state = GameViewModelState.SELECT3
+                stateSelection = GameViewModelState.SELECT3
         }
         goToNextState()
     }
 
     fun autograduation() {
         val graduable = _game.getGraduations(currentBoard)
-        if (graduable.size == 1 && state != GameViewModelState.IDLE) {
+        if (graduable.size == 1 && stateSelection != GameViewModelState.IDLE) {
             graduable[0].forEach {
                 currentBoard = currentBoard.removePieceAndPromoteIt(it)
             }
         }
         _game.board = currentBoard
-        Log.d(TAG, "call changePlayer in autograduation")
+//        Log.d(TAG, "call changePlayer in autograduation")
         changePlayer()
         goToNextState()
     }
@@ -328,7 +439,7 @@ class GameViewModel : ViewModel() {
     fun selectForGraduationOrCancel(position: Position) {
         val removable = _game.getGraduations(currentBoard)
 
-        if (state != GameViewModelState.IDLE) {
+        if (stateSelection != GameViewModelState.IDLE) {
             // if the player taps a selected piece, unselect it
             if (piecesToPromote.contains(position)) {
                 piecesToPromote.remove(position)
@@ -411,16 +522,16 @@ class GameViewModel : ViewModel() {
         }
 
         // no more than 1 or 3 selections, regarding the situation
-        if (piecesToPromote.size == 3 || (state == GameViewModelState.SELECT1 && piecesToPromote.size == 1)) {
+        if (piecesToPromote.size == 3 || (stateSelection == GameViewModelState.SELECT1 && piecesToPromote.size == 1)) {
             validateGraduationSelection()
         } else {
-            _game.unfinishSelection()
+            _finishPieceSelection = false
             goToNextState()
         }
     }
 
     fun validateGraduationSelection() {
-        _game.finishSelection()
+        _finishPieceSelection = true
         _game.promoteOrRemovePieces(piecesToPromote)
         currentBoard = _game.board
         _game.checkVictory()
@@ -429,8 +540,8 @@ class GameViewModel : ViewModel() {
             Log.d(TAG, "[${it}]")
         }
         piecesToPromote.clear()
-        state = GameViewModelState.IDLE
-        Log.d(TAG, "call changePlayer in validateGraduationSelection")
+        stateSelection = GameViewModelState.IDLE
+//        Log.d(TAG, "call changePlayer in validateGraduationSelection")
         changePlayer()
         goToNextState()
     }
@@ -489,6 +600,6 @@ class GameViewModel : ViewModel() {
 
     fun twoTypesInPool(): Boolean = currentBoard.hasTwoTypesInPool(currentPlayer)
 
-    fun resume() = _gameState.tryEmit(_game.gameState)
+    fun resume() = _gameState.tryEmit(_gameState.value)
 }
 

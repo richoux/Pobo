@@ -18,11 +18,6 @@ data class Move(val piece: Piece, val to: Position) {
 }
 data class History(val board: Board, val player: Color, val moveNumber: Int) {}
 
-enum class GameState {
-    //INIT, PLAY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
-    INIT, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
-}
-
 enum class Direction {
     TOPLEFT, TOP, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOM, BOTTOMLEFT, LEFT
 }
@@ -48,36 +43,11 @@ fun isPositionOnTheBoard(at: Position): Boolean {
 
 data class Game(
     var board: Board = Board(),
-    var gameState: GameState = GameState.INIT,
     var currentPlayer: Color = Color.Blue,
     var victory: Boolean = false,
     val isPlayout: Boolean = false, // true if the game is a simulation for decision-making
     var moveNumber: Int = 0
 ) {
-    val displayGameState: String
-        get() {
-            return when (gameState) {
-                GameState.INIT -> ""
-                //GameState.PLAY -> ""
-                GameState.SELECTPIECE -> "Select a small or a large piece:"
-                GameState.SELECTPOSITION -> ""
-                GameState.CHECKGRADUATION -> ""
-                GameState.AUTOGRADUATION -> ""
-                GameState.SELECTGRADUATION -> "Select small pieces to graduate or large pieces to remove"
-                GameState.REFRESHSELECTGRADUATION -> ""
-                GameState.END -> ""
-            }
-        }
-    private var _finishPieceSelection: Boolean = false
-
-    fun finishSelection() {
-        _finishPieceSelection = true
-    }
-
-    fun unfinishSelection() {
-        _finishPieceSelection = false
-    }
-
     fun signature(): String {
         var signature = ""
         for (i in 0..35) {
@@ -118,7 +88,6 @@ data class Game(
     fun copyForPlayout(): Game {
         return Game(
             this.board.copy(),
-            this.gameState,
             this.currentPlayer,
             this.victory,
             isPlayout = true,
@@ -141,86 +110,6 @@ data class Game(
 
     fun changePlayer() {
         currentPlayer = currentPlayer.other()
-    }
-
-    fun nextGameState(): GameState {
-        if(victory) {
-            return GameState.END
-        }
-        return when(gameState) {
-            GameState.INIT -> {
-                GameState.SELECTPOSITION
-            }
-//            GameState.PLAY -> {
-//                if(board.hasTwoTypesInPool(currentPlayer)) {
-//                    GameState.SELECTPIECE
-//                }
-//                else {
-//                    GameState.SELECTPOSITION
-//                }
-//            }
-            GameState.SELECTPIECE -> {
-                GameState.SELECTPOSITION
-            }
-            GameState.SELECTPOSITION -> {
-                checkVictory()
-                if(victory)
-                    GameState.END
-                else
-                    GameState.CHECKGRADUATION
-            }
-            GameState.CHECKGRADUATION -> {
-                val graduations = getGraduations(board)
-                var currentPlayerCanGraduate: Boolean = false
-                graduations.forEach {
-                    it.forEach{
-                        if( board.getGridPosition( it ) * currentPlayer.value > 0 )
-                            currentPlayerCanGraduate = true
-                    }
-                }
-
-                if(currentPlayerCanGraduate) {
-                    if(getGraduations(board).size == 1)
-                        GameState.AUTOGRADUATION
-                    else
-                        GameState.SELECTGRADUATION
-                }
-                else {
-                    //GameState.PLAY
-                    if(board.hasTwoTypesInPool(currentPlayer)) {
-                        GameState.SELECTPIECE
-                    }
-                    else {
-                        GameState.SELECTPOSITION
-                    }
-                }
-            }
-            GameState.AUTOGRADUATION -> {
-                //GameState.PLAY
-                if (board.hasTwoTypesInPool(currentPlayer)) {
-                    GameState.SELECTPIECE
-                } else {
-                    GameState.SELECTPOSITION
-                }
-            }
-            GameState.SELECTGRADUATION -> {
-                if (_finishPieceSelection) {
-                    //GameState.PLAY
-                    if (board.hasTwoTypesInPool(currentPlayer)) {
-                        GameState.SELECTPIECE
-                    } else {
-                        GameState.SELECTPOSITION
-                    }
-                } else
-                    GameState.REFRESHSELECTGRADUATION
-            }
-            GameState.REFRESHSELECTGRADUATION -> {
-                GameState.SELECTGRADUATION
-            }
-            else -> { //GameState.END, but it should be caught before the when
-                GameState.END
-            }
-        }
     }
 
     fun getAlignedPositionsInDirection(board: Board, player: Color, position: Position, direction: Direction): List<Position> {
@@ -367,10 +256,6 @@ data class Game(
         moveNumber = history.moveNumber
         currentPlayer = history.player
         //gameState = GameState.PLAY
-        gameState = when(board.hasTwoTypesInPool(currentPlayer)) {
-            true -> GameState.SELECTPIECE
-            false -> GameState.SELECTPOSITION
-        }
         checkVictory()
     }
 }

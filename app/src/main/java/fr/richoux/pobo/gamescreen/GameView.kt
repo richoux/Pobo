@@ -171,8 +171,8 @@ fun columnAllMode(viewModel: GameViewModel = viewModel(), displayGameState: Stri
         val gameState by viewModel.gameState.collectAsState()
         val completeSelectionForRemoval =
             gameState == GameState.SELECTGRADUATION
-                    && (((viewModel.state == GameViewModelState.SELECT3 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
-                    || ((viewModel.state == GameViewModelState.SELECT1 || viewModel.state == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
+                    && (((viewModel.stateSelection == GameViewModelState.SELECT3 || viewModel.stateSelection == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
+                    || ((viewModel.stateSelection == GameViewModelState.SELECT1 || viewModel.stateSelection == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
         if(gameState == GameState.SELECTGRADUATION) {
             Button(
                 onClick = { viewModel.validateGraduationSelection() },
