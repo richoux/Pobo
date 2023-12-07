@@ -101,17 +101,17 @@ class GameViewModel : ViewModel() {
         this.p2IsAI = p2IsAI
 
         if (p1IsAI) {
-//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5, first_n_strategy=0, number_preselected_actions=0) // Vanilla-MCTS
-//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5, number_preselected_actions=0) // MCTS with GHOST-playouts
-//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5, first_n_strategy=0) // MCTS with GHOST-masking
-//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5) // full MCTS GHOST
-            aiP1 = PureHeuristics(Color.Blue)
+//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, first_n_strategy = 0) // Vanilla-MCTS
+//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0) // MCTS with GHOST-playouts
+//          aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0) // MCTS with GHOST-masking
+          aiP1 = MCTS_GHOST(Color.Blue) // full MCTS GHOST
+//          aiP1 = PureHeuristics(Color.Blue)
         }
         if (p2IsAI) {
-//          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5, first_n_strategy=0, number_preselected_actions=0) // Vanilla-MCTS
-//          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5, number_preselected_actions=0) // MCTS with GHOST-playouts
-//          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5, first_n_strategy=0) // MCTS with GHOST-masking
-            aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5) // full MCTS GHOST
+          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0) // Vanilla-MCTS
+//          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0) // MCTS with GHOST-playouts
+//          aiP2 = MCTS_GHOST(Color.Red, first_n_strategy = 0) // MCTS with GHOST-masking
+//          aiP2 = MCTS_GHOST(Color.Red) // full MCTS GHOST
 //          aiP2 = PureHeuristics(Color.Red)
         }
 

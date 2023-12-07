@@ -48,7 +48,7 @@ class MCTS_GHOST (
     var currentNode: Node = root,
     var nodes: ArrayList<Node> = arrayListOf(),
     var numberNodes: Int = 1,
-    val number_preselected_actions: Int = 0,
+    val number_preselected_actions: Int = 5,
     val extensions_and_playouts_with_GHOST: Boolean = false,
     val first_n_strategy: Int = 21,
     val playout_depth: Int = 21,
