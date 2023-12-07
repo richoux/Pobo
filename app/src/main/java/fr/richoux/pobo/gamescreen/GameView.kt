@@ -47,13 +47,13 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 @Composable
 fun MainView(
     viewModel: GameViewModel,
-    lastMove: Position? = null,
     onTap: (Position) -> Unit = { _ -> },
     displayGameState: String = ""
 ) {
     val board = viewModel.currentBoard
     val player = viewModel.currentPlayer
     val promotionable = viewModel.getFlatPromotionable()
+    val lastMove = viewModel.lastMovePosition
     val selected = viewModel.piecesToPromote.toList()
     val configuration = LocalConfiguration.current
     var landscapeMode: Boolean
@@ -195,7 +195,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 
     when (gameState) {
         GameState.INIT -> {
-            Log.d(TAG, "INIT ${player}")
+//            Log.d(TAG, "INIT ${player}")
             MainView(
                 viewModel,
                 displayGameState = viewModel.displayGameState
@@ -217,15 +217,15 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 //            viewModel.goToNextState()
 //        }
         GameState.SELECTPIECE -> {
-            Log.d(TAG, "SELECTPIECE ${player}")
+//            Log.d(TAG, "SELECTPIECE ${player}")
             MainView(
                 viewModel,
-                lastMove = lastMove,
+//                lastMove = lastMove,
                 displayGameState = viewModel.displayGameState
             )
         }
         GameState.SELECTPOSITION -> {
-            Log.d(TAG, "SELECTPOSITION ${player}")
+//            Log.d(TAG, "SELECTPOSITION ${player}")
             val onSelect: (Position) -> Unit = {
                 if (viewModel.canPlayAt(it)) {
                     lastMove = it
@@ -234,7 +234,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             }
             MainView(
                 viewModel,
-                lastMove = lastMove,
+//                lastMove = lastMove,
                 onTap = onSelect,
                 displayGameState = viewModel.displayGameState
             )
@@ -249,7 +249,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             }
         }
         GameState.CHECKGRADUATION -> {
-            Log.d(TAG, "CHECKGRADUATION ${player}")
+//            Log.d(TAG, "CHECKGRADUATION ${player}")
             MainView(
                 viewModel,
                 displayGameState = viewModel.displayGameState
@@ -257,7 +257,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.checkGraduation()
         }
         GameState.AUTOGRADUATION -> {
-            Log.d(TAG, "AUTOGRADUATION ${player}")
+//            Log.d(TAG, "AUTOGRADUATION ${player}")
             MainView(
                 viewModel,
                 displayGameState = viewModel.displayGameState
@@ -265,33 +265,34 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             viewModel.autograduation()
         }
         GameState.SELECTGRADUATION -> {
-            Log.d(TAG, "SELECTGRADUATION ${player}")
+//            Log.d(TAG, "SELECTGRADUATION ${player}")
             lastMove = null
             val onSelect: (Position) -> Unit = {
                 viewModel.selectForGraduationOrCancel(it)
             }
             MainView(
                 viewModel,
-                lastMove = lastMove,
+//                lastMove = lastMove,
                 onTap = onSelect,
                 displayGameState = viewModel.displayGameState
             )
         }
         GameState.REFRESHSELECTGRADUATION -> {
-            Log.d(TAG, "REFRESHSELECTGRADUATION ${player}")
+//            Log.d(TAG, "REFRESHSELECTGRADUATION ${player}")
             lastMove = null
             MainView(
                 viewModel,
-                lastMove = lastMove,
+//                lastMove = lastMove,
                 displayGameState = viewModel.displayGameState
             )
             viewModel.goToNextState()
         }
         GameState.END -> {
-            Log.d(TAG, "END ${player}")
+//            Log.d(TAG, "END ${player}")
+            Log.d(TAG, "Winner: ${player}")
             MainView(
                 viewModel,
-                lastMove = lastMove,
+//                lastMove = lastMove,
                 displayGameState = viewModel.displayGameState
             )
             val style = TextStyle(

@@ -6,7 +6,11 @@ private const val TAG = "pobotag Game"
 
 data class Move(val piece: Piece, val to: Position) {
     override fun toString(): String {
-        return "$piece at $to"
+        //return "$piece at $to"
+        return when( piece.getType() ) {
+            PieceType.Po -> to.poPosition()
+            PieceType.Bo -> to.boPosition()
+        }
     }
     fun isSame(other: Move?): Boolean {
         return this === other || ( this.piece.isEquivalent( other?.piece ) && this.to.isSame(other?.to) )
@@ -166,7 +170,22 @@ data class Game(
                     GameState.CHECKGRADUATION
             }
             GameState.CHECKGRADUATION -> {
-                if(getGraduations(board).isEmpty()) {
+                val graduations = getGraduations(board)
+                var currentPlayerCanGraduate: Boolean = false
+                graduations.forEach {
+                    it.forEach{
+                        if( board.getGridPosition( it ) * currentPlayer.value > 0 )
+                            currentPlayerCanGraduate = true
+                    }
+                }
+
+                if(currentPlayerCanGraduate) {
+                    if(getGraduations(board).size == 1)
+                        GameState.AUTOGRADUATION
+                    else
+                        GameState.SELECTGRADUATION
+                }
+                else {
                     //GameState.PLAY
                     if(board.hasTwoTypesInPool(currentPlayer)) {
                         GameState.SELECTPIECE
@@ -174,12 +193,6 @@ data class Game(
                     else {
                         GameState.SELECTPOSITION
                     }
-                }
-                else {
-                    if(getGraduations(board).size == 1)
-                        GameState.AUTOGRADUATION
-                    else
-                        GameState.SELECTGRADUATION
                 }
             }
             GameState.AUTOGRADUATION -> {

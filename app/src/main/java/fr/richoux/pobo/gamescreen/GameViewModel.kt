@@ -60,6 +60,9 @@ class GameViewModel : ViewModel() {
 
     var selectedValue = MutableStateFlow<String>("")
 
+    var lastMovePosition: Position? = null
+        private set
+
     fun reset() {
         _promotionListIndex = mutableListOf()
         _promotionListMask = mutableListOf()
@@ -69,19 +72,26 @@ class GameViewModel : ViewModel() {
         canGoBack.tryEmit(if (p2IsAI) _history.size > 1 else _history.isNotEmpty())
         canGoForward.tryEmit(_forwardHistory.isNotEmpty())
         pieceTypeToPlay = null
+        lastMovePosition = null
     }
 
     fun newGame(p1IsAI: Boolean, p2IsAI: Boolean) {
         this.p1IsAI = p1IsAI
         this.p2IsAI = p2IsAI
 
-        if( p1IsAI ) {
-//            aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5)
+        if (p1IsAI) {
+//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5, first_n_strategy=0, number_preselected_actions=0) // Vanilla-MCTS
+//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5, number_preselected_actions=0) // MCTS with GHOST-playouts
+//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5, first_n_strategy=0) // MCTS with GHOST-masking
+//          aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 5) // full MCTS GHOST
             aiP1 = PureHeuristics(Color.Blue)
         }
-        if( p2IsAI ) {
-            aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5)
-//            aiP2 = PureHeuristics(Color.Red)
+        if (p2IsAI) {
+//          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5, first_n_strategy=0, number_preselected_actions=0) // Vanilla-MCTS
+//          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5, number_preselected_actions=0) // MCTS with GHOST-playouts
+//          aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5, first_n_strategy=0) // MCTS with GHOST-masking
+            aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 5) // full MCTS GHOST
+//          aiP2 = PureHeuristics(Color.Red)
         }
 
         _history.clear()
@@ -117,6 +127,7 @@ class GameViewModel : ViewModel() {
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
+        lastMovePosition = lastMove.to
         moveNumber = last.moveNumber
         reset()
         historyCall = true
@@ -145,6 +156,7 @@ class GameViewModel : ViewModel() {
         _game.changeWithHistory(last)
         currentBoard = last.board
         currentPlayer = last.player
+        lastMovePosition = lastMove.to
         moveNumber = last.moveNumber
         reset()
         historyCall = true
@@ -193,7 +205,7 @@ class GameViewModel : ViewModel() {
         }
 
         newState = _game.nextGameState()
-        Log.d(TAG, "Change to next state: ${_game.gameState} -> ${newState}")
+//        Log.d(TAG, "Change to next state: ${_game.gameState} -> ${newState}")
         _game.gameState = newState
 
 //        if( aiEnabled && currentPlayer == Color.Red)
@@ -203,7 +215,7 @@ class GameViewModel : ViewModel() {
             && ((p1IsAI && currentPlayer == Color.Blue) || (p2IsAI && currentPlayer == Color.Red))
         ) {
             newState = _game.nextGameState()
-            Log.d(TAG, "Change to next state again because AI: ${_game.gameState} -> ${newState}")
+//            Log.d(TAG, "Change to next state again because AI: ${_game.gameState} -> ${newState}")
             _game.gameState = newState
 //            Log.d(TAG, "New game state 2: $newState")
         }
@@ -223,7 +235,7 @@ class GameViewModel : ViewModel() {
             validateGraduationSelection()
         }
         else {
-            Log.d(TAG, "Emitting ${newState}, color=${currentPlayer}")
+//            Log.d(TAG, "Emitting ${newState}, color=${currentPlayer}")
             _gameState.tryEmit(newState)
         }
     }
@@ -255,8 +267,12 @@ class GameViewModel : ViewModel() {
         }
         pieceTypeToPlay = null
         val move = Move(piece, it)
-
         if(!_game.canPlay(move)) return
+
+        // Print move
+        Log.d(TAG, "${move}")
+        lastMovePosition = it
+
         _moveHistory.add(move)
         moveNumber++
         var newBoard = currentBoard.playAt(move)
@@ -276,6 +292,7 @@ class GameViewModel : ViewModel() {
         var groupOfAtLeast3 = false
         if(groups.isEmpty() || historyCall) {
             state = GameViewModelState.IDLE
+            Log.d(TAG, "call changePlayer in checkGraduation")
             changePlayer()
         }
         else {
@@ -303,6 +320,7 @@ class GameViewModel : ViewModel() {
             }
         }
         _game.board = currentBoard
+        Log.d(TAG, "call changePlayer in autograduation")
         changePlayer()
         goToNextState()
     }
@@ -407,8 +425,12 @@ class GameViewModel : ViewModel() {
         currentBoard = _game.board
         _game.checkVictory()
         _promotionListIndex.clear()
+        piecesToPromote.forEach {
+            Log.d(TAG, "[${it}]")
+        }
         piecesToPromote.clear()
         state = GameViewModelState.IDLE
+        Log.d(TAG, "call changePlayer in validateGraduationSelection")
         changePlayer()
         goToNextState()
     }
@@ -446,7 +468,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun makeP1AIMove() {
-        Log.d(TAG, "Make P1 move")
+//        Log.d(TAG, "Make P1 move")
         val move = aiP1.select_move(_game, null, 1000)
         pieceTypeToPlay = move.piece.getType()
         playAt( move.to )
@@ -459,7 +481,7 @@ class GameViewModel : ViewModel() {
     }
 
     fun makeP2AIMove() {
-        Log.d(TAG, "Make P2 move")
+//        Log.d(TAG, "Make P2 move")
         val move = aiP2.select_move(_game, null, 1000)
         pieceTypeToPlay = move.piece.getType()
         playAt( move.to )

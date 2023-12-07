@@ -194,6 +194,14 @@ data class Position(val x: Int, val y: Int) {
         return this === other || (this.x == other?.x && this.y == other?.y)
     }
 
+    fun poPosition(): String {
+        return "(${'a' + x},${6-y})"
+    }
+
+    fun boPosition(): String {
+        return "(${'A' + x},${6-y})"
+    }
+
     override fun toString(): String {
         return "(${'a' + x},${6-y})"
     }

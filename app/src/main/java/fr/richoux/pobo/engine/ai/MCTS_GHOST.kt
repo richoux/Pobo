@@ -21,6 +21,15 @@ data class Node(
     var childID: MutableList<Int>
     ) {}
 
+//TODO: Parameter tuning
+// - playout depth (number of CO calls)
+// - discount factor
+// - mask width
+
+// - Vanilla MCTS (first_n_strategy=0, number_preselected_actions=0)
+// - MCTS with GHOST-playouts (number_preselected_actions=0)
+// - MCTS with GHOST-masking (first_n_strategy=0)
+// - MCTS with GHOST-playouts and GHOST-masking
 class MCTS_GHOST (
     color: Color,
     var lastMove: Move? = null,
@@ -125,7 +134,6 @@ class MCTS_GHOST (
 
         //TODO: should not be reinitialized each time
         val actionMasking = mutableListOf<Int>()
-
 
         /*** For debug traces ***/
         var ss = ""
