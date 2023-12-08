@@ -12,7 +12,7 @@ abstract class AI(val color: Color) {
     timeout_in_ms: Long = 1000
   ): Move
 
-  abstract fun select_graduation(
+  abstract fun select_promotion(
     game: Game,
     timeout_in_ms: Long = 1000
   ): List<Position>

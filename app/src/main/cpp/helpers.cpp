@@ -431,12 +431,12 @@ bool is_two_unblocked_bo_and_one_po( int from_row,
 		return false;
 }
 
-std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_grid,
+std::vector< std::vector<Position> > get_promotions( jbyte * const simulation_grid,
                                                       jboolean blue_turn,
                                                       jint blue_pool_size,
                                                       jint red_pool_size )
 {
-	std::vector< std::vector<Position> > grads;
+	std::vector< std::vector<Position> > promotions;
 	for( int row = 0 ; row < 6 ; ++row )
 		for( int col = 0 ; col < 6 ; ++col )
 		{
@@ -445,7 +445,7 @@ std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_g
 			{
 				if((blue_turn && blue_pool_size == 0) || (!blue_turn && red_pool_size == 0))
 				{
-					grads.emplace_back( std::vector<Position>{Position( row, col )} );
+					promotions.emplace_back( std::vector<Position>{Position( row, col )} );
 				}
 				for( int dir = Direction::TOPRIGHT; dir <= Direction::BOTTOM; ++dir )
 				{
@@ -467,7 +467,7 @@ std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_g
 									       && std::abs( simulation_grid[ 6 * next.row + next.column ] ) == 2
 								         && std::abs( simulation_grid[ 6 * next_next.row + next_next.column ] ) == 2 ))
 								{
-									grads.emplace_back(
+									promotions.emplace_back(
 													std::vector<Position>{Position( row, col ), next, next_next} );
 								}
 							}
@@ -477,7 +477,7 @@ std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_g
 			}
 		}
 
-	return grads;
+	return promotions;
 }
 
 

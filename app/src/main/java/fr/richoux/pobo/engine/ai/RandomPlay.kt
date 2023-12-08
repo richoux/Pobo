@@ -67,14 +67,14 @@ fun randomPlay(game: Game, movesToRemove: List<Move>): Move {
 }
 
 fun randomPlay(game: Game): Move = randomPlay(game, listOf<Move>())
-fun randomGraduation(game: Game): List<Position> = game.getGraduations().random()
+fun randomGraduation(game: Game): List<Position> = game.getPossiblePromotions().random()
 
 class RandomPlay(color: Color) : AI(color) {
   override fun select_move(game: Game, lastOpponentMove: Move?, timeout_in_ms: Long): Move {
     return randomPlay(game)
   }
 
-  override fun select_graduation(game: Game, timeout_in_ms: Long): List<Position> {
+  override fun select_promotion(game: Game, timeout_in_ms: Long): List<Position> {
     return randomGraduation(game)
   }
 

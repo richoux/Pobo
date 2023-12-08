@@ -6,7 +6,6 @@ private const val TAG = "pobotag Game"
 
 data class Move(val piece: Piece, val to: Position) {
   override fun toString(): String {
-    //return "$piece at $to"
     return when(piece.getType()) {
       PieceType.Po -> to.poPosition()
       PieceType.Bo -> to.boPosition()
@@ -158,8 +157,8 @@ data class Game(
   fun containsBoOnly(board: Board, positions: List<Position>): Boolean =
     countBoInAlignment(board, positions) == 3
 
-  fun getGraduations(board: Board): List<List<Position>> {
-    val graduable: MutableList<List<Position>> = mutableListOf()
+  fun getPossiblePromotions(board: Board): List<List<Position>> {
+    val promotable: MutableList<List<Position>> = mutableListOf()
     val hasAllPiecesOnTheBoard = board.isPoolEmpty(currentPlayer)
 
     (0 until 6).map { y ->
@@ -169,7 +168,7 @@ data class Game(
         if(piece?.getColor() == currentPlayer) {
           // check if we have 8 pieces on the board
           if(hasAllPiecesOnTheBoard)
-            graduable.add(listOf(position))
+            promotable.add(listOf(position))
 
           // check 3-in-a-row
           scanDirection.forEach {
@@ -180,16 +179,16 @@ data class Game(
               it
             )
             if(isValidAlignedPositions(alignment))
-              graduable.add(alignment)
+              promotable.add(alignment)
           }
         }
       }
     }
-    return graduable.toList()
+    return promotable.toList()
   }
 
-  fun getGraduations(): List<List<Position>> {
-    return getGraduations(board)
+  fun getPossiblePromotions(): List<List<Position>> {
+    return getPossiblePromotions(board)
   }
 
   fun promoteOrRemovePieces(toPromote: List<Position>) {
@@ -229,44 +228,12 @@ data class Game(
     return victory
   }
 
-//    fun checkVictory(board: Board): Boolean {
-//        // check if current player has 8 Bo on the board
-//        victory = false
-//        if(board.isPoolEmpty(currentPlayer) && board.getPlayerNumberBo(currentPlayer) == 8) {
-//            victory =  true
-//        }
-//        else { // check if current player has at least 3 Bo in line
-//            (0 until 6).map { y ->
-//                (0 until 6).map { x ->
-//                    val position = Position(x,y)
-//                    val piece = board.pieceAt(position)
-//                    if(piece?.color == currentPlayer && piece.type == PieceType.Bo ) {
-//                        scanDirection.forEach {
-//                            val alignment = getAlignedPositionsInDirection(
-//                                board,
-//                                currentPlayer,
-//                                position,
-//                                it
-//                            )
-//                            if(isValidAlignedPositions(alignment) && containsBoOnly(board, alignment)) {
-//                                victory = true
-//                                return true
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return victory
-//    }
-
   fun checkVictory(): Boolean = checkVictoryFor(board, currentPlayer)
 
   fun changeWithHistory(history: History) {
     board = history.board
     moveNumber = history.moveNumber
     currentPlayer = history.player
-    //gameState = GameState.PLAY
     checkVictory()
   }
 }

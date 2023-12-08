@@ -21,7 +21,7 @@ class PureHeuristics(color: Color) : AI(color) {
       number_to_remove: Int
     ): IntArray
 
-    external fun compute_graduations_cpp(
+    external fun compute_promotions_cpp(
       grid: ByteArray, blue_turn: Boolean, blue_pool_size: Int, red_pool_size: Int
     ): DoubleArray
   }
@@ -60,9 +60,9 @@ class PureHeuristics(color: Color) : AI(color) {
     }
   }
 
-  override fun select_graduation(game: Game, timeout_in_ms: Long): List<Position> {
-    val potentialGraduations = game.getGraduations()
-    val graduationScores = MCTS_GHOST.compute_graduations_cpp(
+  override fun select_promotion(game: Game, timeout_in_ms: Long): List<Position> {
+    val potentialPromotions = game.getPossiblePromotions()
+    val promotionScores = MCTS_GHOST.compute_promotions_cpp(
       game.board.grid,
       game.currentPlayer == Color.Blue,
       game.board.bluePool.size,
@@ -71,7 +71,7 @@ class PureHeuristics(color: Color) : AI(color) {
     var best_score = -10000.0
     var best_groups: MutableList<Int> = mutableListOf()
 
-    graduationScores.forEachIndexed { index, score ->
+    promotionScores.forEachIndexed { index, score ->
       if(best_score < score) {
         best_score = score
         best_groups.clear()
@@ -81,7 +81,7 @@ class PureHeuristics(color: Color) : AI(color) {
       }
     }
 
-    return potentialGraduations[best_groups.random()]
+    return potentialPromotions[best_groups.random()]
   }
 
   override fun toString(): String {

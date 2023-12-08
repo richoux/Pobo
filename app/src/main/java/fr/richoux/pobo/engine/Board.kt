@@ -142,14 +142,6 @@ data class Piece(val id: String, val code: Byte) {
     return if(abs(code).toByte() == PieceType.Po.value) PieceType.Po else PieceType.Bo
   }
 
-  fun getColorInByte(): Byte {
-    return if(code > 0) Color.Red.value else Color.Blue.value
-  }
-
-  fun getTypeInByte(): Byte {
-    return abs(code).toByte()
-  }
-
   operator fun compareTo(other: Piece): Int {
     return abs(this.code) - abs(other.code)
   }
@@ -207,24 +199,8 @@ data class Position(val x: Int, val y: Int) {
   }
 }
 
-fun getPositionFrom(index: Int): Position {
-  return Position(index % 6, index / 6)
-}
-
 fun getIndexFrom(position: Position): Int {
   return position.y * 6 + position.x
-}
-
-fun getPositionString(index: Int): String {
-  var pos = ""
-  pos += ('a' + (index % 6)) + (6 - index / 6)
-  return pos
-}
-
-fun getPositionString(position: Position): String {
-  var pos = ""
-  pos += ('a' + position.x) + (6 - position.y)
-  return pos
 }
 
 data class Board(
@@ -239,16 +215,6 @@ data class Board(
     private val ALL_POSITIONS = (0 until 6).flatMap { y ->
       (0 until 6).map { x -> Position(x, y) }
     }
-
-    fun fromHistory(history: List<Move>): Board {
-      var board = Board()
-      history.forEach {
-        board = board.playAt(it)
-        //TODO: doPush
-      }
-
-      return board
-    }
   }
 
   fun getGridPosition(position: Position): Byte {
@@ -259,20 +225,13 @@ data class Board(
     return gridID[position.y * 6 + position.x]
   }
 
-//    fun setGridPosition( position: Position, value: Byte ) {
-//        grid[ position.y * 6 + position.x ] = value
-//    }
-
   val emptyPositions = ALL_POSITIONS.filter { getGridPosition(it) == 0.toByte() }
-
-  //val nonEmptyPositions = ALL_POSITIONS.filter{ !getGridPosition(it).equals(0) }
   val nonEmptyPositions = ALL_POSITIONS - emptyPositions.toSet()
 
   // to move into BoardView
   val allPieces: List<Pair<Position, Piece>> = nonEmptyPositions.map {
     it to Piece(getGridIDPosition(it), getGridPosition(it))
   }
-//        allPositions.filter{ getGridPosition(it) != 0}.map{ position -> getGridPosition(position) != 0 .let { position to it } }
 
   fun getPlayerNumberBo(color: Color): Int {
     return when(color) {
@@ -333,15 +292,6 @@ data class Board(
   }
 
   fun hasPieceInPool(piece: Piece): Boolean = hasPieceInPool(piece.getColor(), piece.getType())
-
-//    fun getAllEmptyPositions(): List<Position> {
-//        val allEmptyPositions = mutableListOf<Position>()
-//        for (position in allPositions) {
-//            if(grid[position.y][position.x] == null)
-//                allEmptyPositions.add(position)
-//        }
-//        return allEmptyPositions.toList()
-//    }
 
   fun pieceAt(position: Position): Piece? {
     if(!isPositionOnTheBoard(position))

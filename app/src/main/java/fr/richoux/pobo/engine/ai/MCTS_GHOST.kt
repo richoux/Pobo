@@ -1,6 +1,5 @@
 package fr.richoux.pobo.engine.ai
 
-import android.util.Log
 import fr.richoux.pobo.engine.*
 import java.lang.Math.sqrt
 import java.lang.StrictMath.abs
@@ -92,7 +91,7 @@ class MCTS_GHOST(
       red_pool_size: Int
     ): Double
 
-    external fun compute_graduations_cpp(
+    external fun compute_promotions_cpp(
       grid: ByteArray,
       blue_turn: Boolean,
       blue_pool_size: Int,
@@ -300,7 +299,7 @@ class MCTS_GHOST(
 //            }
 //            Log.d(TAG,"$ss")
 //
-//            compute_graduations_cpp( ggrid, true, 0, 5 )
+//            compute_promotions_cpp( ggrid, true, 0, 5 )
 //
 ////            val state= heuristic_state_cpp(
 ////                ggrid,
@@ -572,9 +571,9 @@ class MCTS_GHOST(
     return currentNode.move!!
   }
 
-  override fun select_graduation(game: Game, timeout_in_ms: Long): List<Position> {
-    val potentialGraduations = game.getGraduations()
-    val graduationScores = compute_graduations_cpp(
+  override fun select_promotion(game: Game, timeout_in_ms: Long): List<Position> {
+    val potentialPromotions = game.getPossiblePromotions()
+    val promotionScores = compute_promotions_cpp(
       game.board.grid,
       game.currentPlayer == Color.Blue,
       game.board.bluePool.size,
@@ -583,7 +582,7 @@ class MCTS_GHOST(
     var best_score = -10000.0
     var best_groups: MutableList<Int> = mutableListOf()
 
-    graduationScores.forEachIndexed { index, score ->
+    promotionScores.forEachIndexed { index, score ->
       if(best_score < score) {
         best_score = score
         best_groups.clear()
@@ -593,7 +592,7 @@ class MCTS_GHOST(
       }
     }
 
-    return potentialGraduations[best_groups.random()]
+    return potentialPromotions[best_groups.random()]
   }
 
   fun UCT(node: Node, actionMasking: MutableList<Int>): Node {
@@ -755,10 +754,10 @@ class MCTS_GHOST(
       isBlueVictory = game.checkVictoryFor(game.board, Color.Blue)
       isRedVictory = game.checkVictoryFor(game.board, Color.Red)
 
-      // check if we need to graduate a piece
-      val potentialGraduations = game.getGraduations()
-      if(!isBlueVictory && !isRedVictory && potentialGraduations.isNotEmpty()) {
-        val graduationScores = compute_graduations_cpp(
+      // check if we need to promote a piece
+      val potentialPromotions = game.getPossiblePromotions()
+      if(!isBlueVictory && !isRedVictory && potentialPromotions.isNotEmpty()) {
+        val promotionScores = compute_promotions_cpp(
           game.board.grid,
           game.currentPlayer == Color.Blue,
           game.board.bluePool.size,
@@ -767,7 +766,7 @@ class MCTS_GHOST(
         var best_score = -10000.0
         var best_groups: MutableList<Int> = mutableListOf()
 
-        graduationScores.forEachIndexed { index, score ->
+        promotionScores.forEachIndexed { index, score ->
           if(best_score < score) {
             best_score = score
             best_groups.clear()
@@ -777,8 +776,7 @@ class MCTS_GHOST(
           }
         }
 
-        //game.promoteOrRemovePieces( randomGraduation( game ) )
-        game.promoteOrRemovePieces(potentialGraduations[best_groups.random()])
+        game.promoteOrRemovePieces(potentialPromotions[best_groups.random()])
       }
 
       game.changePlayer()
@@ -910,9 +908,9 @@ class MCTS_GHOST(
     val isRedVictory = newGame.checkVictoryFor(newGame.board, Color.Red)
     val isTerminal = isBlueVictory || isRedVictory
 
-    val potentialGraduations = newGame.getGraduations()
-    if(!isTerminal && potentialGraduations.isNotEmpty()) {
-      val graduationScores = compute_graduations_cpp(
+    val potentialPromotions = newGame.getPossiblePromotions()
+    if(!isTerminal && potentialPromotions.isNotEmpty()) {
+      val promotionScores = compute_promotions_cpp(
         newGame.board.grid,
         newGame.currentPlayer == Color.Blue,
         newGame.board.bluePool.size,
@@ -921,7 +919,7 @@ class MCTS_GHOST(
       var best_score = -10000.0
       var best_groups: MutableList<Int> = mutableListOf()
 
-      graduationScores.forEachIndexed { index, score ->
+      promotionScores.forEachIndexed { index, score ->
         if(best_score < score) {
           best_score = score
           best_groups.clear()
@@ -931,8 +929,7 @@ class MCTS_GHOST(
         }
       }
 
-      //game.promoteOrRemovePieces( randomGraduation( game ) )
-      newGame.promoteOrRemovePieces(potentialGraduations[best_groups.random()])
+      newGame.promoteOrRemovePieces(potentialPromotions[best_groups.random()])
     }
 
     val score =

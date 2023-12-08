@@ -82,7 +82,7 @@ bool is_two_unblocked_bo_and_one_po( int from_row,
                                      Direction direction,
                                      jbyte * const simulation_grid );
 
-std::vector< std::vector<Position> > get_graduations( jbyte * const simulation_grid,
+std::vector< std::vector<Position> > get_promotions( jbyte * const simulation_grid,
 																											jboolean blue_turn,
 																											jint blue_pool_size,
 																											jint red_pool_size );
