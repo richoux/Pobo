@@ -1,5 +1,6 @@
 package fr.richoux.pobo.engine.ai
 
+import android.util.Log
 import fr.richoux.pobo.engine.*
 import java.lang.Math.sqrt
 import java.lang.StrictMath.abs
@@ -189,10 +190,13 @@ class MCTS_GHOST(
         number_preselected_actions
       )
 
-//            Log.d(TAG,"Possible moves:")
-//            for (i in 0..(possible_moves.size / 3) - 1) {
-//                Log.d(TAG,"Piece ${possible_moves[3 * i]} at (${'a'+possible_moves[3 * i + 2]},${6-possible_moves[3 * i + 1]})")
-//            }
+//      Log.d(TAG, "Possible moves:")
+//      for(i in 0..(possible_moves.size / 3) - 1) {
+//        Log.d(
+//          TAG,
+//          "Piece ${possible_moves[3 * i]} at (${'a' + possible_moves[3 * i + 2]},${6 - possible_moves[3 * i + 1]})"
+//        )
+//      }
 
       if(possible_moves[0] != 42) {
         var actionToKeep: Boolean
