@@ -25,9 +25,9 @@ data class Node(
 // - discount factor
 // - mask width
 
-// - Vanilla MCTS (first_n_strategy=0, number_preselected_actions=0)
-// - MCTS with GHOST-playouts (number_preselected_actions=0)
-// - MCTS with GHOST-masking (first_n_strategy=0)
+// - Vanilla MCTS (first_n_strategy = 0, playout_depth = 0, number_preselected_actions = 0)
+// - MCTS with GHOST-playouts (number_preselected_actions = 0)
+// - MCTS with GHOST-masking (first_n_strategy = 0, playout_depth = 0)
 // - MCTS with GHOST-playouts and GHOST-masking
 class MCTS_GHOST(
   color: Color,
@@ -656,7 +656,7 @@ class MCTS_GHOST(
     }
   }
 
-  fun playout(node: Node, first_n: Int = 0): Double {
+  fun playout(node: Node, first_n_strategy: Int = 0): Double {
     var numberMoves = 0
 
     val game = node.game.copyForPlayout()
@@ -701,9 +701,9 @@ class MCTS_GHOST(
 //        Log.d(TAG, "Is Blue turn: $blueTurn")
 //        Log.d(TAG, "\n")
 
-    while(!isBlueVictory && !isRedVictory && (numberMoves < playout_depth)) {
+    while(!isBlueVictory && !isRedVictory && (numberMoves < playout_depth || playout_depth == 0)) {
       val move: Move
-      if(numberMoves >= first_n) {
+      if(numberMoves >= first_n_strategy) {
 //                Log.d(TAG,"### Playout: ${numberMoves} moves -> random move")
         move = randomPlay(game)
       } else {
