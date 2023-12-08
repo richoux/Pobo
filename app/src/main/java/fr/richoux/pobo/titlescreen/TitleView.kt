@@ -64,11 +64,16 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
       onClick = { newGame(navController, gameViewModel, p1IsAI = true, p2IsAI = true) },
       text = context.getResources().getString(R.string.ai_vs_ai_game_fr)
     )
+    Spacer(modifier = Modifier.height(16.dp))
+    GameButton(
+      onClick = { newGame(navController, gameViewModel, p1IsAI = true, p2IsAI = true, xp = true) },
+      text = "Run XP"
+    )
     Spacer(
       modifier = Modifier.weight(1f)
     )
     Text(
-      "v0.6.1",
+      "v0.6.2",
       color = MaterialTheme.colors.onPrimary,
       modifier = Modifier.align(Alignment.CenterHorizontally)
     )
@@ -166,9 +171,10 @@ private fun newGame(
   navController: NavController,
   gameViewModel: GameViewModel,
   p1IsAI: Boolean,
-  p2IsAI: Boolean
+  p2IsAI: Boolean,
+  xp: Boolean = false
 ) {
-  gameViewModel.newGame(p1IsAI, p2IsAI)
+  gameViewModel.newGame(p1IsAI, p2IsAI, xp)
   navController.navigate(Screen.Game.route)
 }
 

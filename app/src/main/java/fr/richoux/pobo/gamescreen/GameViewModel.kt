@@ -25,6 +25,10 @@ class GameViewModel : ViewModel() {
     private set
   private var aiP1: AI = RandomPlay(Color.Blue)
   private var aiP2: AI = RandomPlay(Color.Red)
+  var xp = false
+    private set
+  var countNumberGames = 0
+    private set
 
   /*** Game History ***/
   private val _history: MutableList<History> = mutableListOf()
@@ -96,26 +100,29 @@ class GameViewModel : ViewModel() {
     pieceTypeToPlay = null
   }
 
-  fun newGame(p1IsAI: Boolean, p2IsAI: Boolean) {
+  fun newGame(p1IsAI: Boolean, p2IsAI: Boolean, xp: Boolean) {
     this.p1IsAI = p1IsAI
     this.p2IsAI = p2IsAI
+    this.xp = xp
+    countNumberGames++
 
     if(p1IsAI) {
 //      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
 //      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0) // MCTS with GHOST-playouts
-//      aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0, playout_depth = 0) // MCTS with GHOST-masking
-      aiP1 = MCTS_GHOST(Color.Blue) // full MCTS GHOST
+      aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0, playout_depth = 0) // MCTS with GHOST-masking
+//      aiP1 = MCTS_GHOST(Color.Blue) // full MCTS GHOST
 //      aiP1 = PureHeuristics(Color.Blue)
-      Log.d(TAG, "Blue: ${aiP1.toString()}")
+      if(!xp || countNumberGames == 1)
+        Log.d(TAG, "Blue: ${aiP1.toString()}")
     }
     if(p2IsAI) {
-      aiP2 =
-        MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
+//      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
 //      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0) // MCTS with GHOST-playouts
 //      aiP2 = MCTS_GHOST(Color.Red, first_n_strategy = 0, playout_depth = 0) // MCTS with GHOST-masking
-//      aiP2 = MCTS_GHOST(Color.Red) // full MCTS GHOST
+      aiP2 = MCTS_GHOST(Color.Red) // full MCTS GHOST
 //      aiP2 = PureHeuristics(Color.Red)
-      Log.d(TAG, "Red: ${aiP2.toString()}")
+      if(!xp || countNumberGames == 1)
+        Log.d(TAG, "Red: ${aiP2.toString()}")
     }
 
     _history.clear()
@@ -337,7 +344,8 @@ class GameViewModel : ViewModel() {
     if(!_game.canPlay(move)) return
 
     // Print move
-    Log.d(TAG, "${move}")
+    if( !xp )
+      Log.d(TAG, "${move}")
     lastMovePosition = it
 
     _moveHistory.add(move)
@@ -484,8 +492,10 @@ class GameViewModel : ViewModel() {
     _game.promoteOrRemovePieces(piecesToPromote)
     _game.checkVictory()
     _promotionListIndex.clear()
-    piecesToPromote.forEach {
-      Log.d(TAG, "[${it}]")
+    if(!xp) {
+      piecesToPromote.forEach {
+        Log.d(TAG, "[${it}]")
+      }
     }
     piecesToPromote.clear()
     stateSelection = GameViewModelState.IDLE

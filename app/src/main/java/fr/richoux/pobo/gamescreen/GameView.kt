@@ -272,16 +272,22 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       viewModel.goToNextState()
     }
     GameState.END -> {
-      Log.d(TAG, "Winner: ${player}")
-      if(viewModel.p1IsAI) {
-        if(viewModel.p2IsAI)
-          Log.d(TAG, "Blue: ${viewModel.aiP1()}, Red: ${viewModel.aiP2()}")
-        else
-          Log.d(TAG, "Blue: ${viewModel.aiP1()}")
-      } else
-        if(viewModel.p2IsAI) {
-          Log.d(TAG, "Red: ${viewModel.aiP2()}")
+      if(viewModel.xp)
+        Log.d(TAG, "Winner ${viewModel.countNumberGames}: ${player}")
+      else
+      {
+        Log.d(TAG, "Winner: ${player}")
+        if(viewModel.p1IsAI)
+        {
+          if(viewModel.p2IsAI)
+            Log.d(TAG, "Blue: ${viewModel.aiP1()}, Red: ${viewModel.aiP2()}")
+          else
+            Log.d(TAG, "Blue: ${viewModel.aiP1()}")
         }
+        else
+          if(viewModel.p2IsAI)
+            Log.d(TAG, "Red: ${viewModel.aiP2()}")
+      }
       MainView(
         viewModel,
         displayGameState = viewModel.displayGameState
@@ -315,49 +321,55 @@ fun EndOfGameDialog(
   viewModel: GameViewModel
 ) {
   val openAlertDialog = remember { mutableStateOf(true) }
-  when {
-    openAlertDialog.value -> {
-      AlertDialog(
-        onDismissRequest = { openAlertDialog.value = false },
-        buttons = {
-          Row() {
-            Button(
-              {
-                openAlertDialog.value = false
-                viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI)
+  if(viewModel.xp && viewModel.countNumberGames < 50) {
+    openAlertDialog.value = false
+    viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI, true)
+  }
+  else {
+    when {
+      openAlertDialog.value -> {
+        AlertDialog(
+          onDismissRequest = { openAlertDialog.value = false },
+          buttons = {
+            Row() {
+              Button(
+                {
+                  openAlertDialog.value = false
+                  viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI, false)
+                }
+              ) {
+                Text(text = "Sure!")
               }
-            ) {
-              Text(text = "Sure!")
+              Spacer(modifier = Modifier.width(4.dp))
+              Button(
+                { openAlertDialog.value = false }
+              ) {
+                Text(text = "Next time")
+              }
             }
-            Spacer(modifier = Modifier.width(4.dp))
-            Button(
-              { openAlertDialog.value = false }
-            ) {
-              Text(text = "Next time")
+          },
+          title = {
+            Row()
+            {
+              Text(
+                text = "$player",
+                style = style
+              )
+              Text(
+                text = " wins!"
+              )
             }
-          }
-        },
-        title = {
-          Row()
-          {
+          },
+          text = {
             Text(
-              text = "$player",
-              style = style
+              text = "New game?"
             )
-            Text(
-              text = " wins!"
-            )
-          }
-        },
-        text = {
-          Text(
-            text = "New game?"
-          )
-        },
-        modifier = Modifier
-          .customDialogModifier()
-          .background(Color.Transparent)
-      )
+          },
+          modifier = Modifier
+            .customDialogModifier()
+            .background(Color.Transparent)
+        )
+      }
     }
   }
 }
