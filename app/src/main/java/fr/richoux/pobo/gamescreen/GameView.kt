@@ -50,8 +50,7 @@ fun MainView(
   onTap: (Position) -> Unit = { _ -> },
   displayGameState: String = ""
 ) {
-  val board = viewModel.currentBoard
-  val player = viewModel.currentPlayer
+  val board = viewModel.getBoard()
   val promotionable = viewModel.getFlatPromotionable()
   val lastMove = viewModel.lastMovePosition
   val selected = viewModel.piecesToPromote.toList()
@@ -79,7 +78,6 @@ fun MainView(
       landscapeMode = true
       Row(
         modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.
       ) {
 
         Column(
@@ -119,8 +117,8 @@ fun columnAllMode(
   displayGameState: String,
   landscapeMode: Boolean
 ) {
-  val board = viewModel.currentBoard
-  val player = viewModel.currentPlayer
+  val board = viewModel.getBoard()
+  val player = viewModel.getPlayer()
   val modifier = if(landscapeMode) Modifier else Modifier.fillMaxWidth()
   PiecesStocksView(
     pool = board.getPlayerPool(fr.richoux.pobo.engine.Color.Blue),
@@ -194,8 +192,7 @@ fun columnAllMode(
 @Composable
 fun GameView(viewModel: GameViewModel = viewModel()) {
   val gameState by viewModel.gameState.collectAsState()
-  val player = viewModel.currentPlayer
-  var lastMove: Position? by remember { mutableStateOf(null) }
+  val player = viewModel.getPlayer()
 
   when(gameState) {
     GameState.INIT -> {
@@ -213,25 +210,10 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       )
       viewModel.goToNextState()
     }
-//        GameState.PLAY -> {
-//            Log.d(TAG, "PLAY ${player}")
-//            if(viewModel.historyCall)
-//                lastMove = null
-//
-//            MainView(
-//                viewModel,
-//                lastMove = lastMove,
-//                displayGameState = viewModel.displayGameState
-//            )
-//            if(!viewModel.historyCall)
-//                viewModel.nextTurn()
-//            viewModel.goToNextState()
-//        }
     GameState.SELECTPIECE -> {
 //      Log.d(TAG, "SELECTPIECE ${player}")
       MainView(
         viewModel,
-//        lastMove = lastMove,
         displayGameState = viewModel.displayGameState
       )
     }
@@ -239,13 +221,11 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 //      Log.d(TAG, "SELECTPOSITION ${player}")
       val onSelect: (Position) -> Unit = {
         if(viewModel.canPlayAt(it)) {
-          lastMove = it
           viewModel.playAt(it)
         }
       }
       MainView(
         viewModel,
-//        lastMove = lastMove,
         onTap = onSelect,
         displayGameState = viewModel.displayGameState
       )
@@ -274,23 +254,19 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
     }
     GameState.SELECTGRADUATION -> {
 //      Log.d(TAG, "SELECTGRADUATION ${player}")
-      lastMove = null
       val onSelect: (Position) -> Unit = {
         viewModel.selectForGraduationOrCancel(it)
       }
       MainView(
         viewModel,
-//                lastMove = lastMove,
         onTap = onSelect,
         displayGameState = viewModel.displayGameState
       )
     }
     GameState.REFRESHSELECTGRADUATION -> {
 //      Log.d(TAG, "REFRESHSELECTGRADUATION ${player}")
-      lastMove = null
       MainView(
         viewModel,
-//                lastMove = lastMove,
         displayGameState = viewModel.displayGameState
       )
       viewModel.goToNextState()
@@ -308,7 +284,6 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         }
       MainView(
         viewModel,
-//                lastMove = lastMove,
         displayGameState = viewModel.displayGameState
       )
       val style = TextStyle(
@@ -323,7 +298,6 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 }
 
 fun Modifier.customDialogModifier() = layout { measurable, constraints ->
-
   val placeable = measurable.measure(constraints);
   layout(constraints.maxWidth, constraints.maxHeight) {
     placeable.place(
@@ -342,7 +316,6 @@ fun EndOfGameDialog(
 ) {
   val openAlertDialog = remember { mutableStateOf(true) }
   when {
-    // ...
     openAlertDialog.value -> {
       AlertDialog(
         onDismissRequest = { openAlertDialog.value = false },

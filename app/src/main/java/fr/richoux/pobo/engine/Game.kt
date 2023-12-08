@@ -6,7 +6,6 @@ private const val TAG = "pobotag Game"
 
 data class Move(val piece: Piece, val to: Position) {
   override fun toString(): String {
-    //return "$piece at $to"
     return when(piece.getType()) {
       PieceType.Po -> to.poPosition()
       PieceType.Bo -> to.boPosition()
@@ -229,44 +228,12 @@ data class Game(
     return victory
   }
 
-//    fun checkVictory(board: Board): Boolean {
-//        // check if current player has 8 Bo on the board
-//        victory = false
-//        if(board.isPoolEmpty(currentPlayer) && board.getPlayerNumberBo(currentPlayer) == 8) {
-//            victory =  true
-//        }
-//        else { // check if current player has at least 3 Bo in line
-//            (0 until 6).map { y ->
-//                (0 until 6).map { x ->
-//                    val position = Position(x,y)
-//                    val piece = board.pieceAt(position)
-//                    if(piece?.color == currentPlayer && piece.type == PieceType.Bo ) {
-//                        scanDirection.forEach {
-//                            val alignment = getAlignedPositionsInDirection(
-//                                board,
-//                                currentPlayer,
-//                                position,
-//                                it
-//                            )
-//                            if(isValidAlignedPositions(alignment) && containsBoOnly(board, alignment)) {
-//                                victory = true
-//                                return true
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return victory
-//    }
-
   fun checkVictory(): Boolean = checkVictoryFor(board, currentPlayer)
 
   fun changeWithHistory(history: History) {
     board = history.board
     moveNumber = history.moveNumber
     currentPlayer = history.player
-    //gameState = GameState.PLAY
     checkVictory()
   }
 }
