@@ -100,7 +100,7 @@ class SimpleHeuristics(color: Color) : AI(color) {
     return best_move
   }
 
-  override fun select_graduation(game: Game, timeout_in_ms: Long): List<Position> {
+  override fun select_promotion(game: Game, timeout_in_ms: Long): List<Position> {
     return randomGraduation(game)
   }
 

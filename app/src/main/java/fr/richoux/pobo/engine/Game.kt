@@ -157,8 +157,8 @@ data class Game(
   fun containsBoOnly(board: Board, positions: List<Position>): Boolean =
     countBoInAlignment(board, positions) == 3
 
-  fun getGraduations(board: Board): List<List<Position>> {
-    val graduable: MutableList<List<Position>> = mutableListOf()
+  fun getPossiblePromotions(board: Board): List<List<Position>> {
+    val promotable: MutableList<List<Position>> = mutableListOf()
     val hasAllPiecesOnTheBoard = board.isPoolEmpty(currentPlayer)
 
     (0 until 6).map { y ->
@@ -168,7 +168,7 @@ data class Game(
         if(piece?.getColor() == currentPlayer) {
           // check if we have 8 pieces on the board
           if(hasAllPiecesOnTheBoard)
-            graduable.add(listOf(position))
+            promotable.add(listOf(position))
 
           // check 3-in-a-row
           scanDirection.forEach {
@@ -179,16 +179,16 @@ data class Game(
               it
             )
             if(isValidAlignedPositions(alignment))
-              graduable.add(alignment)
+              promotable.add(alignment)
           }
         }
       }
     }
-    return graduable.toList()
+    return promotable.toList()
   }
 
-  fun getGraduations(): List<List<Position>> {
-    return getGraduations(board)
+  fun getPossiblePromotions(): List<List<Position>> {
+    return getPossiblePromotions(board)
   }
 
   fun promoteOrRemovePieces(toPromote: List<Position>) {

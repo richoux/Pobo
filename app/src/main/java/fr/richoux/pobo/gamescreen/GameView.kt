@@ -172,12 +172,12 @@ fun columnAllMode(
   } else {
     val gameState by viewModel.gameState.collectAsState()
     val completeSelectionForRemoval =
-      gameState == GameState.SELECTGRADUATION
+      gameState == GameState.SELECTPROMOTIONS
       && (((viewModel.stateSelection == GameViewModelState.SELECT3 || viewModel.stateSelection == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
       || ((viewModel.stateSelection == GameViewModelState.SELECT1 || viewModel.stateSelection == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
-    if(gameState == GameState.SELECTGRADUATION) {
+    if(gameState == GameState.SELECTPROMOTIONS) {
       Button(
-        onClick = { viewModel.validateGraduationSelection() },
+        onClick = { viewModel.validatePromotionsSelection() },
         enabled = completeSelectionForRemoval
       ) {
         Text(
@@ -236,26 +236,26 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
           viewModel.makeP2AIMove()
       }
     }
-    GameState.CHECKGRADUATION -> {
-//      Log.d(TAG, "CHECKGRADUATION ${player}")
+    GameState.CHECKPROMOTIONS -> {
+//      Log.d(TAG, "CHECKPROMOTIONS ${player}")
       MainView(
         viewModel,
         displayGameState = viewModel.displayGameState
       )
-      viewModel.checkGraduation()
+      viewModel.checkPromotions()
     }
-    GameState.AUTOGRADUATION -> {
-//      Log.d(TAG, "AUTOGRADUATION ${player}")
+    GameState.AUTOPROMOTIONS -> {
+//      Log.d(TAG, "AUTOPROMOTIONS ${player}")
       MainView(
         viewModel,
         displayGameState = viewModel.displayGameState
       )
-      viewModel.autograduation()
+      viewModel.autopromotions()
     }
-    GameState.SELECTGRADUATION -> {
-//      Log.d(TAG, "SELECTGRADUATION ${player}")
+    GameState.SELECTPROMOTIONS -> {
+//      Log.d(TAG, "SELECTPROMOTIONS ${player}")
       val onSelect: (Position) -> Unit = {
-        viewModel.selectForGraduationOrCancel(it)
+        viewModel.selectForPromotionOrCancel(it)
       }
       MainView(
         viewModel,
@@ -263,8 +263,8 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         displayGameState = viewModel.displayGameState
       )
     }
-    GameState.REFRESHSELECTGRADUATION -> {
-//      Log.d(TAG, "REFRESHSELECTGRADUATION ${player}")
+    GameState.REFRESHSELECTPROMOTIONS -> {
+//      Log.d(TAG, "REFRESHSELECTPROMOTIONS ${player}")
       MainView(
         viewModel,
         displayGameState = viewModel.displayGameState

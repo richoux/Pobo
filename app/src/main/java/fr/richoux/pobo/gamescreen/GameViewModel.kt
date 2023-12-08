@@ -14,7 +14,7 @@ enum class GameViewModelState {
 }
 
 enum class GameState {
-  INIT, HISTORY, SELECTPIECE, SELECTPOSITION, CHECKGRADUATION, AUTOGRADUATION, SELECTGRADUATION, REFRESHSELECTGRADUATION, END
+  INIT, HISTORY, SELECTPIECE, SELECTPOSITION, CHECKPROMOTIONS, AUTOPROMOTIONS, SELECTPROMOTIONS, REFRESHSELECTPROMOTIONS, END
 }
 
 class GameViewModel : ViewModel() {
@@ -59,10 +59,10 @@ class GameViewModel : ViewModel() {
         GameState.HISTORY -> ""
         GameState.SELECTPIECE -> "Select a small or a large piece:"
         GameState.SELECTPOSITION -> ""
-        GameState.CHECKGRADUATION -> ""
-        GameState.AUTOGRADUATION -> ""
-        GameState.SELECTGRADUATION -> "Select small pieces to graduate or large pieces to remove"
-        GameState.REFRESHSELECTGRADUATION -> ""
+        GameState.CHECKPROMOTIONS -> ""
+        GameState.AUTOPROMOTIONS -> ""
+        GameState.SELECTPROMOTIONS -> "Select small pieces to promote or large pieces to remove"
+        GameState.REFRESHSELECTPROMOTIONS -> ""
         GameState.END -> ""
       }
     }
@@ -211,23 +211,23 @@ class GameViewModel : ViewModel() {
         if(_game.victory)
           GameState.END
         else
-          GameState.CHECKGRADUATION
+          GameState.CHECKPROMOTIONS
       }
-      GameState.CHECKGRADUATION -> {
-        val graduations = _game.getGraduations(_game.board)
-        var currentPlayerCanGraduate: Boolean = false
-        graduations.forEach {
+      GameState.CHECKPROMOTIONS -> {
+        val promotions = _game.getPossiblePromotions(_game.board)
+        var currentPlayerCanPromote: Boolean = false
+        promotions.forEach {
           it.forEach {
             if(_game.board.getGridPosition(it) * _game.currentPlayer.value > 0)
-              currentPlayerCanGraduate = true
+              currentPlayerCanPromote = true
           }
         }
 
-        if(currentPlayerCanGraduate && stateSelection != GameViewModelState.IDLE) {
-          if(_game.getGraduations(_game.board).size == 1)
-            GameState.AUTOGRADUATION
+        if(currentPlayerCanPromote && stateSelection != GameViewModelState.IDLE) {
+          if(_game.getPossiblePromotions(_game.board).size == 1)
+            GameState.AUTOPROMOTIONS
           else
-            GameState.SELECTGRADUATION
+            GameState.SELECTPROMOTIONS
         } else {
           if(twoTypesInPool()) {
             GameState.SELECTPIECE
@@ -236,14 +236,14 @@ class GameViewModel : ViewModel() {
           }
         }
       }
-      GameState.AUTOGRADUATION -> {
+      GameState.AUTOPROMOTIONS -> {
         if(twoTypesInPool()) {
           GameState.SELECTPIECE
         } else {
           GameState.SELECTPOSITION
         }
       }
-      GameState.SELECTGRADUATION -> {
+      GameState.SELECTPROMOTIONS -> {
         if(_finishPieceSelection) {
           if(twoTypesInPool()) {
             GameState.SELECTPIECE
@@ -251,10 +251,10 @@ class GameViewModel : ViewModel() {
             GameState.SELECTPOSITION
           }
         } else
-          GameState.REFRESHSELECTGRADUATION
+          GameState.REFRESHSELECTPROMOTIONS
       }
-      GameState.REFRESHSELECTGRADUATION -> {
-        GameState.SELECTGRADUATION
+      GameState.REFRESHSELECTPROMOTIONS -> {
+        GameState.SELECTPROMOTIONS
       }
       GameState.HISTORY -> {
         if(twoTypesInPool()) {
@@ -295,12 +295,12 @@ class GameViewModel : ViewModel() {
       canGoForward.tryEmit(_forwardHistory.isNotEmpty())
     }
 
-    if(IsAIToPLay() && _gameState.value == GameState.SELECTGRADUATION ) {
+    if(IsAIToPLay() && _gameState.value == GameState.SELECTPROMOTIONS ) {
       if(p1IsAI && _game.currentPlayer == Color.Blue)
-        piecesToPromote = aiP1.select_graduation(_game).toMutableList()
+        piecesToPromote = aiP1.select_promotion(_game).toMutableList()
       else
-        piecesToPromote = aiP2.select_graduation(_game).toMutableList()
-      validateGraduationSelection()
+        piecesToPromote = aiP2.select_promotion(_game).toMutableList()
+      validatePromotionsSelection()
     } else {
 //      Log.d(TAG, "Emitting ${newState}, color=${currentPlayer}")
       _gameState.tryEmit(newState)
@@ -351,10 +351,10 @@ class GameViewModel : ViewModel() {
     goToNextState()
   }
 
-  fun getFlatPromotionable(): List<Position> = _game.getGraduations(_game.board).flatten()
+  fun getFlatPromotionable(): List<Position> = _game.getPossiblePromotions(_game.board).flatten()
 
-  fun checkGraduation() {
-    val groups = _game.getGraduations(_game.board)
+  fun checkPromotions() {
+    val groups = _game.getPossiblePromotions(_game.board)
     var groupOfAtLeast3 = false
     if(groups.isEmpty() || historyCall) {
       stateSelection = GameViewModelState.IDLE
@@ -375,10 +375,10 @@ class GameViewModel : ViewModel() {
     goToNextState()
   }
 
-  fun autograduation() {
-    val graduable = _game.getGraduations(_game.board)
-    if(graduable.size == 1 && stateSelection != GameViewModelState.IDLE) {
-      graduable[0].forEach {
+  fun autopromotions() {
+    val promotable = _game.getPossiblePromotions(_game.board)
+    if(promotable.size == 1 && stateSelection != GameViewModelState.IDLE) {
+      promotable[0].forEach {
         _game.board = _game.board.removePieceAndPromoteIt(it)
       }
     }
@@ -386,8 +386,8 @@ class GameViewModel : ViewModel() {
     goToNextState()
   }
 
-  fun selectForGraduationOrCancel(position: Position) {
-    val removable = _game.getGraduations(_game.board)
+  fun selectForPromotionOrCancel(position: Position) {
+    val removable = _game.getPossiblePromotions(_game.board)
 
     if(stateSelection != GameViewModelState.IDLE) {
       // if the player taps a selected piece, unselect it
@@ -423,7 +423,7 @@ class GameViewModel : ViewModel() {
           _piecesToPromoteIndex.remove(removePiece)
       } else {
         // _promotionListIndexes is a tedious way to check if a selected piece (in particular the 1st one)
-        // belongs to different graduable groups, to make sure we don't select pieces from different groups
+        // belongs to different promotable groups, to make sure we don't select pieces from different groups
         if(_promotionListIndex.isEmpty()) {
           _promotionListMask = MutableList(removable.size) { false }
           for((index, list) in removable.withIndex()) {
@@ -472,14 +472,14 @@ class GameViewModel : ViewModel() {
 
     // no more than 1 or 3 selections, regarding the situation
     if(piecesToPromote.size == 3 || (stateSelection == GameViewModelState.SELECT1 && piecesToPromote.size == 1)) {
-      validateGraduationSelection()
+      validatePromotionsSelection()
     } else {
       _finishPieceSelection = false
       goToNextState()
     }
   }
 
-  fun validateGraduationSelection() {
+  fun validatePromotionsSelection() {
     _finishPieceSelection = true
     _game.promoteOrRemovePieces(piecesToPromote)
     _game.checkVictory()

@@ -505,7 +505,7 @@ double heuristic_state( jbyte *const simulation_grid,
 	return score;
 }
 
-std::vector<double> heuristic_graduation( jbyte *const simulation_grid,
+std::vector<double> heuristic_promotions( jbyte *const simulation_grid,
                                           std::vector<std::vector<Position> > groups )
 {
 	std::vector<double> scores( groups.size(), 0.0 );

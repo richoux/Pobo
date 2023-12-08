@@ -454,19 +454,19 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 		}
 	}
 
-	auto groups = get_graduations( simulation_grid, blue_turn, blue_pool_size, red_pool_size );
-	std::vector< Position > group_to_graduate;
+	auto groups = get_promotions( simulation_grid, blue_turn, blue_pool_size, red_pool_size );
+	std::vector< Position > group_to_promote;
 
 	if( groups.size() > 0 )
 	{
 		if( groups.size() == 1 )
-			group_to_graduate = groups[0];
+			group_to_promote = groups[0];
 		else
 		{
 			randutils::mt19937_rng rng;
-//			auto scores = heuristic_graduation( simulation_grid, groups, blue_turn, blue_pool,
+//			auto scores = heuristic_promotions( simulation_grid, groups, blue_turn, blue_pool,
 //			                                    blue_pool_size, red_pool, red_pool_size );
-			auto scores = heuristic_graduation( simulation_grid, groups );
+			auto scores = heuristic_promotions( simulation_grid, groups );
 			double best_score = -10000.0;
 			std::vector<int> best_groups;
 
@@ -494,10 +494,10 @@ void simulate_move( const std::vector<ghost::Variable *> &variables,
 
 			auto picked_group = rng.pick( best_groups );
 			ALOG("Group[%d] has been selected\n", picked_group);
-			group_to_graduate = groups[ picked_group ];
+			group_to_promote = groups[ picked_group ];
 		}
 
-		for( auto pos : group_to_graduate )
+		for( auto pos : group_to_promote )
 		{
 			simulation_grid[ 6*pos.row + pos.column ] = 0;
 			if( blue_turn )
