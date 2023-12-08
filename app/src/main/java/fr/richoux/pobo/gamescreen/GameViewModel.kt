@@ -109,8 +109,8 @@ class GameViewModel : ViewModel() {
     if(p1IsAI) {
 //      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
 //      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0) // MCTS with GHOST-playouts
-      aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0, playout_depth = 0) // MCTS with GHOST-masking
-//      aiP1 = MCTS_GHOST(Color.Blue) // full MCTS GHOST
+//      aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0, playout_depth = 0) // MCTS with GHOST-masking
+      aiP1 = MCTS_GHOST(Color.Blue) // full MCTS GHOST
 //      aiP1 = PureHeuristics(Color.Blue)
       if(!xp || countNumberGames == 1)
         Log.d(TAG, "Blue: ${aiP1.toString()}")
