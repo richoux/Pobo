@@ -23,8 +23,8 @@ class GameViewModel : ViewModel() {
     private set
   var p2IsAI = true
     private set
-  private var aiP1: AI = RandomPlay(Color.Blue) //SimpleHeuristics(Color.Blue)
-  private var aiP2: AI = RandomPlay(Color.Red) //SimpleHeuristics(Color.Red)
+  private var aiP1: AI = RandomPlay(Color.Blue)
+  private var aiP2: AI = RandomPlay(Color.Red)
 
   /*** Game History ***/
   private val _history: MutableList<History> = mutableListOf()
@@ -140,16 +140,16 @@ class GameViewModel : ViewModel() {
   fun goBackMove() {
     _forwardHistory.add(History(_game.board, _game.currentPlayer, moveNumber))
     var last = _history.removeLast()
-
     var lastMove = _moveHistory.removeLast()
     _forwardMoveHistory.add(lastMove)
+    Log.d(TAG, "Cancel move ${lastMove}")
 
     if(p1IsAI || p2IsAI) {
       _forwardHistory.add(last)
       last = _history.removeLast()
-
       lastMove = _moveHistory.removeLast()
       _forwardMoveHistory.add(lastMove)
+      Log.d(TAG, "Cancel move ${lastMove}")
     }
 
     _game.changeWithHistory(last)
@@ -166,16 +166,16 @@ class GameViewModel : ViewModel() {
   fun goForwardMove() {
     _history.add(History(_game.board, _game.currentPlayer, moveNumber))
     var last = _forwardHistory.removeLast()
-
     var lastMove = _forwardMoveHistory.removeLast()
     _moveHistory.add(lastMove)
+    Log.d(TAG, "Redo move ${lastMove}")
 
     if(p1IsAI || p2IsAI) {
       _history.add(last)
       last = _forwardHistory.removeLast()
-
       lastMove = _forwardMoveHistory.removeLast()
       _moveHistory.add(lastMove)
+      Log.d(TAG, "Redo move ${lastMove}")
     }
 
     _game.changeWithHistory(last)
@@ -275,17 +275,15 @@ class GameViewModel : ViewModel() {
       return
     }
 
-    var newState: GameState = _gameState.value
-
-    newState = nextGameState()
-//        Log.d(TAG, "Change to next state: ${_game.gameState} -> ${newState}")
+    var newState = nextGameState()
+//    Log.d(TAG, "Change to next state: ${_game.gameState} -> ${newState}")
     _gameState.value = newState
 
     if(newState == GameState.SELECTPIECE && IsAIToPLay() ) {
       newState = nextGameState()
-//            Log.d(TAG, "Change to next state again because AI: ${_game.gameState} -> ${newState}")
+//      Log.d(TAG, "Change to next state again because AI: ${_game.gameState} -> ${newState}")
       _gameState.value = newState
-//            Log.d(TAG, "New game state 2: $newState")
+//      Log.d(TAG, "New game state 2: $newState")
     }
 
     hasStarted = true
@@ -304,7 +302,7 @@ class GameViewModel : ViewModel() {
         piecesToPromote = aiP2.select_graduation(_game).toMutableList()
       validateGraduationSelection()
     } else {
-//            Log.d(TAG, "Emitting ${newState}, color=${currentPlayer}")
+//      Log.d(TAG, "Emitting ${newState}, color=${currentPlayer}")
       _gameState.tryEmit(newState)
     }
   }
@@ -360,7 +358,6 @@ class GameViewModel : ViewModel() {
     var groupOfAtLeast3 = false
     if(groups.isEmpty() || historyCall) {
       stateSelection = GameViewModelState.IDLE
-//            Log.d(TAG, "call changePlayer in checkGraduation")
       _game.changePlayer()
     } else {
       if(groups.size >= 8) {
@@ -385,7 +382,6 @@ class GameViewModel : ViewModel() {
         _game.board = _game.board.removePieceAndPromoteIt(it)
       }
     }
-//        Log.d(TAG, "call changePlayer in autograduation")
     _game.changePlayer()
     goToNextState()
   }
@@ -493,20 +489,17 @@ class GameViewModel : ViewModel() {
     }
     piecesToPromote.clear()
     stateSelection = GameViewModelState.IDLE
-//        Log.d(TAG, "call changePlayer in validateGraduationSelection")
     _game.changePlayer()
     goToNextState()
   }
 
   fun makeP1AIMove() {
-//        Log.d(TAG, "Make P1 move")
     val move = aiP1.select_move(_game, null, 1000)
     pieceTypeToPlay = move.piece.getType()
     playAt(move.to)
   }
 
   fun makeP2AIMove() {
-//        Log.d(TAG, "Make P2 move")
     val move = aiP2.select_move(_game, null, 1000)
     pieceTypeToPlay = move.piece.getType()
     playAt(move.to)
