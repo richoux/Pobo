@@ -321,7 +321,7 @@ fun EndOfGameDialog(
   viewModel: GameViewModel
 ) {
   val openAlertDialog = remember { mutableStateOf(true) }
-  if(viewModel.xp && viewModel.countNumberGames < 50) {
+  if(viewModel.xp && viewModel.countNumberGames < 100) {
     openAlertDialog.value = false
     viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI, true)
   }

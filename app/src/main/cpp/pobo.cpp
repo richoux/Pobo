@@ -266,7 +266,7 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call_1f
 
 	if( !success )
 	{
-		ALOG("Error");
+//		ALOG("Error");
 		for( int i = 0; i < k_number_preselected_actions; ++i )
 		{
 			solution[ 3*i ] = 42;
@@ -276,18 +276,18 @@ Java_fr_richoux_pobo_engine_ai_MCTS_1GHOST_00024Companion_ghost_1solver_1call_1f
 	}
 	else
 	{
-		ALOG("Success");
+//		ALOG("Success");
 		for( int i = 0; i < k_number_preselected_actions ; ++i )
 		{
 			solution[ 3*i ] = solutions[ best_solutions_index[i] ][0];
 			solution[ 3*i + 1 ] = solutions[ best_solutions_index[i] ][1];
 			solution[ 3*i + 2 ] = solutions[ best_solutions_index[i] ][2];
-			ALOG("Solution %d: [%d, (%c,%d)], score=%f",
-					 best_solutions_index[i],
-					 solutions[best_solutions_index[i]][0],
-					 'a'+solutions[best_solutions_index[i]][2],
-					 6-solutions[best_solutions_index[i]][1],
-					 costs[best_solutions_index[i]] );
+//			ALOG("Solution %d: [%d, (%c,%d)], score=%f",
+//					 best_solutions_index[i],
+//					 solutions[best_solutions_index[i]][0],
+//					 'a'+solutions[best_solutions_index[i]][2],
+//					 6-solutions[best_solutions_index[i]][1],
+//					 costs[best_solutions_index[i]] );
 		}
 	}
 

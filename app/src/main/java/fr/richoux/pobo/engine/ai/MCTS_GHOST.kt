@@ -26,10 +26,14 @@ data class Node(
 // - discount factor
 // - mask width
 
-// - Vanilla MCTS (first_n_strategy = 0, playout_depth = 0, number_preselected_actions = 0)
-// - MCTS with GHOST-playouts (number_preselected_actions = 0)
-// - MCTS with GHOST-masking (first_n_strategy = 0, playout_depth = 0)
-// - MCTS with GHOST-playouts and GHOST-masking
+// - Vanilla MCTS (number_preselected_actions = 0, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0)
+// - MCTS + Selection (expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0)
+// - MCTS + Expansion (number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0)
+// - MCTS + Playout (number_preselected_actions = 0, expansions_with_GHOST = false)
+// - MCTS + Selection + Expansion (first_n_strategy = 0, playout_depth = 0)
+// - MCTS + Selection + Playout (expansions_with_GHOST = false)
+// - MCTS + Expansion + Playout (number_preselected_actions = 0)
+// - full-GHOSTed MCTS ()
 class MCTS_GHOST(
   color: Color,
   var lastMove: Move? = null,
@@ -49,7 +53,7 @@ class MCTS_GHOST(
   var nodes: ArrayList<Node> = arrayListOf(),
   var numberNodes: Int = 1,
   val number_preselected_actions: Int = 5,
-  val extensions_and_playouts_with_GHOST: Boolean = false,
+  val expansions_with_GHOST: Boolean = true, //TODO: add similar booleans for Selection and Playout
   val first_n_strategy: Int = 21,
   val playout_depth: Int = 21,
   val action_masking_time: Int = 6,
@@ -375,56 +379,60 @@ class MCTS_GHOST(
       ////////////
       // Expand //
       ////////////
-
-      //val move = randomPlay( selectNode.game, movesToRemove.toList() )
-
-      var movesToRemoveRow: ByteArray = byteArrayOf()
-      var movesToRemoveColumn: ByteArray = byteArrayOf();
-      var movesToRemovePiece: ByteArray = byteArrayOf();
+      var move: Move
+      if( !expansions_with_GHOST ) {
+        move = randomPlay(selectedNode.game, movesToRemove.toList())
+      }
+      else {
+        var movesToRemoveRow: ByteArray = byteArrayOf()
+        var movesToRemoveColumn: ByteArray = byteArrayOf();
+        var movesToRemovePiece: ByteArray = byteArrayOf();
 
 //            Log.d(TAG,"Number of moves to remove: ${movesToRemove.size}")
-      for(move in movesToRemove) {
+        for(move in movesToRemove) {
 //                Log.d(TAG,"Removed move=${move}")
-        movesToRemoveRow += move.to.y.toByte() // y are rows
-        movesToRemoveColumn += move.to.x.toByte() // x are columns
-        movesToRemovePiece += abs(move.piece.code.toInt()).toByte()
-      }
-      var move: Move
+          movesToRemoveRow += move.to.y.toByte() // y are rows
+          movesToRemoveColumn += move.to.x.toByte() // x are columns
+          movesToRemovePiece += abs(move.piece.code.toInt()).toByte()
+        }
+
 //            Log.d(TAG, "GHOST call in Expansion")
-      val solution = ghost_solver_call(
-        selectedNode.game.board.grid,
-        selectedNode.game.board.bluePool.toByteArray(),
-        selectedNode.game.board.redPool.toByteArray(),
-        selectedNode.game.board.bluePool.size,
-        selectedNode.game.board.redPool.size,
-        selectedNode.game.currentPlayer == Color.Blue,
-        movesToRemoveRow,
-        movesToRemoveColumn,
-        movesToRemovePiece,
-        movesToRemove.size
-      )
+        val solution = ghost_solver_call(
+          selectedNode.game.board.grid,
+          selectedNode.game.board.bluePool.toByteArray(),
+          selectedNode.game.board.redPool.toByteArray(),
+          selectedNode.game.board.bluePool.size,
+          selectedNode.game.board.redPool.size,
+          selectedNode.game.currentPlayer == Color.Blue,
+          movesToRemoveRow,
+          movesToRemoveColumn,
+          movesToRemovePiece,
+          movesToRemove.size
+        )
 
-      numberSolverCalls++
-      if(solution[0] == 42) {
-        move = randomPlay(selectedNode.game, movesToRemove.toList())
-        numberSolverFailures++
+        numberSolverCalls++
+        if(solution[0] == 42) {
+          move = randomPlay(selectedNode.game, movesToRemove.toList())
+          numberSolverFailures++
 //                Log.d(TAG, "### Expansion: RANDOM move ${move}")
-      } else {
-        val code = when(selectedNode.game.currentPlayer) {
-          Color.Blue -> -solution[0]
-          Color.Red -> solution[0]
         }
+        else {
+          val code = when(selectedNode.game.currentPlayer) {
+            Color.Blue -> -solution[0]
+            Color.Red -> solution[0]
+          }
 
-        val id = when(code) {
-          -2 -> "BB"
-          -1 -> "BP"
-          1 -> "RP"
-          else -> "RB"
-        }
-        val piece = Piece(id, code.toByte())
-        val position = Position(solution[2], solution[1])
-        move = Move(piece, position)
+          val id = when(code) {
+            -2 -> "BB"
+            -1 -> "BP"
+            1 -> "RP"
+            else -> "RB"
+          }
+          val piece = Piece(id, code.toByte())
+          val position = Position(solution[2], solution[1])
+          move = Move(piece, position)
 //                Log.d(TAG, "### Expansion: solver move ${move}, cost ${solution[3]}")
+        }
       }
 
       val expandedNode = createNode(selectedNode.game, move, selectedNode.id)
@@ -1010,18 +1018,30 @@ class MCTS_GHOST(
   }
 
   override fun toString(): String {
-    if(number_preselected_actions == 0) {
-      if(first_n_strategy == 0) {
-        return "Vanilla-MCTS"
-      } else {
-        return "MCTS with GHOST-playouts"
-      }
-    } else {
-      if(first_n_strategy == 0) {
-        return "MCTS with GHOST-masking"
-      } else {
-        return "Full MCTS GHOST"
-      }
+    if(number_preselected_actions > 0 && expansions_with_GHOST && first_n_strategy > 0)
+      return "Full"
+    else {
+      var name = "MCTS"
+      if(number_preselected_actions > 0)
+        name += " + Selection"
+      if( expansions_with_GHOST )
+        name += " + Expansion"
+      if(first_n_strategy > 0)
+        name += " + Playout"
+      return name
     }
+//    if(number_preselected_actions == 0) {
+//      if(first_n_strategy == 0) {
+//        return "Vanilla-MCTS"
+//      } else {
+//        return "MCTS with GHOST for Default Policy"
+//      }
+//    } else {
+//      if(first_n_strategy == 0) {
+//        return "MCTS with GHOST for Tree Policy"
+//      } else {
+//        return "Full MCTS GHOST"
+//      }
+//    }
   }
 }

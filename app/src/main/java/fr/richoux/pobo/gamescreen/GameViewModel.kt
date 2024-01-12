@@ -107,19 +107,27 @@ class GameViewModel : ViewModel() {
     countNumberGames++
 
     if(p1IsAI) {
-//      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
-//      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0) // MCTS with GHOST-playouts
-//      aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0, playout_depth = 0) // MCTS with GHOST-masking
-      aiP1 = MCTS_GHOST(Color.Blue) // full MCTS GHOST
+//      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
+//      aiP1 = MCTS_GHOST(Color.Blue, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection
+//      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // MCTS + Expansion
+      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, expansions_with_GHOST = false) // MCTS + Playout
+//      aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection + Expansion
+//      aiP1 = MCTS_GHOST(Color.Blue, expansions_with_GHOST = false) // MCTS + Selection + Playout
+//      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0) // MCTS + Expansion + Playout
+//      aiP1 = MCTS_GHOST(Color.Blue) // full-GHOSTed MCTS
 //      aiP1 = PureHeuristics(Color.Blue)
       if(!xp || countNumberGames == 1)
         Log.d(TAG, "Blue: ${aiP1.toString()}")
     }
     if(p2IsAI) {
-//      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
-//      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0) // MCTS with GHOST-playouts
-//      aiP2 = MCTS_GHOST(Color.Red, first_n_strategy = 0, playout_depth = 0) // MCTS with GHOST-masking
-      aiP2 = MCTS_GHOST(Color.Red) // full MCTS GHOST
+//      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
+//      aiP2 = MCTS_GHOST(Color.Red, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection
+//      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // MCTS + Expansion
+      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, expansions_with_GHOST = false) // MCTS + Playout
+//      aiP2 = MCTS_GHOST(Color.Red, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection + Expansion
+//      aiP2 = MCTS_GHOST(Color.Red, expansions_with_GHOST = false) // MCTS + Selection + Playout
+//      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0) // MCTS + Expansion + Playout
+//      aiP2 = MCTS_GHOST(Color.Red) // full-GHOSTed MCTS
 //      aiP2 = PureHeuristics(Color.Red)
       if(!xp || countNumberGames == 1)
         Log.d(TAG, "Red: ${aiP2.toString()}")
