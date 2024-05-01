@@ -13,4 +13,6 @@
     <string name="newgame">Nouvelle partie ?</string>
     <string name="sure">Volontiers !</string>
     <string name="next_time">Une prochaine fois</string>
+    <string name="turn">C\'est au tour de :</string>
+    <string name="promotion">Promotion</string>
 </resources>

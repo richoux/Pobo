@@ -38,11 +38,6 @@ fun BoardView(
   // Get local density from composable
   val localDensity = LocalDensity.current
 
-//    // Create element height in pixel state
-//    var columnHeightPx by remember {
-//        mutableStateOf(0f)
-//    }
-
   // Create element height in dp state
   var columnHeightDp by remember { mutableStateOf(0.dp) }
 
@@ -54,7 +49,6 @@ fun BoardView(
 
   modifier = modifier.onGloballyPositioned { coordinates ->
     // Set column height using the LayoutCoordinates
-//        columnHeightPx = coordinates.size.height.toFloat()
     columnHeightDp = with(localDensity) { coordinates.size.height.toDp() }
   }
 

@@ -12,7 +12,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color as CColor
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
+import fr.richoux.pobo.engine.Color as EColor
 
 private const val TAG = "pobotag GameView"
 
@@ -122,46 +123,48 @@ fun columnAllMode(
   val board = viewModel.getBoard()
   val player = viewModel.getPlayer()
   val modifier = if(landscapeMode) Modifier else Modifier.fillMaxWidth()
+
   PiecesStocksView(
-    pool = board.getPlayerPool(fr.richoux.pobo.engine.Color.Blue),
-    color = fr.richoux.pobo.engine.Color.Blue,
+    pool = board.getPlayerPool(EColor.Blue),
+    color = EColor.Blue,
     modifier = modifier
   )
   Spacer(modifier = Modifier.height(8.dp))
   PiecesStocksView(
-    pool = board.getPlayerPool(fr.richoux.pobo.engine.Color.Red),
-    color = fr.richoux.pobo.engine.Color.Red,
+    pool = board.getPlayerPool(EColor.Red),
+    color = EColor.Red,
     modifier = modifier
   )
   Spacer(modifier = Modifier.height(32.dp))
   Row(
-    horizontalArrangement = Arrangement.Center
+    modifier = Modifier.fillMaxWidth(0.5f),
+    horizontalArrangement = Arrangement.SpaceBetween
   ) {
     Text(
-      text = "Player's turn: ",
+      text = stringResource(id = R.string.turn),
       style = MaterialTheme.typography.body1,
-      modifier = Modifier
-        .padding(horizontal = 2.dp)
-    )
-    val style = TextStyle(
-      color = if(player == fr.richoux.pobo.engine.Color.Blue) Color.Blue else Color.Red,
-      fontSize = MaterialTheme.typography.body1.fontSize,
-      fontWeight = FontWeight.Bold,
-      fontStyle = MaterialTheme.typography.body1.fontStyle
     )
     Text(
-      text = player.toString(),
-      style = style,
-      modifier = Modifier
-        .padding(horizontal = 2.dp)
+      text = when(player) {
+        EColor.Blue -> stringResource(id = R.string.blue)
+        else -> stringResource(id = R.string.red)
+      },
+      style = TextStyle(
+        color = when(player) {
+          EColor.Blue -> CColor.Blue
+          else -> CColor.Red
+        },
+        fontSize = MaterialTheme.typography.body1.fontSize,
+        fontWeight = FontWeight.Bold,
+        fontStyle = MaterialTheme.typography.body1.fontStyle
+      ),
     )
   }
   Spacer(modifier = Modifier.height(16.dp))
   Text(
     text = displayGameState,
     style = MaterialTheme.typography.body1,
-    modifier = Modifier
-      .padding(horizontal = 2.dp)
+    modifier = Modifier.padding(horizontal = 2.dp)
   )
   Spacer(modifier = Modifier.height(16.dp))
   val hasChoiceOfPiece = viewModel.twoTypesInPool()
@@ -183,7 +186,7 @@ fun columnAllMode(
         enabled = completeSelectionForRemoval
       ) {
         Text(
-          text = "Promotion",
+          text = stringResource(id = R.string.promotion),
           style = MaterialTheme.typography.body1
         )
       }
@@ -232,7 +235,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         displayGameState = viewModel.displayGameState
       )
       if(viewModel.IsAIToPLay()) {
-        if(player == fr.richoux.pobo.engine.Color.Blue)
+        if(player == EColor.Blue)
           viewModel.makeP1AIMove()
         else
           viewModel.makeP2AIMove()
@@ -295,7 +298,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         displayGameState = viewModel.displayGameState
       )
       val style = TextStyle(
-        color = if(player == fr.richoux.pobo.engine.Color.Blue) Color.Blue else Color.Red,
+        color = if(player == EColor.Blue) CColor.Blue else CColor.Red,
         fontSize = MaterialTheme.typography.body1.fontSize,
         fontWeight = FontWeight.Bold,
         fontStyle = MaterialTheme.typography.body1.fontStyle
@@ -318,7 +321,7 @@ fun Modifier.customDialogModifier() = layout { measurable, constraints ->
 
 @Composable
 fun EndOfGameDialog(
-  player: fr.richoux.pobo.engine.Color,
+  player: EColor,
   style: TextStyle,
   viewModel: GameViewModel
 ) {
@@ -333,7 +336,7 @@ fun EndOfGameDialog(
         AlertDialog(
           modifier = Modifier
             .customDialogModifier()
-            .background(Color.Transparent)
+            .background(CColor.Transparent)
             .padding(8.dp),
           onDismissRequest = { openAlertDialog.value = false },
           title = {
@@ -344,7 +347,7 @@ fun EndOfGameDialog(
               Text(
                 text = stringResource(
                   id = R.string.win, when(player) {
-                    fr.richoux.pobo.engine.Color.Red -> stringResource(id = R.string.red)
+                    EColor.Red -> stringResource(id = R.string.red)
                     else -> stringResource(id = R.string.blue)
                   }
                 ),
@@ -391,14 +394,14 @@ fun EndOfGameDialog(
 }
 
 @Composable
-fun RadioButtonPoBo(player: fr.richoux.pobo.engine.Color, viewModel: GameViewModel) {
+fun RadioButtonPoBo(player: EColor, viewModel: GameViewModel) {
   val iconPo = when(player) {
-    fr.richoux.pobo.engine.Color.Blue -> R.drawable.blue_po
-    fr.richoux.pobo.engine.Color.Red -> R.drawable.red_po
+    EColor.Blue -> R.drawable.blue_po
+    EColor.Red -> R.drawable.red_po
   }
   val iconBo = when(player) {
-    fr.richoux.pobo.engine.Color.Blue -> R.drawable.blue_bo
-    fr.richoux.pobo.engine.Color.Red -> R.drawable.red_bo
+    EColor.Blue -> R.drawable.blue_bo
+    EColor.Red -> R.drawable.red_bo
   }
 
   val selectedValue by viewModel.selectedValue.collectAsState()
@@ -467,9 +470,9 @@ fun RadioButtonPoBo(player: fr.richoux.pobo.engine.Color, viewModel: GameViewMod
 @Preview(locale = "fr")
 @Composable
 private fun EndOfGameDialogPreview(
-  player: fr.richoux.pobo.engine.Color = fr.richoux.pobo.engine.Color.Red,
+  player: EColor = EColor.Red,
   style: TextStyle = TextStyle(
-    color = Color.Red,
+    color = CColor.Red,
     fontSize = MaterialTheme.typography.h5.fontSize,
     fontWeight = FontWeight.Bold,
     fontStyle = MaterialTheme.typography.body1.fontStyle
@@ -487,7 +490,7 @@ private fun EndOfGameDialogPreview(
         AlertDialog(
           modifier = Modifier
             .customDialogModifier()
-            .background(Color.Transparent)
+            .background(CColor.Transparent)
             .padding(8.dp),
           onDismissRequest = { openAlertDialog.value = false },
           title = {
@@ -498,7 +501,7 @@ private fun EndOfGameDialogPreview(
               Text(
                 text = stringResource(
                   id = R.string.win, when(player) {
-                    fr.richoux.pobo.engine.Color.Red -> stringResource(id = R.string.red)
+                    EColor.Red -> stringResource(id = R.string.red)
                     else -> stringResource(id = R.string.blue)
                   }
                 ),

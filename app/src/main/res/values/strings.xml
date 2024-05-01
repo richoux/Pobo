@@ -12,4 +12,6 @@
     <string name="newgame">New game?</string>
     <string name="sure">Sure!</string>
     <string name="next_time">Next time</string>
+    <string name="turn">Player\'s turn:</string>
+    <string name="promotion">Promotion</string>
 </resources>

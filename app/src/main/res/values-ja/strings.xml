@@ -13,4 +13,6 @@
     <string name="newgame">もう一回?</string>
     <string name="sure">もちろん!</string>
     <string name="next_time">またこんど</string>
+    <string name="turn">プレーアのターン：</string>
+    <string name="promotion">ランクアップ</string>
 </resources>
