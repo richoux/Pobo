@@ -15,6 +15,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import fr.richoux.pobo.gamescreen.GameActions
 import fr.richoux.pobo.gamescreen.GameView
@@ -62,15 +63,16 @@ class MainActivity : AppCompatActivity() {
               actions = actions
             )
           }
-        ) {
-          AnimatedNavHost(
+        ) { it ->
+          //AnimatedNavHost(
+          NavHost(
             navController = navController,
             startDestination = Screen.Title.route,
           ) {
             composable(Screen.Title.route) { TitleView(navController, gameViewModel) }
             composable(
               Screen.Game.route,
-              enterTransition = { _, _ ->
+              enterTransition = { ->
                 slideInHorizontally(
                   initialOffsetX = { 1000 },
                   animationSpec = tween(
@@ -78,13 +80,13 @@ class MainActivity : AppCompatActivity() {
                   )
                 )
               },
-              exitTransition = { _, _ ->
+              exitTransition = { ->
                 slideOutHorizontally(
                   targetOffsetX = { -1000 },
                   animationSpec = tween(transitionTime)
                 )
               },
-              popExitTransition = { _, _ ->
+              popExitTransition = { ->
                 slideOutHorizontally(
                   targetOffsetX = { 1000 },
                   animationSpec = tween(transitionTime)
