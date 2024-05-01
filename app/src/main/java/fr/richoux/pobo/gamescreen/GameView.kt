@@ -16,9 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
@@ -329,51 +331,64 @@ fun EndOfGameDialog(
     when {
       openAlertDialog.value -> {
         AlertDialog(
+          modifier = Modifier
+            .customDialogModifier()
+            .background(Color.Transparent)
+            .padding(8.dp),
           onDismissRequest = { openAlertDialog.value = false },
-          buttons = {
-            Row() {
-              Button(
-                {
-                  openAlertDialog.value = false
-                  viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI, false)
-                }
-              ) {
-                Text(text = "Sure!")
-              }
-              Spacer(modifier = Modifier.width(4.dp))
-              Button(
-                { openAlertDialog.value = false }
-              ) {
-                Text(text = "Next time")
-              }
-            }
-          },
           title = {
-            Row()
-            {
+            Column(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ) {
               Text(
-                text = "$player",
+                text = stringResource(
+                  id = R.string.win, when(player) {
+                    fr.richoux.pobo.engine.Color.Red -> stringResource(id = R.string.red)
+                    else -> stringResource(id = R.string.blue)
+                  }
+                ),
                 style = style
-              )
-              Text(
-                text = " wins!"
               )
             }
           },
           text = {
-            Text(
-              text = "New game?"
-            )
+            Column(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+              Text(
+                text = stringResource(id = R.string.newgame)
+              )
+            }
           },
-          modifier = Modifier
-            .customDialogModifier()
-            .background(Color.Transparent)
+          buttons = {
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceAround
+            ) {
+              Button(
+                {
+                  openAlertDialog.value = false
+                  viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI, false)
+                },
+                modifier = Modifier.padding(bottom = 12.dp)
+              ) {
+                Text(text = stringResource(id = R.string.sure))
+              }
+              Button(
+                { openAlertDialog.value = false },
+                modifier = Modifier.padding(bottom = 12.dp)
+              ) {
+                Text(text = stringResource(id = R.string.next_time))
+              }
+            }
+          }
         )
       }
     }
   }
 }
-
 
 @Composable
 fun RadioButtonPoBo(player: fr.richoux.pobo.engine.Color, viewModel: GameViewModel) {
@@ -443,6 +458,86 @@ fun RadioButtonPoBo(player: fr.richoux.pobo.engine.Color, viewModel: GameViewMod
           ),
           contentDescription = "",
           modifier = Modifier.size(92.dp)
+        )
+      }
+    }
+  }
+}
+
+@Preview(locale = "fr")
+@Composable
+private fun EndOfGameDialogPreview(
+  player: fr.richoux.pobo.engine.Color = fr.richoux.pobo.engine.Color.Red,
+  style: TextStyle = TextStyle(
+    color = Color.Red,
+    fontSize = MaterialTheme.typography.h5.fontSize,
+    fontWeight = FontWeight.Bold,
+    fontStyle = MaterialTheme.typography.body1.fontStyle
+  ),
+  xp: Boolean = false,
+  countNumberGames: Int = 0
+) {
+  val openAlertDialog = remember { mutableStateOf(true) }
+  if(xp && countNumberGames < 100) {
+    openAlertDialog.value = false
+  }
+  else {
+    when {
+      openAlertDialog.value -> {
+        AlertDialog(
+          modifier = Modifier
+            .customDialogModifier()
+            .background(Color.Transparent)
+            .padding(8.dp),
+          onDismissRequest = { openAlertDialog.value = false },
+          title = {
+            Column(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ){
+              Text(
+                text = stringResource(
+                  id = R.string.win, when(player) {
+                    fr.richoux.pobo.engine.Color.Red -> stringResource(id = R.string.red)
+                    else -> stringResource(id = R.string.blue)
+                  }
+                ),
+                style = style
+              )
+            }
+          },
+          text = {
+            Column(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+              Text(
+                text = stringResource(id = R.string.newgame),
+                style = MaterialTheme.typography.h6
+              )
+            }
+          },
+          buttons = {
+            Row(
+              modifier = Modifier.fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceAround
+            ) {
+              Button(
+                {
+                  openAlertDialog.value = false
+                },
+                modifier = Modifier.padding(bottom = 12.dp)
+              ) {
+                Text(text = stringResource(id = R.string.sure))
+              }
+              Button(
+                { openAlertDialog.value = false },
+                modifier = Modifier.padding( bottom = 12.dp)
+              ) {
+                Text(text = stringResource(id = R.string.next_time))
+              }
+            }
+          }
         )
       }
     }

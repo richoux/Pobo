@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ポボ</string>
+    <string name="resume">ゲームを再開</string>
+    <string name="human_game">ふたりプレー</string>
+    <string name="ai_game">ひとりプレー</string>
+    <string name="select_first_player">Play as</string>
+    <string name="blue">青</string>
+    <string name="red">赤</string>
+    <string name="random">ランダム</string>
+    <string name="ai_vs_ai_game">AI対AI</string>
+    <string name="win">%sの勝利!</string>
+    <string name="newgame">もう一回?</string>
+    <string name="sure">もちろん!</string>
+    <string name="next_time">またこんど</string>
+</resources>

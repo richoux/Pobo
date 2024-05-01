@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">pobo</string>
+    <string name="resume">Reprendre la partie</string>
+    <string name="human_game">Deux joueurs</string>
+    <string name="ai_game">Un joueur</string>
+    <string name="select_first_player">Jouer en tant que</string>
+    <string name="blue">Bleu</string>
+    <string name="red">Rouge</string>
+    <string name="random">Aléatoire</string>
+    <string name="ai_vs_ai_game">IA contre IA</string>
+    <string name="win">Victoire de %s !</string>
+    <string name="newgame">Nouvelle partie ?</string>
+    <string name="sure">Volontiers !</string>
+    <string name="next_time">Une prochaine fois</string>
+</resources>
