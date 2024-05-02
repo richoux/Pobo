@@ -18,4 +18,13 @@
     <string name="select_piece">小さい部分または大きい部分を選択してください</string>
     <string name="select_promotion">宣伝する小さな部分、または削除する大きな部分を選択してください</string>
     <string name="about"><![CDATA[pobo is a boop. / Gekitai² implementation for Android, written with Jetpack Compose.\n\nThe app is free, ad-free, and open source under the GNU GPL v3 License. The code is a modified fork of a Chess app (https://github.com/bentrengrove/chess) by Ben Trengrove, under MIT Licence.\n\nOriginal illustrations used in pobo are from bcogwene (https://pixabay.com/users/bcogwene-1114581/) and are under CC0 Licence.\n\nboop. and Gekitai² are games from Scott Brady. boop. is distributed by Smirk & Dagger Games.]]></string>
+    <string name="how_to_play_1">The game starts with an empty board. Players have a pool of 8 small pieces, and place one piece alternately.\n</string>
+    <string name="how_to_play_2">When a piece is placed, it pushes away all adjacent pieces from one square, except if a piece is blocked by another piece.\n</string>
+    <string name="how_to_play_3">Large pieces can push away any other pieces, but small ones cannot push away large pieces.</string>
+    <string name="how_to_play_4">When a piece is pushed out of the board, it returns into its player\'s pool.</string>
+    <string name="how_to_play_5">When 3 of your pieces are aligned, they are removed from the board at the end of your turn, and return into your pool. Small pieces removed that way are promoted to large pieces. If more than 3 pieces are aligned, you choose 3 adjacent pieces to remove. If you place your 8 pieces on the board, you can choose one piece to remove from the board. In case this piece is a small one, it is promoted to a large piece.</string>
+    <string name="how_to_play_6">There are 2 winning conditions:</string>
+    <string name="how_to_play_7">You have 3 large pieces aligned at the end of your turn.</string>
+    <string name="how_to_play_8">You place your 8th large piece on the board.</string>
+    <string name="how_to_play_9">That\'s it! Have fun!</string>
 </resources>
