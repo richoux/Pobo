@@ -1,4 +1,4 @@
-package fr.richoux.pobo.gamescreen
+package fr.richoux.pobo.screens.gamescreen
 
 import android.content.res.Configuration
 import android.util.Log
@@ -203,15 +203,13 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
     GameState.INIT -> {
 //      Log.d(TAG, "INIT ${player}")
       MainView(
-        viewModel,
-        displayGameState = viewModel.displayGameState
+        viewModel
       )
       viewModel.goToNextState()
     }
     GameState.HISTORY -> {
       MainView(
-        viewModel,
-        displayGameState = viewModel.displayGameState
+        viewModel
       )
       viewModel.goToNextState()
     }
@@ -219,7 +217,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 //      Log.d(TAG, "SELECTPIECE ${player}")
       MainView(
         viewModel,
-        displayGameState = viewModel.displayGameState
+        displayGameState = stringResource(id = R.string.select_piece)
       )
     }
     GameState.SELECTPOSITION -> {
@@ -231,8 +229,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       }
       MainView(
         viewModel,
-        onTap = onSelect,
-        displayGameState = viewModel.displayGameState
+        onTap = onSelect
       )
       if(viewModel.IsAIToPLay()) {
         if(player == EColor.Blue)
@@ -244,16 +241,14 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
     GameState.CHECKPROMOTIONS -> {
 //      Log.d(TAG, "CHECKPROMOTIONS ${player}")
       MainView(
-        viewModel,
-        displayGameState = viewModel.displayGameState
+        viewModel
       )
       viewModel.checkPromotions()
     }
     GameState.AUTOPROMOTIONS -> {
 //      Log.d(TAG, "AUTOPROMOTIONS ${player}")
       MainView(
-        viewModel,
-        displayGameState = viewModel.displayGameState
+        viewModel
       )
       viewModel.autopromotions()
     }
@@ -265,14 +260,13 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       MainView(
         viewModel,
         onTap = onSelect,
-        displayGameState = viewModel.displayGameState
+        displayGameState = stringResource(id = R.string.select_promotion)
       )
     }
     GameState.REFRESHSELECTPROMOTIONS -> {
 //      Log.d(TAG, "REFRESHSELECTPROMOTIONS ${player}")
       MainView(
-        viewModel,
-        displayGameState = viewModel.displayGameState
+        viewModel
       )
       viewModel.goToNextState()
     }
@@ -294,8 +288,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             Log.d(TAG, "Red: ${viewModel.aiP2()}")
       }
       MainView(
-        viewModel,
-        displayGameState = viewModel.displayGameState
+        viewModel
       )
       val style = TextStyle(
         color = if(player == EColor.Blue) CColor.Blue else CColor.Red,

@@ -1,4 +1,4 @@
-package fr.richoux.pobo.gamescreen
+package fr.richoux.pobo.screens.gamescreen
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -56,20 +56,6 @@ class GameViewModel : ViewModel() {
   /*** Game States ***/
   private var _gameState = MutableStateFlow<GameState>(GameState.SELECTPOSITION)
   var gameState = _gameState.asStateFlow()
-  val displayGameState: String
-    get() {
-      return when(_gameState.value) {
-        GameState.INIT -> ""
-        GameState.HISTORY -> ""
-        GameState.SELECTPIECE -> "Select a small or a large piece:"
-        GameState.SELECTPOSITION -> ""
-        GameState.CHECKPROMOTIONS -> ""
-        GameState.AUTOPROMOTIONS -> ""
-        GameState.SELECTPROMOTIONS -> "Select small pieces to promote or large pieces to remove"
-        GameState.REFRESHSELECTPROMOTIONS -> ""
-        GameState.END -> ""
-      }
-    }
 
   /*** Other Variables ***/
   private var _game: Game = Game()

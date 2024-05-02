@@ -1,6 +1,5 @@
-package fr.richoux.pobo.gamescreen
+package fr.richoux.pobo.screens.gamescreen
 
-import android.util.Log
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

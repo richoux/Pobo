@@ -1,4 +1,4 @@
-package fr.richoux.pobo.gamescreen
+package fr.richoux.pobo.screens.gamescreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
