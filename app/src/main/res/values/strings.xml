@@ -1,29 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">How to play</string>
+    <string name="about">About</string>
+    <string name="buy_me_a_coffee">Like it?\nBuy me a coffee!</string>
+    <string name="rate_it">Like it?\nRate it!</string>
+    <string name="github">Source on GitHub</string>
+
+    <!--    Title screen-->
     <string name="app_name">pobo</string>
     <string name="resume">Resume Game</string>
-    <string name="human_game">Two Players</string>
     <string name="ai_game">One Player</string>
+    <string name="human_game">Two Players</string>
+    <string name="ai_vs_ai_game">Computer vs Computer</string>
+    <string name="puzzle">Puzzles</string>
+
+    <!--    Title screen drop menu-->
     <string name="select_first_player">Play as</string>
     <string name="blue">Blue</string>
     <string name="red">Red</string>
     <string name="random">Random</string>
-    <string name="ai_vs_ai_game">Computer vs Computer</string>
+
+    <!--    Game screen-->
+    <string name="turn">Player\'s turn:</string>
+    <string name="promotion">Promotion</string>
+    <string name="select_piece">Select your piece:</string>
+    <string name="select_promotion">Select your promotion(s)</string>
+
+    <!--    Game screen Alert dialog-->
     <string name="win">%s wins!</string>
     <string name="newgame">New game?</string>
     <string name="sure">Sure!</string>
     <string name="next_time">Next time</string>
-    <string name="turn">Player\'s turn:</string>
-    <string name="promotion">Promotion</string>
-    <string name="select_piece">Select a small or a large piece:</string>
-    <string name="select_promotion">Select small pieces to promote or large pieces to remove</string>
-    <string name="about"><![CDATA[pobo is a boop. / Gekitai² implementation for Android, written with Jetpack Compose.\n\nThe app is free, ad-free, and open source under the GNU GPL v3 License. The code is a modified fork of a Chess app (https://github.com/bentrengrove/chess) by Ben Trengrove, under MIT Licence.\n\nOriginal illustrations used in pobo are from bcogwene (https://pixabay.com/users/bcogwene-1114581/) and are under CC0 Licence.\n\nboop. and Gekitai² are games from Scott Brady. boop. is distributed by Smirk & Dagger Games.]]></string>
-    <string name="how_to_play_1">The game starts with an empty board. Players have a pool of 8 small pieces, and place one piece alternately.\n</string>
-    <string name="how_to_play_2">When a piece is placed, it pushes away all adjacent pieces from one square, except if a piece is blocked by another piece.\n</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">The game starts with an empty board. Players have a pool of 8 small pieces, and place one piece alternately.</string>
+    <string name="how_to_play_2">When a piece is placed, it pushes away all adjacent pieces from one square, except if a piece is blocked by another piece.</string>
     <string name="how_to_play_3">Large pieces can push away any other pieces, but small ones cannot push away large pieces.</string>
     <string name="how_to_play_4">When a piece is pushed out of the board, it returns into its player\'s pool.</string>
-    <string name="how_to_play_5">When 3 of your pieces are aligned, they are removed from the board at the end of your turn, and return into your pool. Small pieces removed that way are promoted to large pieces. If more than 3 pieces are aligned, you choose 3 adjacent pieces to remove. If you place your 8 pieces on the board, you can choose one piece to remove from the board. In case this piece is a small one, it is promoted to a large piece.</string>
+    <string name="how_to_play_5">When 3 of your pieces are aligned, they are removed from the board at the end of your turn, and return into your pool. Small pieces removed that way are promoted to large pieces. If more than 3 pieces are aligned, you choose 3 adjacent pieces to remove. If you place your 8 pieces on the board, you have to choose one piece to remove from the board. In case this piece is a small one, it is promoted to a large piece.</string>
     <string name="how_to_play_6">There are 2 winning conditions:</string>
     <string name="how_to_play_7">You have 3 large pieces aligned at the end of your turn.</string>
     <string name="how_to_play_8">You place your 8th large piece on the board.</string>
     <string name="how_to_play_9">That\'s it! Have fun!</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo is a boop. / Gekitai² implementation for Android, written with Jetpack Compose.</string>
+    <string name="about_2">The app is free, ad-free, and open source under the GNU GPL v3 License. The code is a modified fork of a Chess app (https://github.com/bentrengrove/chess) by Ben Trengrove, under MIT Licence.</string>
+    <string name="about_3">Original illustrations used in pobo are from bcogwene (https://pixabay.com/users/bcogwene-1114581/) and are under CC0 Licence.</string>
+    <string name="about_4">boop. and Gekitai² are games from Scott Brady. boop. is distributed by Smirk &amp; Dagger Games.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Select a puzzle</string>
+    <string name="victory_condition_1">Win in %s moves!</string>
 </resources>

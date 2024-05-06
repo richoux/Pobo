@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -113,7 +114,7 @@ private fun RowMenu( text: String, content: String, icon: ImageVector, onClick: 
     Text(
       text = text,
       style = MaterialTheme.typography.h5,
-      modifier = Modifier.padding(horizontal = 30.dp)
+      modifier = Modifier.padding(start = 30.dp)
     )
   }
 }
@@ -143,7 +144,7 @@ private fun RowMenuPaint( text: String, content: String, icon: Int, onClick: () 
     Text(
       text = text,
       style = MaterialTheme.typography.h5,
-      modifier = Modifier.padding(horizontal = 30.dp)
+      modifier = Modifier.padding(start = 30.dp)
     )
   }
 }
@@ -174,7 +175,7 @@ private fun RowMenuPaintNoTint( text: String, content: String, icon: Int, onClic
     Text(
       text = text,
       style = MaterialTheme.typography.h5,
-      modifier = Modifier.padding(horizontal = 30.dp)
+      modifier = Modifier.padding(start = 30.dp)
     )
   }
 }
@@ -232,7 +233,7 @@ class MainActivity : AppCompatActivity() {
           drawerContent = {
             Column() {
               RowMenuPaint(
-                text = "How to play",
+                text = stringResource(R.string.how_to_play),
                 content = "HowTo",
                 icon = R.drawable.question_mark,
                 onClick = {
@@ -243,7 +244,7 @@ class MainActivity : AppCompatActivity() {
                 }
               )
               RowMenu(
-                text = "About",
+                text = stringResource(R.string.about),
                 content = "About",
                 icon = Icons.Outlined.Info,
                 onClick = {
@@ -254,7 +255,7 @@ class MainActivity : AppCompatActivity() {
                 }
               )
               RowMenuPaintNoTint(
-                text = "Like it?\nBuy me a coffee!",
+                text = stringResource(R.string.buy_me_a_coffee),
                 content = "Coffee",
                 icon = R.drawable.buy_me_a_coffee,
                 onClick = {
@@ -265,7 +266,7 @@ class MainActivity : AppCompatActivity() {
                 }
               )
               RowMenuPaintNoTint(
-                text = "Like it?\nRate it!",
+                text = stringResource(R.string.rate_it),
                 content = "GooglePlay",
                 icon = R.drawable.google_play,
                 onClick = {
@@ -276,7 +277,7 @@ class MainActivity : AppCompatActivity() {
                 }
               )
               RowMenuPaint(
-                text = "Source on GitHub",
+                text = stringResource(R.string.github),
                 content = "Github",
                 icon = R.drawable.github,
                 onClick = {
