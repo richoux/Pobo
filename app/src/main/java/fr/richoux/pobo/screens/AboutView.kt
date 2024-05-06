@@ -1,5 +1,6 @@
 package fr.richoux.pobo.screens
 
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import fr.richoux.pobo.R
+import fr.richoux.pobo.ui.LockScreenOrientation
 
 @Composable
 fun  AboutView() {
+  LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   Column(
     modifier = Modifier
       .fillMaxSize()

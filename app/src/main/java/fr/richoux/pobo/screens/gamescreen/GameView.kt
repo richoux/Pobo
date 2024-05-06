@@ -1,5 +1,6 @@
 package fr.richoux.pobo.screens.gamescreen
 
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
+import fr.richoux.pobo.ui.LockScreenOrientation
 import fr.richoux.pobo.engine.Color as EColor
 
 private const val TAG = "pobotag GameView"
@@ -58,10 +60,10 @@ fun MainView(
   val lastMove = viewModel.lastMovePosition
   val selected = viewModel.piecesToPromote.toList()
   val configuration = LocalConfiguration.current
-  var landscapeMode: Boolean
+//  var landscapeMode: Boolean
   when(configuration.orientation) {
     Configuration.ORIENTATION_PORTRAIT -> {
-      landscapeMode = false
+//      landscapeMode = false
       Column(
         Modifier.fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -74,43 +76,43 @@ fun MainView(
           selected = selected
         )
         Spacer(modifier = Modifier.height(8.dp))
-        columnAllMode(viewModel, displayGameState, landscapeMode)
+        columnAllMode(viewModel, displayGameState)
       }
     }
-    Configuration.ORIENTATION_LANDSCAPE -> {
-      landscapeMode = true
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-      ) {
-
-        Column(
-          Modifier
-            .fillMaxHeight()
-            .weight(1f),
-          horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-          columnAllMode(viewModel, displayGameState, landscapeMode)
-        }
-
-        BoardView(
-          modifier = Modifier.fillMaxHeight(),
-          board = board,
-          lastMove = lastMove,
-          onTap = onTap,
-          promotionable = promotionable,
-          selected = selected
-        )
-
-        Column(
-          Modifier
-            .fillMaxHeight()
-            .weight(1f),
-          horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-          columnAllMode(viewModel, displayGameState, landscapeMode)
-        }
-      }
-    }
+//    Configuration.ORIENTATION_LANDSCAPE -> {
+//      landscapeMode = true
+//      Row(
+//        modifier = Modifier.fillMaxWidth(),
+//      ) {
+//
+//        Column(
+//          Modifier
+//            .fillMaxHeight()
+//            .weight(1f),
+//          horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//          columnAllMode(viewModel, displayGameState, landscapeMode)
+//        }
+//
+//        BoardView(
+//          modifier = Modifier.fillMaxHeight(),
+//          board = board,
+//          lastMove = lastMove,
+//          onTap = onTap,
+//          promotionable = promotionable,
+//          selected = selected
+//        )
+//
+//        Column(
+//          Modifier
+//            .fillMaxHeight()
+//            .weight(1f),
+//          horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//          columnAllMode(viewModel, displayGameState, landscapeMode)
+//        }
+//      }
+//    }
   }
 }
 
@@ -118,7 +120,7 @@ fun MainView(
 fun columnAllMode(
   viewModel: GameViewModel = viewModel(),
   displayGameState: String,
-  landscapeMode: Boolean
+  landscapeMode: Boolean = false
 ) {
   val board = viewModel.getBoard()
   val player = viewModel.getPlayer()
@@ -196,6 +198,7 @@ fun columnAllMode(
 
 @Composable
 fun GameView(viewModel: GameViewModel = viewModel()) {
+  LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   val gameState by viewModel.gameState.collectAsState()
   val player = viewModel.getPlayer()
 

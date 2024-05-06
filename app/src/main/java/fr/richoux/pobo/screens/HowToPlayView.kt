@@ -1,5 +1,6 @@
 package fr.richoux.pobo.screens
 
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,9 +28,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import fr.richoux.pobo.R
+import fr.richoux.pobo.ui.LockScreenOrientation
 
 @Composable
 fun  HowToPlayView() {
+  LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   var componentWidth by remember { mutableStateOf(0.dp) }
   val density = LocalDensity.current
   LazyColumn(

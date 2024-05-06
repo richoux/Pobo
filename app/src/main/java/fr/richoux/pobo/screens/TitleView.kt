@@ -1,5 +1,6 @@
 package fr.richoux.pobo.screens
 
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,10 +18,12 @@ import androidx.navigation.NavController
 import fr.richoux.pobo.Screen
 import fr.richoux.pobo.screens.gamescreen.GameViewModel
 import fr.richoux.pobo.R
+import fr.richoux.pobo.ui.LockScreenOrientation
 import kotlin.random.Random
 
 @Composable
 fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
+  LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   Column(
     modifier = Modifier
       .fillMaxSize()
