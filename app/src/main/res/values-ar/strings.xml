@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">كيفية اللعب</string>
+    <string name="about">معلومات عن بوبو</string>
+    <string name="language">لغة</string>
+    <string name="buy_me_a_coffee">"هل ترغب في ذلك؟\nاشتري لي قهوة! "</string>
+    <string name="rate_it">هل تحب ذلك؟\nقيمها!</string>
+    <string name="github">المصدر على GitHub</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">استئناف اللعبة</string>
+    <string name="ai_game">لاعب واحد</string>
+    <string name="human_game">لاعبان</string>
+    <string name="ai_vs_ai_game">جهاز ضد جهاز</string>
+    <string name="puzzle">ألغاز</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">اللعب كـ</string>
+    <string name="blue">أزرق</string>
+    <string name="red">أحمر</string>
+    <string name="random">عشوائي</string>
+
+    <!--    Game screen-->
+    <string name="turn">دور اللاعب:</string>
+    <string name="promotion">الترقية</string>
+    <string name="select_piece">اختر قطعتك:</string>
+    <string name="select_promotion">اختر الترقيات الخاصة بك</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">" اِنتصاراتs%"</string>
+    <string name="newgame">"لعبة جديدة؟ "</string>
+    <string name="sure">بالتأكيد!</string>
+    <string name="next_time">المرة القادمة</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">تبدأ اللعبة بلوح فارغ. يمتلك اللاعبون مجموعة من 8 قطع صغيرة ويضعون قطعة واحدة بالتناوب.</string>
+    <string name="how_to_play_2">عندما تُوضع قطعة ، تُزحف جميع القطع المجاورة بعيدًا عن مربع واحد ، ما لم تكن القطعة محظورة بواسطة قطعة أخرى.</string>
+    <string name="how_to_play_3">يمكن للقطع الكبيرة دفع أي قطع أخرى ، ولكن الصغيرة لا يمكن أن تدفع القطع الكبيرة.</string>
+    <string name="how_to_play_4">عندما تتم دفع قطعة خارج اللوحة ، فإنها تعود إلى مجموعة اللاعب الخاصة بها.</string>
+    <string name="how_to_play_5">عندما يتم تحقيق توازن لثلاثة من قطعك ، يتم إزالتها من اللوحة في نهاية دورك وتعود إلى مجموعتك. تُرقى القطع الصغيرة التي تمت إزالتها بهذه الطريقة إلى قطع كبيرة. إذا كانت أكثر من 3 قطع متحاذية ، فستختار 3 قطع متجاورة لإزالتها. إذا وضعت 8 قطع على اللوحة ، عليك اختيار قطعة واحدة لإزالتها من اللوحة. في حالة كانت هذه القطعة صغيرة ، فسيتم ترقيتها إلى قطعة كبيرة.</string>
+    <string name="how_to_play_6">هناك شرطان للفوز:</string>
+    <string name="how_to_play_7">لديك 3 قطع كبيرة متحاذية في نهاية دورك.</string>
+    <string name="how_to_play_8">تضع قطعتك الكبيرة رقم 8 على اللوحة.</string>
+    <string name="how_to_play_9">هذا كل شيء! استمتع!</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo هو تنفيذ لعبة لوح boop. / Gekitai² لنظام Android ، مكتوب بواسطة Jetpack Compose.</string>
+    <string name="about_2">" التطبيق مجاني وخالي من الإعلانات ومفتوح المصدر بموجب رخصة GNU GPL v3. الشفرة هي نسخة معدلة من تطبيق شطرنج (https://github.com/bentrengrove/chess) بواسطة Ben Trengrove ، بموجب رخصة MIT. "</string>
+    <string name="about_3">boop. و Gekitai² هما ألعاب من Scott Brady. boop. توزعها شركة Smirk &amp; Dagger Games.</string>
+    <string name="about_4">الرسوم التوضيحية الأصلية المستخدمة في pobo هي من bcogwene (https://pixabay.com/users/bcogwene-1114581/) وتخضع لرخصة CC0.</string>
+    <string name="about_5">بعض الرموز مأخوذة من https://icons8.com بموجب الترخيص العالمي للوسائط المتعددة.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">"اختر لغزًا "</string>
+    <string name="victory_condition_1">"انتصر في %s حركة! "</string>
+</resources>

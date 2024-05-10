@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">Jak grać</string>
+    <string name="about">O aplikacji</string>
+    <string name="language">Język</string>
+    <string name="buy_me_a_coffee">"Podoba Ci się?\nPostaw mi kawę! "</string>
+    <string name="rate_it">Podoba Ci się?\nZostaw ocenę!</string>
+    <string name="github">Kod źródłowy na GitHub</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">"Wznów grę "</string>
+    <string name="ai_game">Jeden gracz</string>
+    <string name="human_game">Dwóch graczy</string>
+    <string name="ai_vs_ai_game">Komputer kontra Komputer</string>
+    <string name="puzzle">Zagadki</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">Graj jako</string>
+    <string name="blue">Niebieski</string>
+    <string name="red">Czerwony</string>
+    <string name="random">Losowy</string>
+
+    <!--    Game screen-->
+    <string name="turn">Tura gracza:</string>
+    <string name="promotion">Awans</string>
+    <string name="select_piece">Wybierz swój pionek</string>
+    <string name="select_promotion">Wybierz swoje pionki do awansu na duże pionki</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">%s wygrywa!</string>
+    <string name="newgame">Nowa gra?</string>
+    <string name="sure">Oczywiście!</string>
+    <string name="next_time">Może następnym razem</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">Gra rozpoczyna się od pustej planszy. Gracze mają pulę 8 małych pionków umieszczają je na zmianę.</string>
+    <string name="how_to_play_2">Gdy pionek zostajeumieszczony na planszy, odsuwa on wszystkie sąsiednie pionki z jednego pola, z wyjątkiem sytuacji, gdy pionek jest zablokowany przez inny.</string>
+    <string name="how_to_play_3">Duże pionki mogą odsuwać dowolne pionki, ale małe nie mogą odsuwać dużych pionków.</string>
+    <string name="how_to_play_4">Gdy pionek zostanie wypchnięty z planszy, wraca do puli gracza.</string>
+    <string name="how_to_play_5">Gdy 3 z Twoich kawałków są w jednym rzędzie, są one usuwane z planszy na końcu Twojej tury i wracają do Twojej puli. Małe pionki usunięte w ten sposób są awansowane na duże pionki. Jeśli więcej niż 3 pionki są w jednym rzędzie, wybierasz 3 sąsiadujące pionki do usunięcia. Jeśli umieścisz 8 swoich pionków na planszy, musisz wybrać jeden pionek do usunięcia z planszy. W przypadku, gdy jest to mały pionek, zostaje on awansowany na duży pionek.</string>
+    <string name="how_to_play_6">Istnieją 2 warunki zwycięstwa:</string>
+    <string name="how_to_play_7">Masz 3 duże pionki w jednym rzędzie na końcu swojej tury.</string>
+    <string name="how_to_play_8">Umieszczasz swojego ósmego dużegoy pionka na planszy.</string>
+    <string name="how_to_play_9">To wszystko! Baw się dobrze!</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo to implementacja gry planszowej boop. / Gekitai² na Androida, napisana z użyciem Jetpack Compose.</string>
+    <string name="about_2">Aplikacja jest darmowa, bez reklam i jej kod źródłowy jest otwarty i dostępny publicznie na licencji na licencji GNU GPL v3. Kod jest zmodyfikowanym forkiem aplikacji do szachów (https://github.com/bentrengrove/chess) autorstwa Ben Trengrove, na licencji MIT.</string>
+    <string name="about_3">boop. i Gekitai² to gry od Scotta Brady\'ego. boop. jest dystrybuowany przez Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Oryginalne ilustracje użyte w pobo pochodzą od bcogwene (https://pixabay.com/users/bcogwene-1114581/) i są objęte licencją CC0.</string>
+    <string name="about_5">Niektóre ikony pochodzą z https://icons8.com i są objęte licencją Universal Multimedia License.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Wybierz łamigłówkę</string>
+    <string name="victory_condition_1">Zwycięstwo w %s ruchach!</string>
+</resources>

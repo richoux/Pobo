@@ -3,6 +3,7 @@
     <!--    Burger menu-->
     <string name="how_to_play">Comment jouer</string>
     <string name="about">À propos</string>
+    <string name="language">Langue</string>
     <string name="buy_me_a_coffee">Vous aimez ?\nOffrez-moi un café !</string>
     <string name="rate_it">Vous aimez ?\nNotez pobo !</string>
     <string name="github">Code sur GitHub</string>
@@ -47,8 +48,9 @@
     <!--    About screen-->
     <string name="about_1">pobo est un implémentation de boop. / Gekitai² pour Android, écrite avec Jetpack Compose.</string>
     <string name="about_2">L\'application est gratuite, sans publicité et open source sous la licence GNU GPL v3. Le code est un fork modifié d\'une application d\'échecs (https://github.com/bentrengrove/chess) de Ben Trengrove, sous licence MIT.</string>
-    <string name="about_3">Les illustrations originales utilisées dans pobo sont de bcogwene (https://pixabay.com/users/bcogwene-1114581/) et sont sous licence CC0.</string>
-    <string name="about_4">boop. et Gekitai² sont des jeux de Scott Brady. boop. est distribué par Smirk &amp; Dagger Games.</string>
+    <string name="about_3">boop. et Gekitai² sont des jeux de Scott Brady. boop. est distribué par Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Les illustrations originales utilisées dans pobo sont de bcogwene (https://pixabay.com/users/bcogwene-1114581/) et sont sous licence CC0.</string>
+    <string name="about_5">Certaines icônes viennent https://icons8.com sous licence Universal Multimedia.</string>
 
     <!--    Puzzles-->
     <string name="select_puzzle">Select a puzzle</string>
