@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="how_to_play">游戏玩法</string>
+    <string name="about">关于</string>
+    <string name="buy_me_a_coffee">喜欢吗？\\n请我喝咖啡！</string>
+    <string name="rate_it">喜欢吗？\\n给出评价！</string>
+    <string name="github">GitHub 上的源代码</string>
+    <string name="app_name">pobo</string>
+    <string name="resume">继续游戏</string>
+    <string name="ai_game">单人游戏</string>
+    <string name="human_game">双人游戏</string>
+    <string name="ai_vs_ai_game">电脑对战电脑</string>
+    <string name="puzzle">谜题</string>
+    <string name="select_first_player">扮演</string>
+    <string name="blue">蓝色</string>
+    <string name="red">红色</string>
+    <string name="random">随机</string>
+    <string name="turn">玩家回合：</string>
+    <string name="promotion">晋升</string>
+    <string name="select_piece">选择您的棋子：</string>
+    <string name="select_promotion">选择您的晋升：</string>
+    <string name="win">%s 获胜！</string>
+    <string name="newgame">开始新游戏？</string>
+    <string name="sure">确定！</string>
+    <string name="next_time">下次</string>
+    <string name="how_to_play_1">游戏从一个空棋盘开始。玩家拥有 8 个小棋子，并交替放置一个棋子。</string>
+    <string name="how_to_play_2">当一个棋子被放置时，它会将一个方格中的所有相邻棋子推开，除非有一个棋子被另一个棋子挡住。</string>
+    <string name="how_to_play_3">大棋子可以推开任何其他棋子，但小棋子无法推开大棋子。</string>
+    <string name="how_to_play_4">当一个棋子被推出棋盘时，它会返回到其玩家池中。</string>
+    <string name="how_to_play_5">当您的 3 个棋子对齐时，它们会在您的回合结束时从棋盘上移除，并返回到您的池中。以这种方式移除的小棋子会晋升为大棋子。如果有超过 3 个棋子对齐，您可以选择移除 3 个相邻的棋子。如果您在棋盘上放置了 8 个棋子，您必须选择一个棋子从棋盘上移除。如果这个棋子是小棋子，则会晋升为大棋子。</string>
+    <string name="how_to_play_6">有 2 个获胜条件：</string>
+    <string name="how_to_play_7">您在回合结束时有 3 个大棋子对齐。</string>
+    <string name="how_to_play_8">您在棋盘上放置您的第 8 个大棋子。</string>
+    <string name="how_to_play_9">就是这样！玩得开心！</string>
+    <string name="about_1">pobo 是一款适用于 Android 的 boop / Gekitai² 实现，使用 Jetpack Compose 编写。</string>
+    <string name="about_2">根据 GNU GPL v3 许可协议，该应用程序是免费、无广告、开源的。代码是对 Ben Trengrove 的国际象棋应用程序（https://github.com/bentrengrove/chess）的修改分支，遵循 MIT 许可协议。</string>
+    <string name="about_3">pobo 中使用的原始插图来自 bcogwene（https://pixabay.com/users/bcogwene-1114581/），并在 CC0 许可证下发布。</string>
+    <string name="about_4">boop. 和 Gekitai² 是 Scott Brady 的游戏。boop. 由 Smirk &amp; Dagger Games 发行。</string>
+    <string name="select_puzzle">选择一个谜题</string>
+    <string name="victory_condition_1">在 %s 步内获胜！</string>
+</resources>

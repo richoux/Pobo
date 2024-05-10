@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="how_to_play">Como jogar</string>
+    <string name="about">Sobre</string>
+    <string name="buy_me_a_coffee">Gostou?\\nMe compra um café!</string>
+    <string name="rate_it">Gostou?\\nAvalie!</string>
+    <string name="github">Código-fonte no GitHub</string>
+    <string name="app_name">pobo</string>
+    <string name="resume">Continuar Jogo</string>
+    <string name="ai_game">Um Jogador</string>
+    <string name="human_game">Dois Jogadores</string>
+    <string name="ai_vs_ai_game">Computador vs Computador</string>
+    <string name="puzzle">Desafios</string>
+    <string name="select_first_player">Jogar como</string>
+    <string name="blue">Azul</string>
+    <string name="red">Vermelho</string>
+    <string name="random">Aleatório</string>
+    <string name="turn">Vez do Jogador:</string>
+    <string name="promotion">Promoção</string>
+    <string name="select_piece">Selecione sua peça:</string>
+    <string name="select_promotion">Selecione sua(s) promoção(ões)</string>
+    <string name="win">%s vence!</string>
+    <string name="newgame">Novo jogo?</string>
+    <string name="sure">Claro!</string>
+    <string name="next_time">Fica para a próxima</string>
+    <string name="how_to_play_1">O jogo começa com um tabuleiro vazio. Os jogadores têm um conjunto de 8 peças pequenas e colocam uma peça por vez alternadamente.</string>
+    <string name="how_to_play_2">Quando uma peça é colocada, ela empurra todas as peças adjacentes à casa, exceto se uma dessas peças estiver bloqueada por outra peça.</string>
+    <string name="how_to_play_3">Peças grandes podem empurrar qualquer outra peça, mas as pequenas não podem empurrar as grandes.</string>
+    <string name="how_to_play_4">Quando uma peça é empurrada para fora do tabuleiro, ela retorna para o conjunto de peças do seu jogador.</string>
+    <string name="how_to_play_5">Quando 3 de suas peças estão alinhadas, elas são removidas do tabuleiro no final de seu turno e retornam para o seu conjunto de peças. Peças pequenas removidas dessa maneira são promovidas a peças grandes. Se mais de 3 peças estiverem alinhadas, você escolhe 3 peças adjacentes para remover. Se você colocar suas 8 peças no tabuleiro, você deve escolher uma peça para remover do tabuleiro. No caso desta peça ser pequena, ela é promovida a uma peça grande.</string>
+    <string name="how_to_play_6">Existem 2 condições de vitória:</string>
+    <string name="how_to_play_7">Você tem 3 peças grandes alinhadas no final do seu turno.</string>
+    <string name="how_to_play_8">Você coloca sua 8ª peça grande no tabuleiro.</string>
+    <string name="how_to_play_9">É isso! Divirta-se!</string>
+    <string name="about_1">pobo é um boop. / Implementação Gekitai² para Android, escrita com Jetpack Compose.</string>
+    <string name="about_2">O aplicativo é gratuito, sem anúncios e de código aberto sob a Licença GNU GPL v3. O código é um fork modificado de um aplicativo de xadrez (https://github.com/bentrengrove/chess) de Ben Trengrove, sob Licença MIT.</string>
+    <string name="about_3">As ilustrações originais usadas no pobo são de bcogwene (https://pixabay.com/users/bcogwene-1114581/) e estão sob a Licença CC0.</string>
+    <string name="about_4">boop. e Gekitai² são jogos de Scott Brady. boop. é distribuído pela Smirk &amp; Dagger Games.</string>
+    <string name="select_puzzle">Selecionar um desafio</string>
+    <string name="victory_condition_1">Vença em %s jogadas!</string>
+</resources>

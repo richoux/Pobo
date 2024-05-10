@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="how_to_play">Jak hrát</string>
+    <string name="about">O aplikaci</string>
+    <string name="buy_me_a_coffee">Líbí se vám?\\nKupte mi kávu!</string>
+    <string name="rate_it">Líbí se vám?\\nOhodnoťte to!</string>
+    <string name="github">Zdroj na GitHubu</string>
+    <string name="app_name">pobo</string>
+    <string name="resume">Pokračovat v hře</string>
+    <string name="ai_game">Jeden hráč</string>
+    <string name="human_game">Dva hráči</string>
+    <string name="ai_vs_ai_game">Počítač proti počítači</string>
+    <string name="puzzle">Hlavolamy</string>
+    <string name="select_first_player">Hrát jako</string>
+    <string name="blue">Modré</string>
+    <string name="red">Červené</string>
+    <string name="random">Náhodný</string>
+    <string name="turn">Tah hráče:</string>
+    <string name="promotion">Promoce</string>
+    <string name="select_piece">Vyberte si svoji figurku:</string>
+    <string name="select_promotion">Vyberte si své promoce</string>
+    <string name="win">%s vyhrává!</string>
+    <string name="newgame">Nová hra?</string>
+    <string name="sure">Jistě!</string>
+    <string name="next_time">Příště</string>
+    <string name="how_to_play_1">Hra začíná prázdným hracím polem. Hráči mají na výběr ze 8 malých figurek a postupně je umísťují.</string>
+    <string name="how_to_play_2">Když je figurka umístěna, vytlačí všechny sousední figurky z jednoho pole, pokud není blokována jinou figurkou.</string>
+    <string name="how_to_play_3">Velké figurky mohou vytlačit jakékoli jiné figurky, ale malé nemohou vytlačit velké.</string>
+    <string name="how_to_play_4">Když je figurka vytlačena z pole, vrátí se do poolu svého hráče.</string>
+    <string name="how_to_play_5">Pokud jsou 3 vaše kusy zarovnány do řady, jsou odstraněny z pole na konci vašeho tahu a vrátí se do vašeho poolu. Malé figurky odstraněné tímto způsobem jsou povýšeny na velké. Pokud jsou zarovnány více než 3 figurky, vyberete 3 sousední figurky k odstranění. Pokud umístíte všechny 8 figurky na pole, musíte vybrat jednu figurku k odstranění z pole. V tomto případě je tato figurka povýšena na velkou figurku.</string>
+    <string name="how_to_play_6">Existují 2 výherní podmínky:</string>
+    <string name="how_to_play_7">Máte 3 velké figurky zarovnané do řady na konci svého tahu.</string>
+    <string name="how_to_play_8">Umístíte svoji 8. velkou figurku na pole.</string>
+    <string name="how_to_play_9">To je vše! Užijte si to!</string>
+    <string name="about_1">pobo je implementace boop. / Gekitai² pro Android, napsaná s použitím Jetpack Compose.</string>
+    <string name="about_2">Aplikace je bezplatná, bez reklam a open-source pod licencí GNU GPL v3. Kód je upravenou odnoží šachové aplikace (https://github.com/bentrengrove/chess) od Bena Trengrovea, pod licencí MIT.</string>
+    <string name="about_3">Originální ilustrace použité v pobu jsou od bcogwene (https://pixabay.com/users/bcogwene-1114581/) a jsou pod licencí CC0.</string>
+    <string name="about_4">boop. a Gekitai² jsou hry od Scotta Bradyho. boop. je distribuován společností Smirk &amp; Dagger Games.</string>
+    <string name="select_puzzle">Vyberte hlavolam</string>
+    <string name="victory_condition_1">Vyhrát po %s tahu!</string>
+</resources>
