@@ -2,8 +2,8 @@
 <resources>
     <string name="how_to_play">Jak grać</string>
     <string name="about">O aplikacji</string>
-    <string name="buy_me_a_coffee">"Podoba Ci się?\\nPostaw mi kawę! "</string>
-    <string name="rate_it">Podoba Ci się?\\nZostaw ocenę!</string>
+    <string name="buy_me_a_coffee">"Podoba Ci się?\nPostaw mi kawę! "</string>
+    <string name="rate_it">Podoba Ci się?\nZostaw ocenę!</string>
     <string name="github">Kod źródłowy na GitHub</string>
     <string name="app_name">pobo</string>
     <string name="resume">"Wznów grę "</string>

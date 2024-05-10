@@ -2,8 +2,8 @@
 <resources>
     <string name="how_to_play">Como jogar</string>
     <string name="about">Sobre</string>
-    <string name="buy_me_a_coffee">Gostou?\\nMe compra um café!</string>
-    <string name="rate_it">Gostou?\\nAvalie!</string>
+    <string name="buy_me_a_coffee">Gostou?\nMe compra um café!</string>
+    <string name="rate_it">Gostou?\nAvalie!</string>
     <string name="github">Código-fonte no GitHub</string>
     <string name="app_name">pobo</string>
     <string name="resume">Continuar Jogo</string>

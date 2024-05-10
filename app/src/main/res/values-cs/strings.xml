@@ -2,8 +2,8 @@
 <resources>
     <string name="how_to_play">Jak hrát</string>
     <string name="about">O aplikaci</string>
-    <string name="buy_me_a_coffee">Líbí se vám?\\nKupte mi kávu!</string>
-    <string name="rate_it">Líbí se vám?\\nOhodnoťte to!</string>
+    <string name="buy_me_a_coffee">Líbí se vám?\nKupte mi kávu!</string>
+    <string name="rate_it">Líbí se vám?\nOhodnoťte to!</string>
     <string name="github">Zdroj na GitHubu</string>
     <string name="app_name">pobo</string>
     <string name="resume">Pokračovat v hře</string>
