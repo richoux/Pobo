@@ -3,6 +3,7 @@
     <!--    Burger menu-->
     <string name="how_to_play">How to play</string>
     <string name="about">About</string>
+    <string name="language">Language</string>
     <string name="buy_me_a_coffee">Like it?\nBuy me a coffee!</string>
     <string name="rate_it">Like it?\nRate it!</string>
     <string name="github">Source on GitHub</string>
@@ -46,9 +47,10 @@
 
     <!--    About screen-->
     <string name="about_1">pobo is a boop. / Gekitai² implementation for Android, written with Jetpack Compose.</string>
-    <string name="about_2">The app is free, ad-free, and open source under the GNU GPL v3 License. The code is a modified fork of a Chess app (https://github.com/bentrengrove/chess) by Ben Trengrove, under MIT Licence.</string>
-    <string name="about_3">Original illustrations used in pobo are from bcogwene (https://pixabay.com/users/bcogwene-1114581/) and are under CC0 Licence.</string>
-    <string name="about_4">boop. and Gekitai² are games from Scott Brady. boop. is distributed by Smirk &amp; Dagger Games.</string>
+    <string name="about_2">The app is free, ad-free, and open source under the GNU GPL v3 License. The code is a modified fork of a Chess app (https://github.com/bentrengrove/chess) by Ben Trengrove, under MIT License.</string>
+    <string name="about_3">boop. and Gekitai² are games from Scott Brady. boop. is distributed by Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Original illustrations used in pobo are from bcogwene (https://pixabay.com/users/bcogwene-1114581/) and are under CC0 License.</string>
+    <string name="about_5">Some icons are from https://icons8.com under Universal Multimedia License.</string>
 
     <!--    Puzzles-->
     <string name="select_puzzle">Select a puzzle</string>

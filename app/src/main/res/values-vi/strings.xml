@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--    Burger menu-->
     <string name="how_to_play">Cách chơi</string>
     <string name="about">Thông tin</string>
+    <string name="language">Ngôn ngữ</string>
     <string name="buy_me_a_coffee">Thích không?\nMua cho tôi một ly cà phê!</string>
     <string name="rate_it">Thích không?\nĐánh giá nó!</string>
     <string name="github">Nguồn trên GitHub</string>
+
+    <!--    Title screen-->
     <string name="app_name">pobo</string>
     <string name="resume">Tiếp tục trò chơi</string>
     <string name="ai_game">Một người chơi</string>
     <string name="human_game">Hai người chơi</string>
     <string name="ai_vs_ai_game">Máy tính vs Máy tính</string>
     <string name="puzzle">Câu đố</string>
+
+    <!--    Title screen drop menu-->
     <string name="select_first_player">Chơi như là</string>
     <string name="blue">Màu xanh dương</string>
     <string name="red">Màu đỏ</string>
     <string name="random">Ngẫu nhiên</string>
+
+    <!--    Game screen-->
     <string name="turn">Lượt của người chơi:</string>
     <string name="promotion">Thăng cấp</string>
     <string name="select_piece">Chọn mảnh của bạn:</string>
     <string name="select_promotion">Chọn các thăng cấp của bạn</string>
+
+    <!--    Game screen Alert dialog-->
     <string name="win">%s chiến thắng!</string>
     <string name="newgame">Trò chơi mới?</string>
     <string name="sure">Chắc chắn!</string>
     <string name="next_time">Lần sau</string>
+
+    <!--    How to play screen-->
     <string name="how_to_play_1">Trò chơi bắt đầu với một bảng trống. Người chơi có một bể có 8 mảnh nhỏ và đặt một mảnh xen kẽ.</string>
     <string name="how_to_play_2">Khi một mảnh được đặt, nó đẩy tất cả các mảnh kề cạnh từ một ô vuông, trừ khi một mảnh bị chặn bởi một mảnh khác.</string>
     <string name="how_to_play_3">Các mảnh lớn có thể đẩy đi bất kỳ mảnh nào khác, nhưng mảnh nhỏ không thể đẩy đi mảnh lớn.</string>
@@ -32,10 +44,15 @@
     <string name="how_to_play_7">Bạn có 3 mảnh lớn được thành hàng ở cuối lượt của bạn.</string>
     <string name="how_to_play_8">Bạn đặt mảnh lớn thứ 8 của mình trên bảng.</string>
     <string name="how_to_play_9">Đó là tất cả! Chơi vui vẻ!</string>
+
+    <!--    About screen-->
     <string name="about_1">pobo là một ứng dụng boop. / Gekitai² cho Android, được viết bằng Jetpack Compose.</string>
     <string name="about_2">Ứng dụng miễn phí, không có quảng cáo và mã nguồn mở dưới Giấy phép GNU GPL v3. Mã nguồn là một bản sao được sửa đổi từ một ứng dụng Cờ vua (https://github.com/bentrengrove/chess) của Ben Trengrove, dưới Giấy phép MIT.</string>
-    <string name="about_3">Các hình minh họa gốc được sử dụng trong pobo từ bcogwene (https://pixabay.com/users/bcogwene-1114581/) và được phân phối dưới Giấy phép CC0.</string>
-    <string name="about_4">boop. và Gekitai² là các trò chơi của Scott Brady. boop. được phân phối bởi Smirk &amp; Dagger Games.</string>
+    <string name="about_3">boop. và Gekitai² là các trò chơi của Scott Brady. boop. được phân phối bởi Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Các hình minh họa gốc được sử dụng trong pobo từ bcogwene (https://pixabay.com/users/bcogwene-1114581/) và được phân phối dưới Giấy phép CC0.</string>
+    <string name="about_5">Một số biểu tượng được lấy từ https://icons8.com theo Giấy phép Đa phương tiện Đa phương tiện.</string>
+
+    <!--    Puzzles-->
     <string name="select_puzzle">Chọn một câu đố</string>
     <string name="victory_condition_1">Thắng trong %s nước đi!</string>
 </resources>

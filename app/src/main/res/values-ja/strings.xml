@@ -3,6 +3,7 @@
     <!--    Burger menu-->
     <string name="how_to_play">プレイ方法</string>
     <string name="about">情報</string>
+    <string name="language">言語</string>
     <string name="buy_me_a_coffee">気に入りましたか？\nコーヒーをご馳走します！</string>
     <string name="rate_it">気に入りましたか？\n評価してください！</string>
     <string name="github">GitHubでソースコードを見る</string>
@@ -47,8 +48,9 @@
     <!--    About screen-->
     <string name="about_1">poboは、Jetpack Composeを使用してAndroid向けに書かれたboop. / Gekitai²の実装です。</string>
     <string name="about_2">このアプリは、GNU GPL v3ライセンスの下で無料で広告のないオープンソースです。コードは、MITライセンスの下でBen Trengroveによるチェスアプリ（https://github.com/bentrengrove/chess）の修正されたフォークです。</string>
-    <string name="about_3">poboで使用されているオリジナルのイラストは、bcogwene（https://pixabay.com/users/bcogwene-1114581/）から提供されており、CC0ライセンスの下で利用できます。</string>
-    <string name="about_4">boop.とGekitai²は、Scott Bradyのゲームです。boop.はSmirk &amp; Dagger Gamesによって配信されています。</string>
+    <string name="about_3">boop.とGekitai²は、Scott Bradyのゲームです。boop.はSmirk &amp; Dagger Gamesによって配信されています。</string>
+    <string name="about_4">poboで使用されているオリジナルのイラストは、bcogwene（https://pixabay.com/users/bcogwene-1114581/）から提供されており、CC0ライセンスの下で利用できます。</string>
+    <string name="about_5">一部のアイコンは、ユニバーサル マルチメディア ライセンスに基づいて https://icons8.com からのものです。</string>
 
     <!--    Puzzles-->
     <string name="select_puzzle">パズルを選択してください</string>

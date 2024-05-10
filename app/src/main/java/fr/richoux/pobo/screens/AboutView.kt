@@ -80,5 +80,17 @@ fun  AboutView() {
       }
       Spacer(modifier = Modifier.height(16.dp))
     }
+    item {
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+      ) {
+        Text(
+          text = stringResource(id = R.string.about_5),
+          color = MaterialTheme.colors.onPrimary
+        )
+      }
+      Spacer(modifier = Modifier.height(16.dp))
+    }
   }
 }
