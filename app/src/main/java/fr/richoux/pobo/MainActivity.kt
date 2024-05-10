@@ -247,16 +247,8 @@ private fun RowMenuPopup( text: String, content: String, icon: Int, onClick: () 
               .padding(4.dp),
             horizontalArrangement = Arrangement.End
           ) {
-//            Button(
-//              modifier = Modifier
-//                .width(200.dp)
-//                .background(MaterialTheme.colors.secondary, RoundedCornerShape(12)),
-//              onClick = {
-//                showLanguages.value = false
-//              }
-//            ) {
               Text(
-                text = "Cancel",
+                text = stringResource(id = R.string.cancel),
                 color = MaterialTheme.colors.onSecondary,
                 style = MaterialTheme.typography.h6,
                 modifier = Modifier.clickable(

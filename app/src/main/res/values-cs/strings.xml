@@ -4,6 +4,7 @@
     <string name="how_to_play">Jak hrát</string>
     <string name="about">O aplikaci</string>
     <string name="language">Jazyk</string>
+    <string name="cancel">Storno</string>
     <string name="buy_me_a_coffee">Líbí se vám?\nKupte mi kávu!</string>
     <string name="rate_it">Líbí se vám?\nOhodnoťte to!</string>
     <string name="github">Zdroj na GitHubu</string>
@@ -47,7 +48,7 @@
 
     <!--    About screen-->
     <string name="about_1">pobo je implementace boop. / Gekitai² pro Android, napsaná s použitím Jetpack Compose.</string>
-    <string name="about_2">Aplikace je bezplatná, bez reklam a open-source pod licencí GNU GPL v3. Kód je upravenou odnoží šachové aplikace (https://github.com/bentrengrove/chess) od Bena Trengrovea, pod licencí MIT.</string>
+    <string name="about_2">Aplikace je bezplatná, bez reklam a open-source pod licencí GNU GPL v3. Kód je upravenou verzi šachové aplikace (https://github.com/bentrengrove/chess) od Bena Trengrovea, pod licencí MIT.</string>
     <string name="about_3">boop. a Gekitai² jsou hry od Scotta Bradyho. boop. je distribuován společností Smirk &amp; Dagger Games.</string>
     <string name="about_4">Originální ilustrace použité v pobu jsou od bcogwene (https://pixabay.com/users/bcogwene-1114581/) a jsou pod licencí CC0.</string>
     <string name="about_5">Některé ikony jsou z https://icons8.com pod Universal Multimedia License.</string>
