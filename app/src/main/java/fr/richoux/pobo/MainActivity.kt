@@ -5,11 +5,13 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -28,10 +31,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -41,6 +46,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,13 +54,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import fr.richoux.pobo.screens.AboutView
 import fr.richoux.pobo.screens.HowToPlayView
+import fr.richoux.pobo.screens.TitleView
 import fr.richoux.pobo.screens.gamescreen.GameActions
 import fr.richoux.pobo.screens.gamescreen.GameView
 import fr.richoux.pobo.screens.gamescreen.GameViewModel
-import fr.richoux.pobo.screens.TitleView
 import fr.richoux.pobo.ui.PoboTheme
 import kotlinx.coroutines.launch
+import java.util.Locale
 
+
+private val showLanguages = mutableStateOf(false)
+private val locale = mutableStateOf<LocaleListCompat>(LocaleListCompat.forLanguageTags("en"))
 
 // from https://stackoverflow.com/questions/68611320/remember-lazycolumn-scroll-position-jetpack-compose
 private val SaveMap = mutableMapOf<String, KeyParams>()
@@ -116,6 +126,101 @@ private fun RowMenu( text: String, content: String, icon: ImageVector, onClick: 
       style = MaterialTheme.typography.h5,
       modifier = Modifier.padding(start = 30.dp)
     )
+  }
+}
+
+@Composable
+private fun ItemLanguage( language: String, code: String ) {
+  Row(
+    modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.SpaceBetween
+  ) {
+    Text(
+      text = language,
+      color = MaterialTheme.colors.onPrimary,
+      style = MaterialTheme.typography.h6,
+      modifier = Modifier
+        .fillMaxWidth()
+        .clickable(
+          enabled = true,
+          onClickLabel = null,
+          role = null,
+          onClick = {
+            locale.value = LocaleListCompat.forLanguageTags(code)
+            AppCompatDelegate.setApplicationLocales(locale.value)
+            showLanguages.value = false
+          }
+        )
+    )
+  }
+}
+
+@Composable
+private fun RowMenuPopup( text: String, content: String, icon: ImageVector, onClick: () -> Unit ) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .height(64.dp)
+      .clickable(
+        enabled = true,
+        onClickLabel = null,
+        role = null,
+        onClick = onClick
+      ),
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    Icon(
+      icon,
+      modifier = Modifier
+        .size(36.dp)
+        .padding(start = 8.dp),
+      contentDescription = content
+    )
+    Text(
+      text = text,
+      style = MaterialTheme.typography.h5,
+      modifier = Modifier.padding(start = 30.dp)
+    )
+    if(showLanguages.value) {
+      LazyColumn {
+        item {
+          ItemLanguage("English", "en")
+        }
+        item {
+          ItemLanguage("اللغة العربية", "ar")
+        }
+        item {
+          ItemLanguage("Český", "cs")
+        }
+        item {
+          ItemLanguage("Français", "fr")
+        }
+        item {
+          ItemLanguage("Italiana", "it")
+        }
+        item {
+          ItemLanguage("日本語", "ja")
+        }
+        item {
+          ItemLanguage("Polski", "pl")
+        }
+        item {
+          ItemLanguage("Portugues", "pt")
+        }
+        item {
+          ItemLanguage("Slovenský", "sk")
+        }
+        item {
+          ItemLanguage("tiếng Việt", "vi")
+        }
+        item {
+          ItemLanguage("简体中文", "zh")
+        }
+        item {
+          ItemLanguage("繁體中文", "zh")
+        }
+      }
+    }
   }
 }
 
@@ -252,6 +357,14 @@ class MainActivity : AppCompatActivity() {
                     scaffoldState.drawerState.close()
                   }
                   navController.navigate(Screen.About.route)
+                }
+              )
+              RowMenuPopup(
+                text = "Language",
+                content = "Language",
+                icon = Icons.Outlined.Settings,
+                onClick = {
+                  showLanguages.value = true
                 }
               )
               RowMenuPaintNoTint(
