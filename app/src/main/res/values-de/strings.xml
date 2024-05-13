@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">Anleitung</string>
+    <string name="about">Über diese App</string>
+    <string name="language">Sprache</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="buy_me_a_coffee">Gefällt es dir?\nKauf mir einen Kaffee!</string>
+    <string name="rate_it">Gefällt es dir?\nBewerte es!</string>
+    <string name="github">Quellcode auf GitHub</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">Spiel fortsetzen</string>
+    <string name="ai_game">Ein Spieler</string>
+    <string name="human_game">Zwei Spieler</string>
+    <string name="ai_vs_ai_game">Computer gegen Computer</string>
+    <string name="puzzle">Puzzles</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">Spielen als</string>
+    <string name="blue">Blau</string>
+    <string name="red">Rot</string>
+    <string name="random">Zufällig</string>
+
+    <!--    Game screen-->
+    <string name="turn">Spieler am Zug:</string>
+    <string name="promotion">Beförderung</string>
+    <string name="select_piece">Wähle deine Spielfigur:</string>
+    <string name="select_promotion">Wähle deine Beförderung(en)</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">%s gewinnt!</string>
+    <string name="newgame">Neues Spiel?</string>
+    <string name="sure">Ja!</string>
+    <string name="next_time">Nächstes Mal</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">Das Spiel beginnt mit einem leeren Spielfeld. Die Spieler haben einen Vorrat von 8 kleinen Spielfiguren und platzieren abwechselnd eine Figur.</string>
+    <string name="how_to_play_2">Wenn eine Spielfigur platziert wird, schiebt sie alle benachbarten Figuren von einem Feld weg, außer eine Figur wird von einer anderen Figur blockiert.</string>
+    <string name="how_to_play_3">Große Spielfiguren können alle anderen Spielfiguren wegstoßen, aber kleine Spielfiguren können keine großen Spielfiguren wegstoßen.</string>
+    <string name="how_to_play_4">Wenn eine Spielfigur vom Brett geschoben wird, kehrt sie in den Vorrat seines Spielers zurück.</string>
+    <string name="how_to_play_5">Wenn 3 deiner Spielfiguren in einer Reihe ausgerichtet sind, werden sie am Ende deines Zuges vom Spielbrett entfernt und kehren in deinen Vorrat zurück. Kleine Spielfiguren, die man auf diese Weise entfernt, werden zu großen Spielfiguren befördert. Wenn mehr als 3 Spielfiguren ausgerichtet sind, wählst du 3 benachbarte Spielfiguren zum Entfernen aus. Sobald du deine achte Spielfigur auf dem Brett platziert hast, musst du eine Spielfigur auswählen, die du vom Spielbrett entfernen möchtest. Wenn diese Figur klein ist, wird sie zu einer großen Spielfigur befördert.</string>
+    <string name="how_to_play_6">Es gibt 2 Gewinnbedingungen:</string>
+    <string name="how_to_play_7">Du hast am Ende deines Zuges 3 große Spielfiguren ausgerichtet.</string>
+    <string name="how_to_play_8">Du platzierst deine 8. große Spielfigur auf dem Brett.</string>
+    <string name="how_to_play_9">Das war\'s! Viel Spaß!</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo ist eine Implementierung von boop. / Gekitai² für Android, geschrieben mit Jetpack Compose.</string>
+    <string name="about_2">Die App ist kostenlos, werbefrei und als Open-Source-Implementierung unter der GNU GPL v3-Lizenz verfügbar. Der Code ist ein modifizierter Fork einer Schach-App (https://github.com/bentrengrove/chess) von Ben Trengrove, unter MIT-Lizenz.</string>
+    <string name="about_3">boop. und Gekitai² sind Spiele von Scott Brady. boop. wird von Smirk &amp; Dagger Games vertrieben.</string>
+    <string name="about_4">Die Originalillustrationen, die in pobo verwendet werden, stammen von bcogwene (https://pixabay.com/users/bcogwene-1114581/) und stehen unter der CC0-Lizenz.</string>
+    <string name="about_5">Einige Icons stammen von https://icons8.com unter der Universal Multimedia-Lizenz.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Wähle ein Puzzle</string>
+    <string name="victory_condition_1">Gewinne in %s Zügen!</string>
+</resources>

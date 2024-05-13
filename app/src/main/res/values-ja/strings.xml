@@ -5,7 +5,7 @@
     <string name="about">情報</string>
     <string name="language">言語</string>
     <string name="cancel">キャンセル</string>
-    <string name="buy_me_a_coffee">気に入りましたか？\nコーヒーをご馳走します！</string>
+    <string name="buy_me_a_coffee">気に入りましたか？\n制作者にコーヒーをご馳走します！</string>
     <string name="rate_it">気に入りましたか？\n評価してください！</string>
     <string name="github">GitHubでソースコードを見る</string>
 
@@ -36,9 +36,9 @@
     <string name="next_time">次回</string>
 
     <!--    How to play screen-->
-    <string name="how_to_play_1">ゲームは空の盤面から始まります。プレイヤーは8つの小さな駒を持ち、交互に駒を配置します。</string>
-    <string name="how_to_play_2">駒を配置すると、隣接するすべての駒が1つのマスから押し出されますが、別の駒によってブロックされている場合を除きます。</string>
-    <string name="how_to_play_3">大きな駒は他のどの駒も押し出せますが、小さい駒は大きな駒を押し出すことはできません。</string>
+    <string name="how_to_play_1">ゲームは空の盤面から始まります。プレイヤーは最初、8つの小さな駒を持ち、交互に駒を配置します。</string>
+    <string name="how_to_play_2">駒を配置すると、隣接するすべての駒が1マス押し出されますが、別の駒によってブロックされている場合を除きます。</string>
+    <string name="how_to_play_3">大きな駒はどの駒も押し出せますが、小さい駒は大きな駒を押し出すことはできません。</string>
     <string name="how_to_play_4">駒が盤面の外に押し出されると、その駒はプレーヤーのプールに戻ります。</string>
     <string name="how_to_play_5">自分の駒が3つ並んだ場合、その駒はターンの終わりに盤面から取り除かれ、自分のプールに戻ります。この方法で取り除かれた小さな駒は大きな駒に昇格します。3つ以上の駒が並んでいる場合、取り除く隣接する3つの駒を選択します。8つの駒を盤面に配置すると、盤面から1つの駒を取り除かなければなりません。この駒が小さな駒の場合、大きな駒に昇格します。</string>
     <string name="how_to_play_6">勝利条件は2つあります：</string>

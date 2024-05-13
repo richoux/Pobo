@@ -276,7 +276,7 @@ private fun TitleViewPreview(hasStarted: Boolean = false) {
       modifier = Modifier.weight(1f)
     )
     Text(
-      "v0.7.0",
+      "v0.7.1",
       color = MaterialTheme.colors.onPrimary,
       modifier = Modifier.align(Alignment.CenterHorizontally)
     )

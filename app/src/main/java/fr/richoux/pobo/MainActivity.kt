@@ -19,11 +19,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -116,7 +120,8 @@ private fun RowMenu( text: String, content: String, icon: ImageVector, onClick: 
   Row(
     modifier= Modifier
       .fillMaxWidth()
-      .height(64.dp)
+      //.height(64.dp)
+      .padding(vertical = 8.dp)
       .clickable(
         enabled = true,
         onClickLabel = null,
@@ -172,7 +177,8 @@ private fun RowMenuPopup( text: String, content: String, icon: Int, onClick: () 
   Row(
     modifier = Modifier
       .fillMaxWidth()
-      .height(64.dp)
+      //.height(64.dp)
+      .padding(vertical = 8.dp)
       .clickable(
         enabled = true,
         onClickLabel = null,
@@ -203,6 +209,7 @@ private fun RowMenuPopup( text: String, content: String, icon: Int, onClick: () 
             modifier = Modifier
               .fillMaxWidth()
               .background(MaterialTheme.colors.primaryVariant)
+              .weight(9f)
           ) {
             item {
               ItemLanguage("English", "en")
@@ -212,6 +219,9 @@ private fun RowMenuPopup( text: String, content: String, icon: Int, onClick: () 
             }
             item {
               ItemLanguage("Český", "cs")
+            }
+            item {
+              ItemLanguage("Deutsche", "de")
             }
             item {
               ItemLanguage("Français", "fr")
@@ -238,24 +248,28 @@ private fun RowMenuPopup( text: String, content: String, icon: Int, onClick: () 
               ItemLanguage("简体中文", "zh")
             }
             item {
-              ItemLanguage("繁體中文", "zh")
+              ItemLanguage("繁體中文", "zh-Hant-TW")
             }
           }
           Row(
             modifier = Modifier
               .fillMaxWidth()
-              .padding(4.dp),
-            horizontalArrangement = Arrangement.End
+              .padding(4.dp)
+              .weight(1f)
           ) {
               Text(
                 text = stringResource(id = R.string.cancel),
                 color = MaterialTheme.colors.onSecondary,
                 style = MaterialTheme.typography.h6,
-                modifier = Modifier.clickable(
+                modifier = Modifier
+                  .fillMaxSize()
+                  .wrapContentHeight()
+                  .clickable(
                   onClick = {
                     showLanguages.value = false
                   }
-                )
+                ),
+                textAlign = TextAlign.Center
               )
 //            }
           }
@@ -270,7 +284,8 @@ private fun RowMenuPaint( text: String, content: String, icon: Int, onClick: () 
   Row(
     modifier= Modifier
       .fillMaxWidth()
-      .height(64.dp)
+      //.height(64.dp)
+      .padding(vertical = 8.dp)
       .clickable(
         enabled = true,
         onClickLabel = null,
@@ -300,7 +315,8 @@ private fun RowMenuPaintNoTint( text: String, content: String, icon: Int, onClic
   Row(
     modifier= Modifier
       .fillMaxWidth()
-      .height(64.dp)
+      //.height(64.dp)
+      .padding(vertical = 8.dp)
       .clickable(
         enabled = true,
         onClickLabel = null,

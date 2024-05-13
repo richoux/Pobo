@@ -357,7 +357,8 @@ fun EndOfGameDialog(
               horizontalAlignment = Alignment.CenterHorizontally
             ) {
               Text(
-                text = stringResource(id = R.string.newgame)
+                text = stringResource(id = R.string.newgame),
+                style = MaterialTheme.typography.h6
               )
             }
           },
