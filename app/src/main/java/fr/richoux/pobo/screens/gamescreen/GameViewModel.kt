@@ -156,7 +156,7 @@ class GameViewModel : ViewModel() {
     _game.changeWithHistory(last)
     _game.board = last.board
     _game.currentPlayer = last.player
-    lastMovePosition = lastMove.to
+    lastMovePosition = if( _moveHistory.isEmpty() ) null else _moveHistory.last().to
     moveNumber = last.moveNumber
     reset()
     historyCall = true
