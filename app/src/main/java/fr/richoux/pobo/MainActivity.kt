@@ -78,7 +78,13 @@ import java.util.Locale
 
 
 private val showLanguages = mutableStateOf(false)
-private val locale = mutableStateOf<LocaleListCompat>(LocaleListCompat.getDefault())
+// Arabic not ready
+private val locale = mutableStateOf<LocaleListCompat>(
+  when(LocaleListCompat.getDefault()) {
+    LocaleListCompat.forLanguageTags("ar") -> LocaleListCompat.forLanguageTags("en")
+    else -> LocaleListCompat.getDefault()
+  }
+)
 
 // from https://stackoverflow.com/questions/68611320/remember-lazycolumn-scroll-position-jetpack-compose
 private val SaveMap = mutableMapOf<String, KeyParams>()
@@ -214,14 +220,17 @@ private fun RowMenuPopup( text: String, content: String, icon: Int, onClick: () 
             item {
               ItemLanguage("English", "en")
             }
-            item {
-              ItemLanguage("اللغة العربية", "ar")
-            }
+//            item {
+//              ItemLanguage("اللغة العربية", "ar")
+//            }
             item {
               ItemLanguage("Český", "cs")
             }
             item {
               ItemLanguage("Deutsche", "de")
+            }
+            item {
+              ItemLanguage("Ελληνική", "el")
             }
             item {
               ItemLanguage("Español", "es")
