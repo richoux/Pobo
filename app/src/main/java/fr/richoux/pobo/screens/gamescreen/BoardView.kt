@@ -14,7 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
@@ -71,8 +73,12 @@ fun BoardBackground(
     for(y in 0 until 6) {
       Row {
         for(x in 0 until 6) {
-          val position = Position(x, y)
-          val white = y % 2 == x % 2
+          var xx = x
+          if( LocalLayoutDirection.current == LayoutDirection.Rtl ) {
+            xx = 5 - x
+          }
+          val position = Position(xx, y)
+          val white = y % 2 == xx % 2
           val color = if(position.isSame(lastMove)) {
             if(white) BoardColors.lastMoveLight else BoardColors.lastMoveDark
           } else {
@@ -96,7 +102,7 @@ fun BoardBackground(
           ) {
             if(y == 5) {
               Text(
-                text = "${'a' + x}",
+                text = "${'a' + xx}",
                 modifier = Modifier.align(Alignment.BottomEnd),
                 style = MaterialTheme.typography.caption,
                 color = Color.Black.copy(0.5f)
@@ -148,7 +154,7 @@ private fun BoardLayout(
   modifier: Modifier = Modifier,
   pieces: List<Pair<Position, Piece>>
 ) {
-  val constraints: ConstraintSet = constraintsFor(pieces)
+  val constraints: ConstraintSet = constraintsFor(pieces, LocalLayoutDirection.current == LayoutDirection.Rtl)
 
   ConstraintLayout(
     modifier = modifier,
@@ -163,7 +169,7 @@ private fun BoardLayout(
   }
 }
 
-private fun constraintsFor(pieces: List<Pair<Position, Piece>>): ConstraintSet {
+private fun constraintsFor(pieces: List<Pair<Position, Piece>>, rtl: Boolean): ConstraintSet {
   return ConstraintSet {
     val horizontalGuidelines = (0..6).map { createGuidelineFromAbsoluteLeft(it.toFloat() / 6f) }
     val verticalGuidelines = (0..6).map { createGuidelineFromTop(it.toFloat() / 6f) }
@@ -172,8 +178,14 @@ private fun constraintsFor(pieces: List<Pair<Position, Piece>>): ConstraintSet {
       constrain(pieceRef) {
         top.linkTo(verticalGuidelines[position.y])
         bottom.linkTo(verticalGuidelines[position.y + 1])
-        start.linkTo(horizontalGuidelines[position.x])
-        end.linkTo((horizontalGuidelines[position.x + 1]))
+        if( rtl ) {
+          start.linkTo(horizontalGuidelines[position.x + 1])
+          end.linkTo((horizontalGuidelines[position.x]))
+        }
+        else {
+          start.linkTo(horizontalGuidelines[position.x])
+          end.linkTo((horizontalGuidelines[position.x + 1]))
+        }
         width = Dimension.fillToConstraints
         height = Dimension.fillToConstraints
       }

@@ -16,16 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as CColor
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
-import fr.richoux.pobo.Screen
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
 import fr.richoux.pobo.engine.Color as EColor
@@ -36,17 +37,33 @@ private const val TAG = "pobotag GameView"
 fun GameActions(viewModel: GameViewModel = viewModel()) {
   val canGoBack by viewModel.canGoBack.collectAsState()
   val canGoForward by viewModel.canGoForward.collectAsState()
-  IconButton(
-    onClick = { viewModel.goBackMove() },
-    enabled = canGoBack
-  ) {
-    Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
+  if( LocalLayoutDirection.current == LayoutDirection.Rtl ) {
+    IconButton(
+      onClick = { viewModel.goForwardMove() },
+      enabled = canGoForward
+    ) {
+      Icon(Icons.Filled.ArrowBack, contentDescription = "Redo Move")
+    }
+    IconButton(
+      onClick = { viewModel.goBackMove() },
+      enabled = canGoBack
+    ) {
+      Icon(Icons.Filled.ArrowForward, contentDescription = "Undo Move")
+    }
   }
-  IconButton(
-    onClick = { viewModel.goForwardMove() },
-    enabled = canGoForward
-  ) {
-    Icon(Icons.Filled.ArrowForward, contentDescription = "Redo Move")
+  else {
+    IconButton(
+      onClick = { viewModel.goBackMove() },
+      enabled = canGoBack
+    ) {
+      Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
+    }
+    IconButton(
+      onClick = { viewModel.goForwardMove() },
+      enabled = canGoForward
+    ) {
+      Icon(Icons.Filled.ArrowForward, contentDescription = "Redo Move")
+    }
   }
 }
 
