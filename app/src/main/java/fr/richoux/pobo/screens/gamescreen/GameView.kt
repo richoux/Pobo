@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
+import fr.richoux.pobo.Screen
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
 import fr.richoux.pobo.engine.Color as EColor
@@ -139,7 +140,8 @@ fun columnAllMode(
   )
   Spacer(modifier = Modifier.height(32.dp))
   Row(
-    modifier = Modifier.fillMaxWidth(0.5f),
+//    modifier = Modifier.fillMaxWidth(),
+    modifier = Modifier.fillMaxWidth(0.7f),
     horizontalArrangement = Arrangement.SpaceBetween
   ) {
     Text(
@@ -324,7 +326,7 @@ fun EndOfGameDialog(
   val openAlertDialog = remember { mutableStateOf(true) }
   if(viewModel.xp && viewModel.countNumberGames < 100) {
     openAlertDialog.value = false
-    viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI, true)
+    viewModel.newGame(viewModel.navController, viewModel.p1IsAI, viewModel.p2IsAI, true)
   }
   else {
     when {
@@ -370,14 +372,18 @@ fun EndOfGameDialog(
               Button(
                 {
                   openAlertDialog.value = false
-                  viewModel.newGame(viewModel.p1IsAI, viewModel.p2IsAI, false)
+                  viewModel.newGame(viewModel.navController, viewModel.p1IsAI, viewModel.p2IsAI, false)
                 },
                 modifier = Modifier.padding(bottom = 12.dp)
               ) {
                 Text(text = stringResource(id = R.string.sure))
               }
               Button(
-                { openAlertDialog.value = false },
+                {
+                  openAlertDialog.value = false
+                  viewModel.navController.popBackStack()
+//                  viewModel.navController.navigate(Screen.Title.route)
+                },
                 modifier = Modifier.padding(bottom = 12.dp)
               ) {
                 Text(text = stringResource(id = R.string.next_time))

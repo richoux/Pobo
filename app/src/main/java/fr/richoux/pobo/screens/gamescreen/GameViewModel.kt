@@ -2,6 +2,7 @@ package fr.richoux.pobo.screens.gamescreen
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.engine.ai.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,6 +64,8 @@ class GameViewModel : ViewModel() {
     private set
   var hasStarted: Boolean = false
   var selectedValue = MutableStateFlow<String>("")
+  lateinit var navController: NavController
+    private set
 
   /*** Member functions ***/
   fun aiP1(): String = aiP1.toString()
@@ -86,7 +89,8 @@ class GameViewModel : ViewModel() {
     pieceTypeToPlay = null
   }
 
-  fun newGame(p1IsAI: Boolean, p2IsAI: Boolean, xp: Boolean) {
+  fun newGame(navController: NavController, p1IsAI: Boolean, p2IsAI: Boolean, xp: Boolean) {
+    this.navController = navController
     this.p1IsAI = p1IsAI
     this.p2IsAI = p2IsAI
     this.xp = xp

@@ -67,7 +67,7 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
       modifier = Modifier.weight(1f)
     )
     Text(
-      "v0.7.1",
+      "v0.7.2",
       color = MaterialTheme.colors.onPrimary,
       modifier = Modifier.align(Alignment.CenterHorizontally)
     )
@@ -229,7 +229,7 @@ private fun newGame(
       p2IsAI_copy = true
     }
   }
-  gameViewModel.newGame(p1IsAI_copy, p2IsAI_copy, xp)
+  gameViewModel.newGame(navController, p1IsAI_copy, p2IsAI_copy, xp)
   navController.navigate(Screen.Game.route)
 }
 
