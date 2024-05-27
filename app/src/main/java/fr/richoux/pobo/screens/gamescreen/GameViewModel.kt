@@ -384,6 +384,8 @@ class GameViewModel : ViewModel() {
   fun autopromotions() {
     val promotable = _game.getPossiblePromotions(_game.board)
     if(promotable.size == 1 && stateSelection != GameViewModelState.IDLE) {
+      if( !( p1IsAI && p2IsAI ) )
+        Thread.sleep(500)
       promotable[0].forEach {
         _game.board = _game.board.removePieceAndPromoteIt(it)
       }
@@ -490,11 +492,11 @@ class GameViewModel : ViewModel() {
     _game.promoteOrRemovePieces(piecesToPromote)
     _game.checkVictory()
     _promotionListIndex.clear()
-    if(!xp) {
-      piecesToPromote.forEach {
-        Log.d(TAG, "[${it}]")
-      }
-    }
+//    if(!xp) {
+//      piecesToPromote.forEach {
+//        Log.d(TAG, "[${it}]")
+//      }
+//    }
     piecesToPromote.clear()
     stateSelection = GameViewModelState.IDLE
     _game.changePlayer()

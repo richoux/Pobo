@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
+import kotlin.math.max
 import fr.richoux.pobo.engine.Color as EColor
 
 private const val TAG = "pobotag GameView"
@@ -39,16 +40,16 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
   val canGoForward by viewModel.canGoForward.collectAsState()
   if( LocalLayoutDirection.current == LayoutDirection.Rtl ) {
     IconButton(
-      onClick = { viewModel.goForwardMove() },
-      enabled = canGoForward
-    ) {
-      Icon(Icons.Filled.ArrowBack, contentDescription = "Redo Move")
-    }
-    IconButton(
       onClick = { viewModel.goBackMove() },
       enabled = canGoBack
     ) {
       Icon(Icons.Filled.ArrowForward, contentDescription = "Undo Move")
+    }
+    IconButton(
+      onClick = { viewModel.goForwardMove() },
+      enabled = canGoForward
+    ) {
+      Icon(Icons.Filled.ArrowBack, contentDescription = "Redo Move")
     }
   }
   else {
@@ -143,6 +144,8 @@ fun columnAllMode(
   val board = viewModel.getBoard()
   val player = viewModel.getPlayer()
   val modifier = if(landscapeMode) Modifier else Modifier.fillMaxWidth()
+  val length_text = (stringResource(id = R.string.turn).length
+    + max(stringResource(id = R.string.blue).length, stringResource(id = R.string.red).length))
 
   PiecesStocksView(
     pool = board.getPlayerPool(EColor.Blue),
@@ -158,7 +161,17 @@ fun columnAllMode(
   Spacer(modifier = Modifier.height(32.dp))
   Row(
 //    modifier = Modifier.fillMaxWidth(),
-    modifier = Modifier.fillMaxWidth(0.7f),
+    modifier = Modifier.fillMaxWidth(
+      if( length_text <= 10 ) {
+        0.4f
+      }
+      else if( length_text <= 28 ) {
+        0.6f
+      }
+      else {
+        0.9f
+      }
+    ),
     horizontalArrangement = Arrangement.SpaceBetween
   ) {
     Text(
