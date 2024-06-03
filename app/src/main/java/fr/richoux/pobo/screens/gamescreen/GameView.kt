@@ -258,7 +258,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
     GameState.SELECTPOSITION -> {
 //      Log.d(TAG, "SELECTPOSITION ${player}")
       val onSelect: (Position) -> Unit = {
-        if(viewModel.canPlayAt(it)) {
+        if(viewModel.canPlayAt(it) && !viewModel.IsAIToPLay()) {
           viewModel.playAt(it)
         }
       }
