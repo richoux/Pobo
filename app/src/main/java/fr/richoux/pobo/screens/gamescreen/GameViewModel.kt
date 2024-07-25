@@ -64,6 +64,7 @@ class GameViewModel : ViewModel() {
     private set
   var hasStarted: Boolean = false
   var selectedValue = MutableStateFlow<String>("")
+  var needRefreshBoardDisplay = MutableStateFlow<Boolean>(false)
   lateinit var navController: NavController
     private set
 
@@ -229,6 +230,7 @@ class GameViewModel : ViewModel() {
         }
 
         if(currentPlayerCanPromote && stateSelection != GameViewModelState.IDLE) {
+          needRefreshBoardDisplay.tryEmit(true)
           if(_game.getPossiblePromotions(_game.board).size == 1)
             GameState.AUTOPROMOTIONS
           else
@@ -281,14 +283,14 @@ class GameViewModel : ViewModel() {
     }
 
     var newState = nextGameState()
-//    Log.d(TAG, "Change to next state: ${_game.gameState} -> ${newState}")
+    Log.d(TAG, "Change to next state: ${_gameState.value} -> ${newState}")
     _gameState.value = newState
 
     if(newState == GameState.SELECTPIECE && IsAIToPLay() ) {
       newState = nextGameState()
-//      Log.d(TAG, "Change to next state again because AI: ${_game.gameState} -> ${newState}")
+      Log.d(TAG, "Change to next state again because AI: ${_gameState.value} -> ${newState}")
       _gameState.value = newState
-//      Log.d(TAG, "New game state 2: $newState")
+      Log.d(TAG, "New game state 2: $newState")
     }
 
     hasStarted = true
@@ -301,13 +303,14 @@ class GameViewModel : ViewModel() {
     }
 
     if(IsAIToPLay() && _gameState.value == GameState.SELECTPROMOTIONS ) {
+      Log.d(TAG, "Compute pieces to promote for AI")
       if(p1IsAI && _game.currentPlayer == Color.Blue)
         piecesToPromote = aiP1.select_promotion(_game).toMutableList()
       else
         piecesToPromote = aiP2.select_promotion(_game).toMutableList()
       validatePromotionsSelection()
     } else {
-//      Log.d(TAG, "Emitting ${newState}, color=${currentPlayer}")
+      Log.d(TAG, "Emitting ${newState}, color=${_game.currentPlayer}")
       _gameState.tryEmit(newState)
     }
   }
@@ -354,6 +357,9 @@ class GameViewModel : ViewModel() {
 
     _game.checkVictoryFor(newBoard, _game.currentPlayer)
     _game.board = newBoard
+
+    needRefreshBoardDisplay.tryEmit(true)
+
     goToNextState()
   }
 
@@ -518,4 +524,5 @@ class GameViewModel : ViewModel() {
   fun twoTypesInPool(): Boolean = _game.board.hasTwoTypesInPool(_game.currentPlayer)
 
   fun resume() = _gameState.tryEmit(_gameState.value)
+  fun refreshDone() = needRefreshBoardDisplay.tryEmit(false)
 }

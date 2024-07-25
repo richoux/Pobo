@@ -232,11 +232,19 @@ fun columnAllMode(
 fun GameView(viewModel: GameViewModel = viewModel()) {
   LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   val gameState by viewModel.gameState.collectAsState()
+  val needRefreshBoardDisplay by viewModel.needRefreshBoardDisplay.collectAsState()
   val player = viewModel.getPlayer()
+
+  if(needRefreshBoardDisplay) {
+    MainView(
+      viewModel
+    )
+    viewModel.refreshDone()
+  }
 
   when(gameState) {
     GameState.INIT -> {
-//      Log.d(TAG, "INIT ${player}")
+      Log.d(TAG, "INIT ${player}")
       MainView(
         viewModel
       )
@@ -249,14 +257,14 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       viewModel.goToNextState()
     }
     GameState.SELECTPIECE -> {
-//      Log.d(TAG, "SELECTPIECE ${player}")
+      Log.d(TAG, "SELECTPIECE ${player}")
       MainView(
         viewModel,
         displayGameState = stringResource(id = R.string.select_piece)
       )
     }
     GameState.SELECTPOSITION -> {
-//      Log.d(TAG, "SELECTPOSITION ${player}")
+      Log.d(TAG, "SELECTPOSITION ${player}")
       val onSelect: (Position) -> Unit = {
         if(viewModel.canPlayAt(it) && !viewModel.IsAIToPLay()) {
           viewModel.playAt(it)
@@ -274,21 +282,21 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       }
     }
     GameState.CHECKPROMOTIONS -> {
-//      Log.d(TAG, "CHECKPROMOTIONS ${player}")
+      Log.d(TAG, "CHECKPROMOTIONS ${player}")
       MainView(
         viewModel
       )
       viewModel.checkPromotions()
     }
     GameState.AUTOPROMOTIONS -> {
-//      Log.d(TAG, "AUTOPROMOTIONS ${player}")
+      Log.d(TAG, "AUTOPROMOTIONS ${player}")
       MainView(
         viewModel
       )
       viewModel.autopromotions()
     }
     GameState.SELECTPROMOTIONS -> {
-//      Log.d(TAG, "SELECTPROMOTIONS ${player}")
+      Log.d(TAG, "SELECTPROMOTIONS ${player}")
       val onSelect: (Position) -> Unit = {
         viewModel.selectForPromotionOrCancel(it)
       }
@@ -299,7 +307,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       )
     }
     GameState.REFRESHSELECTPROMOTIONS -> {
-//      Log.d(TAG, "REFRESHSELECTPROMOTIONS ${player}")
+      Log.d(TAG, "REFRESHSELECTPROMOTIONS ${player}")
       MainView(
         viewModel
       )
