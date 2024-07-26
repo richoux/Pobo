@@ -158,7 +158,7 @@ private fun DropMenuButton(
             Text(
               text = stringResource(id = R.string.blue),
               style = MaterialTheme.typography.h4,
-              color = Color.Blue
+              color = Color(0xFFa8c8ff)
             )
           }
         }
@@ -200,7 +200,7 @@ private fun DropMenuButton(
             Text(
               text = stringResource(id = R.string.random),
               style = MaterialTheme.typography.h4,
-              color = Color.Black
+              color = Color.White
             )
           }
         }
@@ -330,7 +330,7 @@ private fun DropMenuButtonPreview(
             Text(
               text = stringResource(id = R.string.blue),
               style = MaterialTheme.typography.h4,
-              color = Color.Blue
+              color = Color(0xFFa8c8ff) //Color.Blue
             )
           }
         }
@@ -372,7 +372,7 @@ private fun DropMenuButtonPreview(
             Text(
               text = stringResource(id = R.string.random),
               style = MaterialTheme.typography.h4,
-              color = Color.Black
+              color = Color.White
             )
           }
         }
