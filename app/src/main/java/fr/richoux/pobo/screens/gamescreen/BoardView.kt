@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -33,31 +34,20 @@ fun BoardView(
   lastMove: Position?,
   onTap: (Position) -> Unit,
   promotionable: List<Position>,
-  selected: List<Position>,
-  landscapeMode: Boolean = false
+  selected: List<Position>
 ) {
-  // Get local density from composable
-  val localDensity = LocalDensity.current
+  BoxWithConstraints(
+    modifier = Modifier
+      .fillMaxWidth()
+      .aspectRatio(1f)
+  ) {
+    val squareSize = maxWidth / 6
 
-  // Create element height in dp state
-  var columnHeightDp by remember { mutableStateOf(0.dp) }
-
-  var modifier = modifier.aspectRatio(1.0f)
-  if(landscapeMode)
-    modifier = modifier.fillMaxHeight()
-  else
-    modifier = modifier.fillMaxWidth()
-
-  modifier = modifier.onGloballyPositioned { coordinates ->
-    // Set column height using the LayoutCoordinates
-    columnHeightDp = with(localDensity) { coordinates.size.height.toDp() }
-  }
-
-  Box(modifier) {
-    BoardBackground(lastMove, onTap, promotionable, selected)
+    BoardBackground(lastMove, onTap, promotionable, selected, squareSize)
     BoardLayout(
       pieces = board.allPieces,
-      modifier = modifier
+      modifier = modifier,
+      squareSize = squareSize
     )
   }
 }
@@ -67,56 +57,54 @@ fun BoardBackground(
   lastMove: Position?,
   onTap: (Position) -> Unit,
   promotionable: List<Position>,
-  selected: List<Position>
+  selected: List<Position>,
+  squareSize: Dp
 ) {
-  Column {
-    for(y in 0 until 6) {
-      Row {
-        for(x in 0 until 6) {
-          var xx = x
-          if( LocalLayoutDirection.current == LayoutDirection.Rtl ) {
-            xx = 5 - x
-          }
-          val position = Position(xx, y)
-          val white = y % 2 == xx % 2
-          val color = if(position.isSame(lastMove)) {
-            if(white) BoardColors.lastMoveLight else BoardColors.lastMoveDark
-          } else {
-            if(selected.contains(position))
-              BoardColors.selected
-            else {
-              if(promotionable.contains(position))
-                BoardColors.promotionable
-              else
-                if(white) BoardColors.lightSquare else BoardColors.darkSquare
-            }
-          }
-          Box(
-            modifier = Modifier
-              .weight(1f)
-              .background(color)
-              .aspectRatio(1.0f)
-              .clickable(
-                onClick = { onTap(position) }
-              )
-          ) {
-            if(y == 5) {
-              Text(
-                text = "${'a' + xx}",
-                modifier = Modifier.align(Alignment.BottomEnd),
-                style = MaterialTheme.typography.caption,
-                color = Color.Black.copy(0.5f)
-              )
-            }
-            if(x == 0) {
-              Text(
-                text = "${6 - y}",
-                modifier = Modifier.align(Alignment.TopStart),
-                style = MaterialTheme.typography.caption,
-                color = Color.Black.copy(0.5f)
-              )
-            }
-          }
+  for(y in 0 until 6) {
+    for(x in 0 until 6) {
+      var xx = x
+      if(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+        xx = 5 - x
+      }
+      val position = Position(xx, y)
+      val white = y % 2 == xx % 2
+      val color = if(position.isSame(lastMove)) {
+        if(white) BoardColors.lastMoveLight else BoardColors.lastMoveDark
+      } else {
+        if(selected.contains(position))
+          BoardColors.selected
+        else {
+          if(promotionable.contains(position))
+            BoardColors.promotionable
+          else
+            if(white) BoardColors.lightSquare else BoardColors.darkSquare
+        }
+      }
+      Box(
+        modifier = Modifier
+          .size( squareSize )
+          .offset(
+            Dp(xx * squareSize.value),
+            Dp(y * squareSize.value)
+          )
+          .background(color)
+          .clickable(onClick = { onTap(position) })
+      ) {
+        if(y == 5) {
+          Text(
+            text = "${'a' + xx}",
+            modifier = Modifier.align(Alignment.BottomEnd),
+            style = MaterialTheme.typography.caption,
+            color = Color.Black.copy(0.5f)
+          )
+        }
+        if(x == 0) {
+          Text(
+            text = "${6 - y}",
+            modifier = Modifier.align(Alignment.TopStart),
+            style = MaterialTheme.typography.caption,
+            color = Color.Black.copy(0.5f)
+          )
         }
       }
     }
@@ -124,10 +112,19 @@ fun BoardBackground(
 }
 
 @Composable
-fun PieceView(piece: Piece, modifier: Modifier = Modifier) {
+fun PieceView(
+  piece: Piece,
+  modifier: Modifier = Modifier,
+  squareSize: Dp,
+  offsetX: Dp,
+  offsetY: Dp
+) {
   Image(
     painter = painterResource(id = piece.imageResource()),
-    modifier = modifier.padding(4.dp),
+    modifier = modifier
+      .size( squareSize )
+      .padding(4.dp)
+      .offset(offsetX, offsetY),
     contentDescription = piece.id
   )
 }
@@ -152,43 +149,34 @@ fun PieceNumberView(piece: Piece, number: Int, modifier: Modifier = Modifier) {
 @Composable
 private fun BoardLayout(
   modifier: Modifier = Modifier,
-  pieces: List<Pair<Position, Piece>>
+  pieces: List<Pair<Position, Piece>>,
+  squareSize: Dp
 ) {
-  val constraints: ConstraintSet = constraintsFor(pieces, LocalLayoutDirection.current == LayoutDirection.Rtl)
+  //  val fromPosition = properties.fromState.board.find(piece)?.position
+//  val currentOffset = fromPosition
+//    ?.toCoordinate(properties.isFlipped)
+//    ?.toOffset(properties.squareSize)
+//
+//  val targetOffset = toPosition
+//    .toCoordinate(properties.isFlipped)
+//    .toOffset(properties.squareSize)
 
-  ConstraintLayout(
-    modifier = modifier,
-    animateChanges = true,
-    animationSpec = spring(),
-    constraintSet = constraints
-  ) {
-    pieces.forEach { (_, piece) ->
-      if(piece.id != "")
-        PieceView(piece = piece, modifier = Modifier.layoutId(piece.id))
-    }
-  }
-}
-
-private fun constraintsFor(pieces: List<Pair<Position, Piece>>, rtl: Boolean): ConstraintSet {
-  return ConstraintSet {
-    val horizontalGuidelines = (0..6).map { createGuidelineFromAbsoluteLeft(it.toFloat() / 6f) }
-    val verticalGuidelines = (0..6).map { createGuidelineFromTop(it.toFloat() / 6f) }
-    pieces.forEach { (position, piece) ->
-      val pieceRef = createRefFor(piece.id)
-      constrain(pieceRef) {
-        top.linkTo(verticalGuidelines[position.y])
-        bottom.linkTo(verticalGuidelines[position.y + 1])
-        if( rtl ) {
-          start.linkTo(horizontalGuidelines[position.x + 1])
-          end.linkTo((horizontalGuidelines[position.x]))
-        }
-        else {
-          start.linkTo(horizontalGuidelines[position.x])
-          end.linkTo((horizontalGuidelines[position.x + 1]))
-        }
-        width = Dimension.fillToConstraints
-        height = Dimension.fillToConstraints
+  pieces.forEach { (position, piece) ->
+    if(piece.id != "") {
+      val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+        true -> 5 - position.x
+        false -> position.x
       }
+      val y = position.y
+      val offsetX = squareSize * x
+      val offsetY = squareSize * y
+      PieceView(
+        piece = piece,
+        modifier = Modifier.layoutId(piece.id),
+        squareSize,
+        offsetX,
+        offsetY
+      )
     }
   }
 }

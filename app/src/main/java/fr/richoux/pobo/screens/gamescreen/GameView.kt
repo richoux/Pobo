@@ -344,6 +344,21 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
   }
 }
 
+//fun computeAnimations(pieceView: View, startX: Float, endX: Float, startY: Float, endY: Float) {
+//  val animX = ObjectAnimator.ofFloat(pieceView, "translationX", startX, endX)
+//  val animY = ObjectAnimator.ofFloat(pieceView, "translationY", startY, endY)
+//  AnimatorSet().apply {
+//    playTogether(animX, animY)
+//    duration = 300 // Adjust duration as neededinterpolator = AccelerateDecelerateInterpolator()
+//    addListener(object : AnimatorListenerAdapter() {
+//      override fun onAnimationEnd(animation: Animator) {
+//        // Update piece position in your game logic
+//      }
+//    })
+//    start()
+//  }
+//}
+
 fun Modifier.customDialogModifier() = layout { measurable, constraints ->
   val placeable = measurable.measure(constraints);
   layout(constraints.maxWidth, constraints.maxHeight) {
