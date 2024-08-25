@@ -49,7 +49,7 @@ android {
             version '3.18.1'
         }
     }
-    ndkVersion '26.0.10792818'
+    ndkVersion '27.0.12077973'
     namespace 'fr.richoux.pobo'
     buildToolsVersion '34.0.0'
 }
