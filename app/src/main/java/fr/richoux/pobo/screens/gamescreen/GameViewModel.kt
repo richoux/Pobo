@@ -525,4 +525,7 @@ class GameViewModel : ViewModel() {
 
   fun resume() = _gameState.tryEmit(_gameState.value)
   fun refreshDone() = needRefreshBoardDisplay.tryEmit(false)
+  fun canBePushed(victim: Position, it: Direction): Boolean {
+    return _game.canBePushed(_game.board, pieceTypeToPlay!!, victim, it)
+  }
 }

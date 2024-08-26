@@ -3,6 +3,10 @@ package fr.richoux.pobo.screens.gamescreen
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +17,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color as CColor
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -223,6 +228,25 @@ fun columnAllMode(
           text = stringResource(id = R.string.promotion),
           style = MaterialTheme.typography.body1
         )
+      }
+    }
+  }
+}
+
+@Composable
+fun animation(viewModel: GameViewModel, movePosition: Position) {
+  val board = viewModel.getBoard()
+  val pieceToPlay = viewModel.pieceTypeToPlay
+
+  if(pieceToPlay != null) {
+    enumValues<Direction>().forEach {
+      val moveFrom = getPositionTowards(movePosition, it)
+      if(viewModel.canBePushed(moveFrom, it)) {
+        val moveTo = getPositionTowards(moveFrom, it)
+        val offset = remember { Animatable(moveFrom ?: moveTo, Offset.VectorConverter) }
+        LaunchedEffect(moveTo) {
+          offset.animateTo(moveTo, tween(100, easing = LinearEasing))
+        }
       }
     }
   }
