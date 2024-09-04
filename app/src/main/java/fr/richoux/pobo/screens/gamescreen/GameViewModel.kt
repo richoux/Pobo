@@ -7,6 +7,7 @@ import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.engine.ai.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.lang.Byte
 
 private const val TAG = "pobotag GameViewModel"
 
@@ -329,6 +330,17 @@ class GameViewModel : ViewModel() {
 
   fun canPlayAt(it: Position): Boolean = _game.canPlayAt(it)
 
+  fun computePieceTypeToPlay(): PieceType {
+    return when(pieceTypeToPlay) {
+      PieceType.Po -> PieceType.Po
+      PieceType.Bo -> PieceType.Bo
+      null -> when( _game.board.getPlayerPool(_game.currentPlayer).first() ) {
+        1.toByte() -> PieceType.Po
+        else -> PieceType.Bo
+      }
+    }
+  }
+
   fun playAt(it: Position) {
     _forwardHistory.clear()
     _forwardMoveHistory.clear()
@@ -338,7 +350,10 @@ class GameViewModel : ViewModel() {
     val piece = when(pieceTypeToPlay) {
       PieceType.Po -> Piece.createPo(_game.currentPlayer)
       PieceType.Bo -> Piece.createBo(_game.currentPlayer)
-      null -> Piece.createFromByte(_game.currentPlayer, _game.board.getPlayerPool(_game.currentPlayer).first())
+      null -> Piece.createFromByte(
+        _game.currentPlayer,
+        _game.board.getPlayerPool(_game.currentPlayer).first()
+      )
     }
     pieceTypeToPlay = null
     val move = Move(piece, it)
@@ -525,7 +540,8 @@ class GameViewModel : ViewModel() {
 
   fun resume() = _gameState.tryEmit(_gameState.value)
   fun refreshDone() = needRefreshBoardDisplay.tryEmit(false)
+
   fun canBePushed(victim: Position, it: Direction): Boolean {
-    return _game.canBePushed(_game.board, pieceTypeToPlay!!, victim, it)
+    return _game.canBePushed(_game.board, computePieceTypeToPlay(), victim, it)
   }
 }

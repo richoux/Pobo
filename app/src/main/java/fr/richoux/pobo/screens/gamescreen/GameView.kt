@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
+import fr.richoux.pobo.engine.Direction
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
 import kotlin.math.max
@@ -77,6 +78,7 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 fun MainView(
   viewModel: GameViewModel,
   onTap: (Position) -> Unit = { _ -> },
+  animations: Map<Position, Position> = mapOf(),
   displayGameState: String = ""
 ) {
   val board = viewModel.getBoard()
@@ -97,7 +99,8 @@ fun MainView(
           lastMove = lastMove,
           onTap = onTap,
           promotionable = promotionable,
-          selected = selected
+          selected = selected,
+          animations = animations
         )
         Spacer(modifier = Modifier.height(8.dp))
         columnAllMode(viewModel, displayGameState)
@@ -124,7 +127,8 @@ fun MainView(
 //          lastMove = lastMove,
 //          onTap = onTap,
 //          promotionable = promotionable,
-//          selected = selected
+//          selected = selected,
+//          animations = animations
 //        )
 //
 //        Column(
@@ -233,23 +237,21 @@ fun columnAllMode(
   }
 }
 
-@Composable
-fun animation(viewModel: GameViewModel, movePosition: Position) {
-  val board = viewModel.getBoard()
-  val pieceToPlay = viewModel.pieceTypeToPlay
+fun animation(viewModel: GameViewModel, movePosition: Position): Map<Position,Position> {
+  val listAnimations: MutableMap<Position,Position> = mutableMapOf()
 
-  if(pieceToPlay != null) {
-    enumValues<Direction>().forEach {
-      val moveFrom = getPositionTowards(movePosition, it)
-      if(viewModel.canBePushed(moveFrom, it)) {
-        val moveTo = getPositionTowards(moveFrom, it)
-        val offset = remember { Animatable(moveFrom ?: moveTo, Offset.VectorConverter) }
-        LaunchedEffect(moveTo) {
-          offset.animateTo(moveTo, tween(100, easing = LinearEasing))
-        }
-      }
+  enumValues<Direction>().forEach {
+    val moveFrom = getPositionTowards(movePosition, it)
+    if(viewModel.canBePushed(moveFrom, it)) {
+      val moveTo = getPositionTowards(moveFrom, it)
+      listAnimations[moveFrom] = moveTo
+//        val offset = remember { Animatable(moveFrom ?: moveTo, Offset.VectorConverter) }
+//        LaunchedEffect(moveTo) {
+//          offset.animateTo(moveTo, tween(100, easing = LinearEasing))
+//        }
     }
   }
+  return listAnimations.toMap()
 }
 
 @Composable
@@ -289,15 +291,22 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
     }
     GameState.SELECTPOSITION -> {
       Log.d(TAG, "SELECTPOSITION ${player}")
+      var animations: Map<Position, Position> = mapOf()
       val onSelect: (Position) -> Unit = {
         if(viewModel.canPlayAt(it) && !viewModel.IsAIToPLay()) {
+          animations = animation(viewModel, it)
+          //!! playAt make animations unused
           viewModel.playAt(it)
         }
       }
+
+      //!! Executed BEFORE onSelect!!!
       MainView(
         viewModel,
-        onTap = onSelect
+        onTap = onSelect,
+        animations = animations
       )
+
       if(viewModel.IsAIToPLay()) {
         if(player == EColor.Blue)
           viewModel.makeP1AIMove()

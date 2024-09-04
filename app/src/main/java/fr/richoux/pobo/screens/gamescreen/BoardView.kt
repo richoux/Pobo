@@ -1,5 +1,6 @@
 package fr.richoux.pobo.screens.gamescreen
 
+import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -24,6 +26,7 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
+import kotlin.math.roundToInt
 
 private const val TAG = "pobotag BoardView"
 
@@ -34,7 +37,8 @@ fun BoardView(
   lastMove: Position?,
   onTap: (Position) -> Unit,
   promotionable: List<Position>,
-  selected: List<Position>
+  selected: List<Position>,
+  animations: Map<Position, Position> = mapOf(),
 ) {
   BoxWithConstraints(
     modifier = Modifier
@@ -46,6 +50,7 @@ fun BoardView(
     BoardBackground(lastMove, onTap, promotionable, selected, squareSize)
     BoardLayout(
       pieces = board.allPieces,
+      animations = animations,
       modifier = modifier,
       squareSize = squareSize
     )
@@ -130,6 +135,30 @@ fun PieceView(
 }
 
 @Composable
+fun PieceViewAnimation(
+  piece: Piece,
+  modifier: Modifier = Modifier,
+  squareSize: Dp,
+  toX: Dp,
+  toY: Dp
+) {
+  val offset by animateIntOffsetAsState(
+    targetValue = IntOffset(toX.value.roundToInt(), toY.value.roundToInt()),
+    label = "offset"
+  )
+  Image(
+    painter = painterResource(id = piece.imageResource()),
+    modifier = modifier
+      .size( squareSize )
+      .padding(4.dp)
+      .offset{
+        offset
+      },
+    contentDescription = piece.id
+  )
+}
+
+@Composable
 fun PieceNumberView(piece: Piece, number: Int, modifier: Modifier = Modifier) {
   Row()
   {
@@ -150,6 +179,7 @@ fun PieceNumberView(piece: Piece, number: Int, modifier: Modifier = Modifier) {
 private fun BoardLayout(
   modifier: Modifier = Modifier,
   pieces: List<Pair<Position, Piece>>,
+  animations: Map<Position, Position>,
   squareSize: Dp
 ) {
   //  val fromPosition = properties.fromState.board.find(piece)?.position
@@ -163,20 +193,37 @@ private fun BoardLayout(
 
   pieces.forEach { (position, piece) ->
     if(piece.id != "") {
-      val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
-        true -> 5 - position.x
-        false -> position.x
+      if(animations.isEmpty() || !animations.contains(position)) {
+        val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+          true -> 5 - position.x
+          false -> position.x
+        }
+        val y = position.y
+        val offsetX = squareSize * x
+        val offsetY = squareSize * y
+        PieceView(
+          piece = piece,
+          modifier = Modifier.layoutId(piece.id),
+          squareSize,
+          offsetX,
+          offsetY
+        )
+      } else {
+        val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+          true -> 5 - animations[position]!!.x
+          false -> animations[position]!!.x
+        }
+        val y = animations[position]!!.y
+        val offsetX = squareSize * x
+        val offsetY = squareSize * y
+        PieceViewAnimation(
+          piece = piece,
+          modifier = Modifier.layoutId(piece.id),
+          squareSize,
+          offsetX,
+          offsetY
+        )
       }
-      val y = position.y
-      val offsetX = squareSize * x
-      val offsetY = squareSize * y
-      PieceView(
-        piece = piece,
-        modifier = Modifier.layoutId(piece.id),
-        squareSize,
-        offsetX,
-        offsetY
-      )
     }
   }
 }
