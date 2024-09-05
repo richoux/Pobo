@@ -1,7 +1,8 @@
 package fr.richoux.pobo.screens.gamescreen
 
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateIntOffsetAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -134,29 +135,54 @@ fun PieceView(
   )
 }
 
-@Composable
-fun PieceViewAnimation(
-  piece: Piece,
-  modifier: Modifier = Modifier,
-  squareSize: Dp,
-  toX: Dp,
-  toY: Dp
-) {
-  val offset by animateIntOffsetAsState(
-    targetValue = IntOffset(toX.value.roundToInt(), toY.value.roundToInt()),
-    label = "offset"
-  )
-  Image(
-    painter = painterResource(id = piece.imageResource()),
-    modifier = modifier
-      .size( squareSize )
-      .padding(4.dp)
-      .offset{
-        offset
-      },
-    contentDescription = piece.id
-  )
-}
+//@Composable
+//fun PieceViewAnimation(
+//  piece: Piece,
+//  modifier: Modifier = Modifier,
+//  squareSize: Dp,
+//  fromX: Dp,
+//  fromY: Dp,
+//  toX: Dp,
+//  toY: Dp
+//) {
+//  var run_animation by remember { mutableStateOf(false) }
+//  val offset by animateIntOffsetAsState(
+//    targetValue = if(run_animation) {
+//      val xPxToMove = with(LocalDensity.current) {
+//        toX.toPx().roundToInt()
+//      }
+//      val yPxToMove = with(LocalDensity.current) {
+//        toY.toPx().roundToInt()
+//      }
+//      IntOffset(xPxToMove, yPxToMove)
+//    } else {
+//      val xPxOrigin = with(LocalDensity.current) {
+//        fromX.toPx().roundToInt()
+//      }
+//      val yPxOrigin = with(LocalDensity.current) {
+//        fromY.toPx().roundToInt()
+//      }
+//      IntOffset(xPxOrigin, yPxOrigin)
+//    },
+//    animationSpec = if(run_animation) {
+//      tween(3000)
+//    } else {
+//      tween(0)
+//    },
+//    label = "offset"
+//  )
+//  Image(
+//    painter = painterResource(id = piece.imageResource()),
+//    modifier = modifier
+//      .size( squareSize )
+//      .padding(4.dp)
+//      .offset{
+//        offset
+//      },
+//    contentDescription = piece.id
+//  )
+//  run_animation = true
+//}
 
 @Composable
 fun PieceNumberView(piece: Piece, number: Int, modifier: Modifier = Modifier) {
@@ -201,6 +227,14 @@ private fun BoardLayout(
         val y = position.y
         val offsetX = squareSize * x
         val offsetY = squareSize * y
+
+        val index = getIndexFrom(position)
+
+        val offset = remember { Animatable(currentOffset 1?: targetOffset, Offset.VectorConverter) }
+        LaunchedEffect(targetOffset) {
+          offset.animateTo(targetOffset, tween(100, easing = LinearEasing))
+        }
+
         PieceView(
           piece = piece,
           modifier = Modifier.layoutId(piece.id),
@@ -208,22 +242,25 @@ private fun BoardLayout(
           offsetX,
           offsetY
         )
-      } else {
-        val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
-          true -> 5 - animations[position]!!.x
-          false -> animations[position]!!.x
-        }
-        val y = animations[position]!!.y
-        val offsetX = squareSize * x
-        val offsetY = squareSize * y
-        PieceViewAnimation(
-          piece = piece,
-          modifier = Modifier.layoutId(piece.id),
-          squareSize,
-          offsetX,
-          offsetY
-        )
       }
+//      else {
+//        val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+//          true -> 5 - animations[position]!!.x
+//          false -> animations[position]!!.x
+//        }
+//        val y = animations[position]!!.y
+//        val offsetX = squareSize * x
+//        val offsetY = squareSize * y
+//        PieceViewAnimation(
+//          piece = piece,
+//          modifier = Modifier.layoutId(piece.id),
+//          squareSize,
+//          offsetX,
+//          offsetY,
+//          offsetX,
+//          offsetY
+//        )
+//      }
     }
   }
 }

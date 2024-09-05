@@ -202,6 +202,9 @@ data class Position(val x: Int, val y: Int) {
 fun getIndexFrom(position: Position): Int {
   return position.y * 6 + position.x
 }
+fun getCoordinatesFrom(index: Int): Position {
+  return Position(index % 6, index / 6)
+}
 
 data class Board(
   val grid: ByteArray = ByteArray(36) { 0 },
