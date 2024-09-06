@@ -35,6 +35,7 @@ import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.Direction
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
+import kotlin.jvm.internal.Ref.BooleanRef
 import kotlin.math.max
 import fr.richoux.pobo.engine.Color as EColor
 
@@ -78,7 +79,7 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 fun MainView(
   viewModel: GameViewModel,
   onTap: (Position) -> Unit = { _ -> },
-  animations: Map<Position, Position> = mapOf(),
+  animations: MutableMap<Position, Pair<Position,Piece>> = mutableMapOf(),
   displayGameState: String = ""
 ) {
   val board = viewModel.getBoard()
@@ -237,21 +238,25 @@ fun columnAllMode(
   }
 }
 
-fun animation(viewModel: GameViewModel, movePosition: Position): Map<Position,Position> {
-  val listAnimations: MutableMap<Position,Position> = mutableMapOf()
-
+/* ToFix
+  - Rerun animation when select the piece for the fist time
+  - execute promotion before the animation. Then a pushed piece that get aligned is not visually
+   removed from the board.
+ */
+fun animation(
+  viewModel: GameViewModel,
+  movePosition: Position,
+  listAnimations: MutableMap<Position,Pair<Position,Piece>>
+) {
+  listAnimations.clear()
   enumValues<Direction>().forEach {
     val moveFrom = getPositionTowards(movePosition, it)
     if(viewModel.canBePushed(moveFrom, it)) {
       val moveTo = getPositionTowards(moveFrom, it)
-      listAnimations[moveFrom] = moveTo
-//        val offset = remember { Animatable(moveFrom ?: moveTo, Offset.VectorConverter) }
-//        LaunchedEffect(moveTo) {
-//          offset.animateTo(moveTo, tween(100, easing = LinearEasing))
-//        }
+      val piece = viewModel.getBoard().pieceAt(moveFrom)
+      listAnimations[moveFrom] = Pair(moveTo, piece!!)
     }
   }
-  return listAnimations.toMap()
 }
 
 @Composable
@@ -259,7 +264,19 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
   LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   val gameState by viewModel.gameState.collectAsState()
   val needRefreshBoardDisplay by viewModel.needRefreshBoardDisplay.collectAsState()
+  val needRunAnimation by viewModel.needRunAnimation.collectAsState()
   val player = viewModel.getPlayer()
+  var animations: MutableMap<Position, Pair<Position,Piece>> = remember { mutableMapOf() }
+
+  if(needRunAnimation) {
+    val animSize = animations.size
+    MainView(
+      viewModel,
+      animations = animations
+    )
+//    animations.clear()
+    viewModel.animationDone()
+  }
 
   if(needRefreshBoardDisplay) {
     MainView(
@@ -276,12 +293,14 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       )
       viewModel.goToNextState()
     }
+
     GameState.HISTORY -> {
       MainView(
         viewModel
       )
       viewModel.goToNextState()
     }
+
     GameState.SELECTPIECE -> {
       Log.d(TAG, "SELECTPIECE ${player}")
       MainView(
@@ -289,24 +308,19 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         displayGameState = stringResource(id = R.string.select_piece)
       )
     }
+
     GameState.SELECTPOSITION -> {
       Log.d(TAG, "SELECTPOSITION ${player}")
-      var animations: Map<Position, Position> = mapOf()
       val onSelect: (Position) -> Unit = {
         if(viewModel.canPlayAt(it) && !viewModel.IsAIToPLay()) {
-          animations = animation(viewModel, it)
-          //!! playAt make animations unused
+          animation(viewModel, it, animations)
           viewModel.playAt(it)
         }
       }
-
-      //!! Executed BEFORE onSelect!!!
       MainView(
         viewModel,
-        onTap = onSelect,
-        animations = animations
+        onTap = onSelect
       )
-
       if(viewModel.IsAIToPLay()) {
         if(player == EColor.Blue)
           viewModel.makeP1AIMove()
@@ -314,6 +328,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
           viewModel.makeP2AIMove()
       }
     }
+
     GameState.CHECKPROMOTIONS -> {
       Log.d(TAG, "CHECKPROMOTIONS ${player}")
       MainView(
@@ -321,6 +336,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       )
       viewModel.checkPromotions()
     }
+
     GameState.AUTOPROMOTIONS -> {
       Log.d(TAG, "AUTOPROMOTIONS ${player}")
       MainView(
@@ -328,6 +344,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       )
       viewModel.autopromotions()
     }
+
     GameState.SELECTPROMOTIONS -> {
       Log.d(TAG, "SELECTPROMOTIONS ${player}")
       val onSelect: (Position) -> Unit = {
@@ -339,6 +356,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
         displayGameState = stringResource(id = R.string.select_promotion)
       )
     }
+
     GameState.REFRESHSELECTPROMOTIONS -> {
       Log.d(TAG, "REFRESHSELECTPROMOTIONS ${player}")
       MainView(
@@ -346,6 +364,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       )
       viewModel.goToNextState()
     }
+
     GameState.END -> {
       if(viewModel.xp)
         Log.d(TAG, "Winner ${viewModel.countNumberGames}: ${player}")
