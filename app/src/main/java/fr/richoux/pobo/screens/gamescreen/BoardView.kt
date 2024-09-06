@@ -1,6 +1,8 @@
 package fr.richoux.pobo.screens.gamescreen
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -12,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -27,13 +30,13 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
+import kotlin.math.nextUp
 import kotlin.math.roundToInt
 
 private const val TAG = "pobotag BoardView"
 
 @Composable
 fun BoardView(
-  modifier: Modifier = Modifier,
   board: Board,
   lastMove: Position?,
   onTap: (Position) -> Unit,
@@ -50,9 +53,8 @@ fun BoardView(
 
     BoardBackground(lastMove, onTap, promotionable, selected, squareSize)
     BoardLayout(
-      pieces = board.allPieces,
+      board = board,
       animations = animations,
-      modifier = modifier,
       squareSize = squareSize
     )
   }
@@ -121,16 +123,13 @@ fun BoardBackground(
 fun PieceView(
   piece: Piece,
   modifier: Modifier = Modifier,
-  squareSize: Dp,
-  offsetX: Dp,
-  offsetY: Dp
+  squareSize: Dp
 ) {
   Image(
     painter = painterResource(id = piece.imageResource()),
     modifier = modifier
       .size( squareSize )
-      .padding(4.dp)
-      .offset(offsetX, offsetY),
+      .padding(4.dp),
     contentDescription = piece.id
   )
 }
@@ -203,8 +202,7 @@ fun PieceNumberView(piece: Piece, number: Int, modifier: Modifier = Modifier) {
 
 @Composable
 private fun BoardLayout(
-  modifier: Modifier = Modifier,
-  pieces: List<Pair<Position, Piece>>,
+  board: Board,
   animations: Map<Position, Position>,
   squareSize: Dp
 ) {
@@ -216,51 +214,50 @@ private fun BoardLayout(
 //  val targetOffset = toPosition
 //    .toCoordinate(properties.isFlipped)
 //    .toOffset(properties.squareSize)
-
+  val pieces = board.allPieces
   pieces.forEach { (position, piece) ->
     if(piece.id != "") {
-      if(animations.isEmpty() || !animations.contains(position)) {
-        val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
-          true -> 5 - position.x
-          false -> position.x
-        }
-        val y = position.y
-        val offsetX = squareSize * x
-        val offsetY = squareSize * y
-
-        val index = getIndexFrom(position)
-
-        val offset = remember { Animatable(currentOffset 1?: targetOffset, Offset.VectorConverter) }
-        LaunchedEffect(targetOffset) {
-          offset.animateTo(targetOffset, tween(100, easing = LinearEasing))
-        }
-
-        PieceView(
-          piece = piece,
-          modifier = Modifier.layoutId(piece.id),
-          squareSize,
-          offsetX,
-          offsetY
-        )
+      //! TODO Is it really necessary?
+      val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+        true -> 5 - position.x
+        false -> position.x
       }
-//      else {
-//        val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
-//          true -> 5 - animations[position]!!.x
-//          false -> animations[position]!!.x
-//        }
-//        val y = animations[position]!!.y
-//        val offsetX = squareSize * x
-//        val offsetY = squareSize * y
-//        PieceViewAnimation(
-//          piece = piece,
-//          modifier = Modifier.layoutId(piece.id),
-//          squareSize,
-//          offsetX,
-//          offsetY,
-//          offsetX,
-//          offsetY
-//        )
-//      }
+      val y = position.y
+      val offsetX = squareSize * x
+      val offsetY = squareSize * y
+
+      PieceView(
+        piece = piece,
+        modifier = Modifier.layoutId(piece.id).offset(offsetX, offsetY),
+        squareSize
+      )
     }
+  }
+  animations.forEach { (from, to) ->
+    val x = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+      true -> 5 - from.x
+      false -> from.x
+    }
+    val y = from.y
+    val currentOffset = Offset( squareSize.value * x, squareSize.value * y )
+
+    val toX = when(LocalLayoutDirection.current == LayoutDirection.Rtl) {
+      true -> 5 - to.x
+      false -> to.x
+    }
+    val toY = to.y
+    val targetOffset = Offset( squareSize.value * toX, squareSize.value * toY )
+
+    val offset = remember { Animatable(currentOffset, Offset.VectorConverter) }
+    LaunchedEffect(targetOffset) {
+      offset.animateTo(targetOffset, tween(400, easing = LinearEasing))
+    }
+
+    val piece = board.pieceAt(from)
+    PieceView(
+      piece = piece!!,
+      modifier = Modifier.layoutId(piece.id).offset(Dp(offset.value.x), Dp(offset.value.y)),
+      squareSize
+    )
   }
 }

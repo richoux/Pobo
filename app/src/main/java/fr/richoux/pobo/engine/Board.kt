@@ -199,6 +199,7 @@ data class Position(val x: Int, val y: Int) {
   }
 }
 
+// TODO Need coordinates all around the board, for pushing out animation
 fun getIndexFrom(position: Position): Int {
   return position.y * 6 + position.x
 }
