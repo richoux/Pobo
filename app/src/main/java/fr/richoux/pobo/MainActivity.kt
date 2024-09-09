@@ -227,7 +227,7 @@ private fun RowMenuPopup( text: String, content: String, icon: Int, onClick: () 
               ItemLanguage("Český", "cs")
             }
             item {
-              ItemLanguage("Deutsche", "de")
+              ItemLanguage("Deutsch", "de")
             }
             item {
               ItemLanguage("Ελληνική", "el")
