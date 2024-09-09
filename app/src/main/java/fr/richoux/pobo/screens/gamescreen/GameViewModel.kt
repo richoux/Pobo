@@ -66,7 +66,7 @@ class GameViewModel : ViewModel() {
   var hasStarted: Boolean = false
   var selectedValue = MutableStateFlow<String>("")
   var needRefreshBoardDisplay = MutableStateFlow<Boolean>(false)
-  var needRunAnimation = MutableStateFlow<Boolean>(false)
+//  var needRunAnimation = MutableStateFlow<Boolean>(false)
   lateinit var navController: NavController
     private set
 
@@ -374,8 +374,8 @@ class GameViewModel : ViewModel() {
     _game.checkVictoryFor(newBoard, _game.currentPlayer)
     _game.board = newBoard
 
-    needRunAnimation.tryEmit(true)
-//    needRefreshBoardDisplay.tryEmit(true)
+//    needRunAnimation.tryEmit(true)
+    needRefreshBoardDisplay.tryEmit(true)
 
     goToNextState()
   }
@@ -542,7 +542,7 @@ class GameViewModel : ViewModel() {
 
   fun resume() = _gameState.tryEmit(_gameState.value)
   fun refreshDone() = needRefreshBoardDisplay.tryEmit(false)
-  fun animationDone() = needRunAnimation.tryEmit(false)
+//  fun animationDone() = needRunAnimation.tryEmit(false)
   fun canBePushed(victim: Position, it: Direction): Boolean {
     return _game.canBePushed(_game.board, computePieceTypeToPlay(), victim, it)
   }

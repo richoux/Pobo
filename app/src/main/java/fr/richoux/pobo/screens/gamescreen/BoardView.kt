@@ -34,7 +34,8 @@ fun BoardView(
   onTap: (Position) -> Unit,
   promotionable: List<Position>,
   selected: List<Position>,
-  animations: MutableMap<Position, Pair<Position,Piece>>
+  animations: MutableMap<Position, Pair<Position,Piece>>,
+  stringForDebug: String = ""
 ) {
   BoxWithConstraints(
     modifier = Modifier
@@ -47,7 +48,8 @@ fun BoardView(
     BoardLayout(
       board = board,
       animations = animations,
-      squareSize = squareSize
+      squareSize = squareSize,
+      stringForDebug = stringForDebug
     )
   }
 }
@@ -143,12 +145,15 @@ fun PieceNumberView(piece: Piece, number: Int, modifier: Modifier = Modifier) {
   }
 }
 
+//TODO Rename to BoardLayoutAnimation, and make another BoardLayout?
 @Composable
 private fun BoardLayout(
   board: Board,
   animations: MutableMap<Position, Pair<Position,Piece>>,
-  squareSize: Dp
+  squareSize: Dp,
+  stringForDebug: String = ""
 ) {
+  stringForDebug
   val pieces = board.allPieces
   pieces.forEach { (position, piece) ->
     if(piece.id != "") {
