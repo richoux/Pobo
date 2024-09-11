@@ -1,7 +1,7 @@
 package fr.richoux.pobo.screens.gamescreen
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlin.jvm.internal.Ref.BooleanRef
 
 private const val TAG = "pobotag BoardView"
@@ -200,7 +203,9 @@ private fun BoardLayout(
 
     val offset = remember { Animatable(currentOffset, Offset.VectorConverter) }
     LaunchedEffect(targetOffset) {
-      offset.animateTo(targetOffset, tween(200, easing = LinearEasing))
+//      while (isActive) {
+      offset.animateTo(targetOffset, tween(200, easing = LinearOutSlowInEasing))
+//      }
     }
 
     PieceView(

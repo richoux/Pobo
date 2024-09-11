@@ -3,10 +3,6 @@ package fr.richoux.pobo.screens.gamescreen
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,7 +13,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color as CColor
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -32,10 +27,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
-import fr.richoux.pobo.engine.Direction
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
-import kotlin.jvm.internal.Ref.BooleanRef
 import kotlin.math.max
 import fr.richoux.pobo.engine.Color as EColor
 
@@ -79,8 +72,6 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 fun MainView(
   viewModel: GameViewModel,
   onTap: (Position) -> Unit = { _ -> },
-  animations: MutableMap<Position, Pair<Position,Piece>> = mutableMapOf(),
-  displayGameState: String = "",
   stringForDebug: String = ""
 ) {
   val board = viewModel.getBoard()
@@ -102,11 +93,11 @@ fun MainView(
           onTap = onTap,
           promotionable = promotionable,
           selected = selected,
-          animations = animations,
+          animations = viewModel.animations,
           stringForDebug = stringForDebug
         )
         Spacer(modifier = Modifier.height(8.dp))
-        columnAllMode(viewModel, displayGameState)
+        columnAllMode(viewModel)
       }
     }
 //    Configuration.ORIENTATION_LANDSCAPE -> {
@@ -150,7 +141,6 @@ fun MainView(
 @Composable
 fun columnAllMode(
   viewModel: GameViewModel = viewModel(),
-  displayGameState: String,
   landscapeMode: Boolean = false
 ) {
   val board = viewModel.getBoard()
@@ -158,6 +148,8 @@ fun columnAllMode(
   val modifier = if(landscapeMode) Modifier else Modifier.fillMaxWidth()
   val length_text = (stringResource(id = R.string.turn).length
     + max(stringResource(id = R.string.blue).length, stringResource(id = R.string.red).length))
+  val messageID = viewModel.getDisplayStateMessageID()
+  val displayGameState = if(messageID >= 0) stringResource(id = messageID) else ""
 
   PiecesStocksView(
     pool = board.getPlayerPool(EColor.Blue),
@@ -221,12 +213,12 @@ fun columnAllMode(
       RadioButtonPoBo(player, viewModel)
     }
   } else {
-    val gameState by viewModel.gameState.collectAsState()
+    val gameViewState by viewModel.gameViewState.collectAsState()
     val completeSelectionForRemoval =
-      gameState == GameState.SELECTPROMOTIONS
+      gameViewState == GameViewState.SELECTPROMOTIONS
       && (((viewModel.stateSelection == GameViewModelState.SELECT3 || viewModel.stateSelection == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 3)
       || ((viewModel.stateSelection == GameViewModelState.SELECT1 || viewModel.stateSelection == GameViewModelState.SELECT1OR3) && viewModel.piecesToPromote.size == 1))
-    if(gameState == GameState.SELECTPROMOTIONS) {
+    if(gameViewState == GameViewState.SELECTPROMOTIONS) {
       Button(
         onClick = { viewModel.validatePromotionsSelection() },
         enabled = completeSelectionForRemoval
@@ -240,35 +232,13 @@ fun columnAllMode(
   }
 }
 
-/* ToFix
-  - Rerun animation when select the piece for the fist time
-  - execute promotion before the animation. Then a pushed piece that get aligned is not visually
-   removed from the board.
- */
-fun animation(
-  viewModel: GameViewModel,
-  movePosition: Position,
-  listAnimations: MutableMap<Position,Pair<Position,Piece>>
-) {
-  listAnimations.clear()
-  enumValues<Direction>().forEach {
-    val moveFrom = getPositionTowards(movePosition, it)
-    if(viewModel.canBePushed(moveFrom, it)) {
-      val moveTo = getPositionTowards(moveFrom, it)
-      val piece = viewModel.getBoard().pieceAt(moveFrom)
-      listAnimations[moveFrom] = Pair(moveTo, piece!!)
-    }
-  }
-}
-
 @Composable
 fun GameView(viewModel: GameViewModel = viewModel()) {
   LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-  val gameState by viewModel.gameState.collectAsState()
-  val needRefreshBoardDisplay by viewModel.needRefreshBoardDisplay.collectAsState()
+  val gameViewState by viewModel.gameViewState.collectAsState()
+//  val needRefreshBoardDisplay by viewModel.needRefreshBoardDisplay.collectAsState()
 //  val needRunAnimation by viewModel.needRunAnimation.collectAsState()
   val player = viewModel.getPlayer()
-  var animations: MutableMap<Position, Pair<Position,Piece>> = remember { mutableMapOf() }
 
 //  if(needRunAnimation) {
 //    val animSize = animations.size
@@ -280,60 +250,68 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
 //    viewModel.animationDone()
 //  }
 
-  if(needRefreshBoardDisplay) {
-    //TODO Can't remember why do we need that
-    Log.d(TAG, "REFRESH ${player}")
-//    MainView(
-//      viewModel,
-//      animations = animations,
-//      stringForDebug = "needRefreshBoardDisplay"
-//    )
-    viewModel.refreshDone()
-  }
+//  if(needRefreshBoardDisplay) {
+//    //TODO Can't remember why do we need that
+//    Log.d(TAG, "REFRESH ${player}")
+////    MainView(
+////      viewModel,
+////      animations = animations,
+////      stringForDebug = "needRefreshBoardDisplay"
+////    )
+//    viewModel.refreshDone()
+//  }
 
-  when(gameState) {
-    GameState.INIT -> {
-      Log.d(TAG, "INIT ${player}")
+  when(gameViewState) {
+//    GameState.INIT -> {
+//      Log.d(TAG, "INIT ${player}")
+//      MainView(
+//        viewModel,
+//        stringForDebug = "INIT"
+//      )
+//      viewModel.goToNextState()
+//    }
+//
+//    GameState.HISTORY -> {
+//      Log.d(TAG, "HISTORY ${player}")
+//      MainView(
+//        viewModel,
+//        stringForDebug = "HISTORY"
+//      )
+//      viewModel.goToNextState()
+//    }
+//
+//    GameState.SELECTPIECE -> {
+//      Log.d(TAG, "SELECTPIECE ${player}")
+//      MainView(
+//        viewModel,
+//        displayGameState = stringResource(id = R.string.select_piece),
+//        stringForDebug = "SELECTPIECE"
+//      )
+//    }
+
+    GameViewState.REFRESH -> {
+      Log.d(TAG, "REFRESH ${player}")
       MainView(
         viewModel,
-        animations = animations,
-        stringForDebug = "INIT"
+        stringForDebug = "REFRESH"
       )
-      viewModel.goToNextState()
+      viewModel.refreshDone()
     }
 
-    GameState.HISTORY -> {
-      Log.d(TAG, "HISTORY ${player}")
-      MainView(
-        viewModel,
-        animations = animations,
-        stringForDebug = "HISTORY"
-      )
-      viewModel.goToNextState()
-    }
-
-    GameState.SELECTPIECE -> {
-      Log.d(TAG, "SELECTPIECE ${player}")
-      MainView(
-        viewModel,
-        displayGameState = stringResource(id = R.string.select_piece),
-        animations = animations,
-        stringForDebug = "SELECTPIECE"
-      )
-    }
-
-    GameState.SELECTPOSITION -> {
+    GameViewState.SELECTPOSITION -> {
       Log.d(TAG, "SELECTPOSITION ${player}")
       val onSelect: (Position) -> Unit = {
-        if(viewModel.canPlayAt(it) && !viewModel.IsAIToPLay()) {
-          animation(viewModel, it, animations)
+        if(
+          viewModel.canPlayAt(it)
+          && !viewModel.IsAIToPLay()
+          && (viewModel.pieceTypeToPlay != null || !viewModel.twoTypesInPool() )
+          ) {
           viewModel.playAt(it)
         }
       }
       MainView(
         viewModel,
         onTap = onSelect,
-        animations = animations,
         stringForDebug = "SELECTPOSITION"
       )
       if(viewModel.IsAIToPLay()) {
@@ -344,27 +322,37 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       }
     }
 
-    GameState.CHECKPROMOTIONS -> {
-      Log.d(TAG, "CHECKPROMOTIONS ${player}")
+    GameViewState.PLAYMOVE -> {
+      Log.d(TAG, "PLAYMOVE ${player}")
       MainView(
         viewModel,
-        animations = animations,
-        stringForDebug = "CHECKPROMOTIONS"
+        stringForDebug = "PLAYMOVE"
       )
-      viewModel.checkPromotions()
+      viewModel.movePlayed()
     }
 
-    GameState.AUTOPROMOTIONS -> {
+    //TODO Every (logic) changes should be done within the model. We should have I/O only here
+//    GameState.CHECKPROMOTIONS -> {
+//      Log.d(TAG, "CHECKPROMOTIONS ${player}")
+//      viewModel.animationDone()
+//      MainView(
+//        viewModel,
+//        stringForDebug = "CHECKPROMOTIONS"
+//      )
+//      viewModel.checkPromotions()
+//    }
+
+    GameViewState.AUTOPROMOTIONS -> {
       Log.d(TAG, "AUTOPROMOTIONS ${player}")
       MainView(
         viewModel,
-        animations = animations,
         stringForDebug = "AUTOPROMOTIONS"
       )
       viewModel.autopromotions()
     }
 
-    GameState.SELECTPROMOTIONS -> {
+    //Tofix Bugs
+    GameViewState.SELECTPROMOTIONS -> {
       Log.d(TAG, "SELECTPROMOTIONS ${player}")
       val onSelect: (Position) -> Unit = {
         viewModel.selectForPromotionOrCancel(it)
@@ -372,23 +360,21 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
       MainView(
         viewModel,
         onTap = onSelect,
-        displayGameState = stringResource(id = R.string.select_promotion),
-        animations = animations,
         stringForDebug = "SELECTPROMOTIONS"
       )
     }
 
-    GameState.REFRESHSELECTPROMOTIONS -> {
-      Log.d(TAG, "REFRESHSELECTPROMOTIONS ${player}")
-      MainView(
-        viewModel,
-        animations = animations,
-        stringForDebug = "REFRESHSELECTPROMOTIONS"
-      )
-      viewModel.goToNextState()
-    }
+//    GameState.REFRESHSELECTPROMOTIONS -> {
+//      Log.d(TAG, "REFRESHSELECTPROMOTIONS ${player}")
+//      MainView(
+//        viewModel,
+//        stringForDebug = "REFRESHSELECTPROMOTIONS"
+//      )
+//      viewModel.goToNextState()
+//    }
 
-    GameState.END -> {
+    //Tofix Bug when winning
+    GameViewState.END -> {
       if(viewModel.xp)
         Log.d(TAG, "Winner ${viewModel.countNumberGames}: ${player}")
       else
@@ -406,8 +392,7 @@ fun GameView(viewModel: GameViewModel = viewModel()) {
             Log.d(TAG, "Red: ${viewModel.aiP2()}")
       }
       MainView(
-        viewModel,
-        animations = animations
+        viewModel
       )
       val style = TextStyle(
         color = if(player == EColor.Blue) CColor.Blue else CColor.Red,
@@ -551,7 +536,7 @@ fun RadioButtonPoBo(player: EColor, viewModel: GameViewModel) {
           .selectable(
             selected = (selectedValue == item),
             onClick = {
-              viewModel.cancelPieceSelection()
+//              viewModel.cancelPieceSelection()
               when(item) {
                 "Po" -> viewModel.selectPo()
                 else -> viewModel.selectBo()
@@ -564,7 +549,7 @@ fun RadioButtonPoBo(player: EColor, viewModel: GameViewModel) {
         IconToggleButton(
           checked = selectedValue == item,
           onCheckedChange = {
-            viewModel.cancelPieceSelection()
+//            viewModel.cancelPieceSelection()
             when(item) {
               "Po" -> viewModel.selectPo()
               else -> viewModel.selectBo()

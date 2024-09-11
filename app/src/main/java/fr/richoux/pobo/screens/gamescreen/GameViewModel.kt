@@ -3,11 +3,11 @@ package fr.richoux.pobo.screens.gamescreen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.engine.ai.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.lang.Byte
 
 private const val TAG = "pobotag GameViewModel"
 
@@ -15,8 +15,12 @@ enum class GameViewModelState {
   IDLE, SELECT1, SELECT3, SELECT1OR3
 }
 
+enum class GameViewState {
+  SELECTPOSITION, PLAYMOVE, AUTOPROMOTIONS, SELECTPROMOTIONS, REFRESH, END
+}
+
 enum class GameState {
-  INIT, HISTORY, SELECTPIECE, SELECTPOSITION, CHECKPROMOTIONS, AUTOPROMOTIONS, SELECTPROMOTIONS, REFRESHSELECTPROMOTIONS, END
+  SELECTPOSITION, PLAYMOVE, CHECKPROMOTIONS, AUTOPROMOTIONS, SELECTPROMOTIONS, END
 }
 
 class GameViewModel : ViewModel() {
@@ -58,14 +62,18 @@ class GameViewModel : ViewModel() {
   /*** Game States ***/
   private var _gameState = MutableStateFlow<GameState>(GameState.SELECTPOSITION)
   var gameState = _gameState.asStateFlow()
+  private var _gameViewState = MutableStateFlow<GameViewState>(GameViewState.SELECTPOSITION)
+  var gameViewState = _gameViewState.asStateFlow()
 
   /*** Other Variables ***/
+  var animations: MutableMap<Position, Pair<Position,Piece>> = mutableMapOf()
+    private set
   private var _game: Game = Game()
   var pieceTypeToPlay: PieceType? = null
     private set
   var hasStarted: Boolean = false
   var selectedValue = MutableStateFlow<String>("")
-  var needRefreshBoardDisplay = MutableStateFlow<Boolean>(false)
+//  var needRefreshBoardDisplay = MutableStateFlow<Boolean>(false)
 //  var needRunAnimation = MutableStateFlow<Boolean>(false)
   lateinit var navController: NavController
     private set
@@ -130,13 +138,16 @@ class GameViewModel : ViewModel() {
     _forwardHistory.clear()
     _moveHistory.clear()
     _forwardMoveHistory.clear()
+    animations.clear()
     moveNumber = 0
     _game = Game()
     reset()
     lastMovePosition = null
     hasStarted = false
-    _gameState.tryEmit(GameState.INIT)
+    _gameState.tryEmit(GameState.SELECTPOSITION)
     gameState = _gameState.asStateFlow()
+    _gameViewState.tryEmit(GameViewState.SELECTPOSITION)
+    gameViewState = _gameViewState.asStateFlow()
   }
 
   fun IsAIToPLay(): Boolean {
@@ -168,7 +179,11 @@ class GameViewModel : ViewModel() {
     reset()
     historyCall = true
 
-    _gameState.value = GameState.HISTORY
+    animations.clear()
+
+    _gameState.value = GameState.SELECTPOSITION
+//    _gameViewState.value = GameViewState.REFRESH
+    _gameViewState.tryEmit(GameViewState.REFRESH)
   }
 
   fun goForwardMove() {
@@ -194,32 +209,36 @@ class GameViewModel : ViewModel() {
     reset()
     historyCall = true
 
-    _gameState.value = GameState.HISTORY
+    animations.clear()
+
+    _gameState.value = GameState.SELECTPOSITION
+//    _gameViewState.value = GameViewState.REFRESH
+    _gameViewState.tryEmit(GameViewState.REFRESH)
   }
 
-  fun cancelPieceSelection() {
-    val newState = GameState.SELECTPIECE
-    _gameState.value = newState
-    _gameState.tryEmit(newState)
-  }
+//  fun cancelPieceSelection() {
+//    val newState = GameState.SELECTPIECE
+//    _gameState.value = newState
+//    _gameState.tryEmit(newState)
+//  }
 
   fun nextGameState(): GameState {
     if(_game.victory) {
       return GameState.END
     }
     return when(_gameState.value) {
-      GameState.INIT -> {
-        GameState.SELECTPOSITION
-      }
-      GameState.SELECTPIECE -> {
-        GameState.SELECTPOSITION
-      }
+//      GameState.SELECTPIECE -> {
+//        GameState.SELECTPOSITION
+//      }
       GameState.SELECTPOSITION -> {
         _game.checkVictory()
         if(_game.victory)
           GameState.END
         else
-          GameState.CHECKPROMOTIONS
+          GameState.PLAYMOVE
+      }
+      GameState.PLAYMOVE -> {
+        GameState.CHECKPROMOTIONS
       }
       GameState.CHECKPROMOTIONS -> {
         val promotions = _game.getPossiblePromotions(_game.board)
@@ -232,46 +251,47 @@ class GameViewModel : ViewModel() {
         }
 
         if(currentPlayerCanPromote && stateSelection != GameViewModelState.IDLE) {
-          needRefreshBoardDisplay.tryEmit(true)
+//          needRefreshBoardDisplay.tryEmit(true)
           if(_game.getPossiblePromotions(_game.board).size == 1)
             GameState.AUTOPROMOTIONS
           else
             GameState.SELECTPROMOTIONS
         } else {
-          if(twoTypesInPool()) {
-            GameState.SELECTPIECE
-          } else {
+//          if(twoTypesInPool()) {
+//            GameState.SELECTPIECE
+//          } else {
             GameState.SELECTPOSITION
-          }
+//          }
         }
       }
       GameState.AUTOPROMOTIONS -> {
-        if(twoTypesInPool()) {
-          GameState.SELECTPIECE
-        } else {
+//        if(twoTypesInPool()) {
+//          GameState.SELECTPIECE
+//        } else {
           GameState.SELECTPOSITION
-        }
+//        }
       }
       GameState.SELECTPROMOTIONS -> {
         if(_finishPieceSelection) {
-          if(twoTypesInPool()) {
-            GameState.SELECTPIECE
-          } else {
+//          if(twoTypesInPool()) {
+//            GameState.SELECTPIECE
+//          } else {
             GameState.SELECTPOSITION
-          }
+//          }
         } else
-          GameState.REFRESHSELECTPROMOTIONS
+          GameState.SELECTPROMOTIONS
+//          GameState.REFRESHSELECTPROMOTIONS
       }
-      GameState.REFRESHSELECTPROMOTIONS -> {
-        GameState.SELECTPROMOTIONS
-      }
-      GameState.HISTORY -> {
-        if(twoTypesInPool()) {
-          GameState.SELECTPIECE
-        } else {
-          GameState.SELECTPOSITION
-        }
-      }
+//      GameState.REFRESHSELECTPROMOTIONS -> {
+//        GameState.SELECTPROMOTIONS
+//      }
+//      GameState.HISTORY -> {
+////        if(twoTypesInPool()) {
+////          GameState.SELECTPIECE
+////        } else {
+//          GameState.SELECTPOSITION
+////        }
+//      }
       else -> { //GameState.END, but it should be caught before the when
         GameState.END
       }
@@ -280,53 +300,65 @@ class GameViewModel : ViewModel() {
 
   fun goToNextState() {
     if(_game.victory) {
-      _gameState.tryEmit(GameState.END)
+      _gameViewState.tryEmit(GameViewState.END)
       return
     }
 
     var newState = nextGameState()
     Log.d(TAG, "Change to next state: ${_gameState.value} -> ${newState}")
     _gameState.value = newState
+    // TODO If AI is playing?
+//    when(newState) {
+//      GameState.SELECTPOSITION -> _gameViewState.tryEmit(GameViewState.SELECTPOSITION)
+//      GameState.AUTOPROMOTIONS -> _gameViewState.tryEmit(GameViewState.AUTOPROMOTIONS)
+//      GameState.SELECTPROMOTIONS -> _gameViewState.tryEmit(GameViewState.SELECTPROMOTIONS)
+//      else -> {}
+//    }
 
-    if(newState == GameState.SELECTPIECE && IsAIToPLay() ) {
-      newState = nextGameState()
-      Log.d(TAG, "Change to next state again because AI: ${_gameState.value} -> ${newState}")
-      _gameState.value = newState
-      Log.d(TAG, "New game state 2: $newState")
-    }
+    //TODO Done twice with playAt
+//    if( newState == GameState.SELECTPOSITION )
+//      _gameViewState.tryEmit(GameViewState.SELECTPOSITION)
 
+    // TODO Weird to have this here
     hasStarted = true
+
     if(IsAIToPLay()) {
       canGoBack.tryEmit(false)
       canGoForward.tryEmit(false)
+
+//      if(newState == GameState.SELECTPIECE) {
+//        newState = nextGameState()
+//        Log.d(TAG, "Change to next state again because AI: ${_gameState.value} -> ${newState}")
+//        _gameState.value = newState
+//        Log.d(TAG, "New game state 2: $newState")
+//      }
+      if(_gameState.value == GameState.SELECTPROMOTIONS ) {
+        Log.d(TAG, "Compute pieces to promote for AI")
+        if(p1IsAI && _game.currentPlayer == Color.Blue)
+          piecesToPromote = aiP1.select_promotion(_game).toMutableList()
+        else
+          piecesToPromote = aiP2.select_promotion(_game).toMutableList()
+        validatePromotionsSelection()
+      } else {
+//      Log.d(TAG, "Emitting ${newState}, color=${_game.currentPlayer}")
+//      _gameState.tryEmit(newState)
+      }
     } else {
       canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
       canGoForward.tryEmit(_forwardHistory.isNotEmpty())
-    }
-
-    if(IsAIToPLay() && _gameState.value == GameState.SELECTPROMOTIONS ) {
-      Log.d(TAG, "Compute pieces to promote for AI")
-      if(p1IsAI && _game.currentPlayer == Color.Blue)
-        piecesToPromote = aiP1.select_promotion(_game).toMutableList()
-      else
-        piecesToPromote = aiP2.select_promotion(_game).toMutableList()
-      validatePromotionsSelection()
-    } else {
-      Log.d(TAG, "Emitting ${newState}, color=${_game.currentPlayer}")
-      _gameState.tryEmit(newState)
     }
   }
 
   fun selectPo() {
     selectedValue.tryEmit("Po")
     pieceTypeToPlay = PieceType.Po
-    goToNextState()
+//    goToNextState()
   }
 
   fun selectBo() {
     selectedValue.tryEmit("Bo")
     pieceTypeToPlay = PieceType.Bo
-    goToNextState()
+//    goToNextState()
   }
 
   fun canPlayAt(it: Position): Boolean = _game.canPlayAt(it)
@@ -342,11 +374,15 @@ class GameViewModel : ViewModel() {
     }
   }
 
-  fun playAt(it: Position) {
+  //TODO Bad flow SELECTPOSITION / PLAYMOVE 
+
+  fun playAt(movePosition: Position) {
     _forwardHistory.clear()
     _forwardMoveHistory.clear()
     historyCall = false
     _history.add(History(_game.board, _game.currentPlayer, moveNumber))
+
+    computeAnimation(movePosition)
 
     val piece = when(pieceTypeToPlay) {
       PieceType.Po -> Piece.createPo(_game.currentPlayer)
@@ -357,13 +393,13 @@ class GameViewModel : ViewModel() {
       )
     }
     pieceTypeToPlay = null
-    val move = Move(piece, it)
+    val move = Move(piece, movePosition)
     if(!_game.canPlay(move)) return
 
     // Print move
     if( !xp )
       Log.d(TAG, "${move}")
-    lastMovePosition = it
+    lastMovePosition = movePosition
 
     _moveHistory.add(move)
     moveNumber++
@@ -374,10 +410,31 @@ class GameViewModel : ViewModel() {
     _game.checkVictoryFor(newBoard, _game.currentPlayer)
     _game.board = newBoard
 
-//    needRunAnimation.tryEmit(true)
-    needRefreshBoardDisplay.tryEmit(true)
-
     goToNextState()
+//    _gameViewState.value = GameViewState.PLAYMOVE
+    _gameViewState.tryEmit(GameViewState.PLAYMOVE)
+  }
+
+  fun movePlayed() {
+    goToNextState()
+    checkPromotions()
+//    needRunAnimation.tryEmit(true)
+//    needRefreshBoardDisplay.tryEmit(true)
+    goToNextState()
+    when(_gameState.value) {
+      GameState.AUTOPROMOTIONS -> {
+//        _gameViewState.value = GameViewState.AUTOPROMOTIONS
+        _gameViewState.tryEmit(GameViewState.AUTOPROMOTIONS)
+      }
+      GameState.SELECTPROMOTIONS -> {
+//        _gameViewState.value = GameViewState.SELECTPROMOTIONS
+        _gameViewState.tryEmit(GameViewState.SELECTPROMOTIONS)
+      }
+      else ->  {
+//        _gameViewState.value = GameViewState.SELECTPOSITION
+        _gameViewState.tryEmit(GameViewState.SELECTPOSITION)
+      }
+    }
   }
 
   fun getFlatPromotionable(): List<Position> = _game.getPossiblePromotions(_game.board).flatten()
@@ -401,12 +458,12 @@ class GameViewModel : ViewModel() {
       } else
         stateSelection = GameViewModelState.SELECT3
     }
-    goToNextState()
   }
 
   fun autopromotions() {
     val promotable = _game.getPossiblePromotions(_game.board)
     if(promotable.size == 1 && stateSelection != GameViewModelState.IDLE) {
+      //TODO Must play animations BEFORE sleep
       if( !( p1IsAI && p2IsAI ) )
         Thread.sleep(500)
       promotable[0].forEach {
@@ -415,9 +472,12 @@ class GameViewModel : ViewModel() {
     }
     _game.changePlayer()
     goToNextState()
+//    _gameViewState.value = GameViewState.SELECTPOSITION
+    _gameViewState.tryEmit(GameViewState.SELECTPOSITION)
   }
 
   fun selectForPromotionOrCancel(position: Position) {
+
     val removable = _game.getPossiblePromotions(_game.board)
 
     if(stateSelection != GameViewModelState.IDLE) {
@@ -507,6 +567,8 @@ class GameViewModel : ViewModel() {
     } else {
       _finishPieceSelection = false
       goToNextState()
+//      _gameViewState.value = GameViewState.SELECTPOSITION
+      _gameViewState.tryEmit(GameViewState.SELECTPOSITION)
     }
   }
 
@@ -541,9 +603,40 @@ class GameViewModel : ViewModel() {
   fun twoTypesInPool(): Boolean = _game.board.hasTwoTypesInPool(_game.currentPlayer)
 
   fun resume() = _gameState.tryEmit(_gameState.value)
-  fun refreshDone() = needRefreshBoardDisplay.tryEmit(false)
+//  fun refreshDone() = needRefreshBoardDisplay.tryEmit(false)
 //  fun animationDone() = needRunAnimation.tryEmit(false)
   fun canBePushed(victim: Position, it: Direction): Boolean {
     return _game.canBePushed(_game.board, computePieceTypeToPlay(), victim, it)
+  }
+
+  fun computeAnimation(movePosition: Position) {
+    animations.clear()
+    enumValues<Direction>().forEach {
+      val moveFrom = getPositionTowards(movePosition, it)
+      if(canBePushed(moveFrom, it)) {
+        val moveTo = getPositionTowards(moveFrom, it)
+        val piece = _game.board.pieceAt(moveFrom)
+        animations[moveFrom] = Pair(moveTo, piece!!)
+      }
+    }
+  }
+
+  fun getDisplayStateMessageID(): Int {
+      return when(_gameState.value) {
+        GameState.SELECTPOSITION -> if(twoTypesInPool()) R.string.select_piece else -1
+        GameState.SELECTPROMOTIONS -> R.string.select_promotion
+        else -> -1
+      }
+  }
+
+  fun refreshDone() {
+    when(_gameState.value) {
+      GameState.SELECTPOSITION -> _gameViewState.tryEmit(GameViewState.SELECTPOSITION)
+      GameState.AUTOPROMOTIONS -> _gameViewState.tryEmit(GameViewState.AUTOPROMOTIONS)
+      GameState.SELECTPROMOTIONS -> _gameViewState.tryEmit(GameViewState.SELECTPROMOTIONS)
+      GameState.PLAYMOVE -> _gameViewState.tryEmit(GameViewState.PLAYMOVE)
+      GameState.END -> _gameViewState.tryEmit(GameViewState.END)
+      else -> {}
+    }
   }
 }
