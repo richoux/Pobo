@@ -18,10 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
+import kotlinx.coroutines.coroutineScope
 import fr.richoux.pobo.engine.Color as EColor
 
 private const val TAG = "pobotag GameView"
@@ -70,12 +72,24 @@ fun GameView(
     Modifier.fillMaxHeight(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-    BoardView(
-      viewModel,
+      BoardView(
+        viewModel,
 //      stringForDebug = stringForDebug
+      )
+      Spacer(modifier = Modifier.height(8.dp))
+      BelowBoardView(viewModel)
+    }
+
+  val gameViewState by viewModel.poolViewState.collectAsStateWithLifecycle()
+
+  if(gameViewState.victory) {
+    val style = TextStyle(
+      color = if(gameViewState.currentPlayer == EColor.Blue) CColor.Blue else CColor.Red,
+      fontSize = MaterialTheme.typography.body1.fontSize,
+      fontWeight = FontWeight.Bold,
+      fontStyle = MaterialTheme.typography.body1.fontStyle
     )
-    Spacer(modifier = Modifier.height(8.dp))
-    BelowBoardView(viewModel)
+    EndOfGameDialog(gameViewState.currentPlayer, style, viewModel)
   }
 }
 

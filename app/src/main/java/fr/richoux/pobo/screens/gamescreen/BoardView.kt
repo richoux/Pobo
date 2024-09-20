@@ -19,8 +19,11 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val TAG = "pobotag BoardView"
 
@@ -29,7 +32,7 @@ fun BoardView(
   viewModel: GameViewModel,
 //  stringForDebug: String = ""
 ) {
-  val boardViewState by viewModel.boardViewState.collectAsState()
+  val boardViewState by viewModel.boardViewState.collectAsStateWithLifecycle()
   BoxWithConstraints(
     modifier = Modifier
       .fillMaxWidth()
@@ -165,11 +168,11 @@ private fun BoardLayout(
     }
 
     LaunchedEffect(targetOffset) {
-      if(!isXP)
-        offset.animateTo(targetOffset, tween(200, easing = LinearOutSlowInEasing))
-      else
-        offset.snapTo(targetOffset)
-    }
+        if(!isXP)
+          offset.animateTo(targetOffset, tween(200, easing = LinearOutSlowInEasing))
+        else
+          offset.snapTo(targetOffset)
+      }
 
     PieceView(
       piece = target.second,

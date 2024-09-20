@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.Color
@@ -35,7 +36,7 @@ import kotlin.math.max
 fun BelowBoardView(
   viewModel: GameViewModel = viewModel()
 ) {
-  val gameViewState by viewModel.poolViewState.collectAsState()
+  val gameViewState by viewModel.poolViewState.collectAsStateWithLifecycle()
   val length_text = (stringResource(id = R.string.turn).length
   + max(stringResource(id = R.string.blue).length, stringResource(id = R.string.red).length))
   val messageID = gameViewState.messageID

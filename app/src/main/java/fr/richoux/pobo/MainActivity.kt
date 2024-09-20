@@ -69,7 +69,6 @@ import fr.richoux.pobo.screens.gamescreen.GameViewModel
 import fr.richoux.pobo.ui.PoboTheme
 import kotlinx.coroutines.launch
 
-
 private val showLanguages = mutableStateOf(false)
 // Arabic not ready
 private val locale = mutableStateOf<LocaleListCompat>(
@@ -498,8 +497,7 @@ class MainActivity : AppCompatActivity() {
                 )
               },
             ) {
-//              GameView(gameViewModel)
-              GameView(gameViewModel)
+                GameView(gameViewModel)
             }
             composable(Screen.HowToPlay.route) { HowToPlayView() }
             composable(Screen.About.route) { AboutView() }

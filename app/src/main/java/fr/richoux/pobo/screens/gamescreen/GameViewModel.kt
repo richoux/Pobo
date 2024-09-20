@@ -9,10 +9,14 @@ import androidx.navigation.NavController
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.engine.ai.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 private const val TAG = "pobotag GameViewModel"
 
@@ -53,7 +57,8 @@ class GameViewModel : ViewModel() {
     val numberBluePo: Int,
     val numberBlueBo: Int,
     val numberRedPo: Int,
-    val numberRedBo: Int
+    val numberRedBo: Int,
+    val victory: Boolean
   )
 
 //  private val _boardViewState = mutableStateOf(
@@ -101,7 +106,8 @@ class GameViewModel : ViewModel() {
       8,
       0,
       8,
-      0
+      0,
+      false
     )
   )
   val poolViewState: StateFlow<PoolViewState> = _poolViewState.asStateFlow()
@@ -233,7 +239,8 @@ class GameViewModel : ViewModel() {
       8,
       0,
       8,
-      0
+      0,
+      false
     )
 
     if(p1IsAI)
@@ -403,6 +410,7 @@ class GameViewModel : ViewModel() {
   }
 
   fun playAt(movePosition: Position) {
+    hasStarted = true
     _forwardHistory.clear()
     _forwardMoveHistory.clear()
     _history.add(History(_game.board, _game.currentPlayer, moveNumber))
@@ -455,8 +463,18 @@ class GameViewModel : ViewModel() {
       )
     }
 
-    checkPromotions()
-    nextStep()
+    _game.checkVictory()
+    if(!_game.victory) {
+      checkPromotions()
+      nextStep()
+    } else {
+      animations.clear()
+      _poolViewState.update { currentState ->
+        currentState.copy(
+          victory = true
+        )
+      }
+    }
   }
 
   fun nextStep() {
@@ -473,10 +491,9 @@ class GameViewModel : ViewModel() {
           canGoBack.tryEmit(false)
           canGoForward.tryEmit(false)
 
-//          GlobalScope.launch(Dispatchers.Main){
-//            delay(200)
-//          }
-          makeAIMove()
+          GlobalScope.launch(Dispatchers.Default){
+            makeAIMove()
+          }
         } else {
           canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
           canGoForward.tryEmit(_forwardHistory.isNotEmpty())
@@ -810,6 +827,7 @@ class GameViewModel : ViewModel() {
       _poolViewState.update { currentState ->
       currentState.copy(
         currentPlayer = _game.currentPlayer,
+        canValidatePromotion = false,
         numberBluePo = _game.board.getNumberOfPoInPool(Color.Blue),
         numberBlueBo = _game.board.getNumberOfBoInPool(Color.Blue),
         numberRedPo = _game.board.getNumberOfPoInPool(Color.Red),
