@@ -15,6 +15,14 @@ sealed class PieceType(val value: Byte) {
   }
 }
 
+//fun getPieceTypeFromByte(byte: Byte): PieceType? {
+//  return when(byte) {
+//    1.toByte() -> PieceType.Po
+//    2.toByte() -> PieceType.Bo
+//    else -> null
+//  }
+//}
+
 sealed class Color(val value: Byte) {
   object Blue : Color(-1)
   object Red : Color(1)

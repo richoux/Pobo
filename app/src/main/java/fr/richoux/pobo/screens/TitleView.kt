@@ -38,7 +38,8 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
     )
     Spacer(modifier = Modifier.height(32.dp))
     GameButton(
-      onClick = { resume(navController, gameViewModel) },
+//      onClick = { resume(navController, gameViewModel) },
+      onClick = { resume(navController) },
       enabled = gameViewModel.hasStarted,
       text = stringResource(id = R.string.resume)
     )
@@ -235,9 +236,9 @@ private fun newGame(
 
 private fun resume(
   navController: NavController,
-  gameViewModel: GameViewModel
+//  gameViewModel: GameViewModel
 ) {
-  gameViewModel.resume()
+//  gameViewModel.resume()
   navController.navigate(Screen.Game.route)
 }
 
