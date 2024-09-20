@@ -30,7 +30,6 @@ private const val TAG = "pobotag BoardView"
 @Composable
 fun BoardView(
   viewModel: GameViewModel,
-//  stringForDebug: String = ""
 ) {
   val boardViewState by viewModel.boardViewState.collectAsStateWithLifecycle()
   BoxWithConstraints(
@@ -53,8 +52,7 @@ fun BoardView(
       board = boardViewState.board,
       animations = viewModel.animations,
       squareSize = squareSize,
-      isXP = viewModel.xp,
-      stringForDebug = boardViewState.stringForDebug //stringForDebug
+      isXP = viewModel.xp
     )
   }
 }
@@ -124,10 +122,8 @@ private fun BoardLayout(
   board: Board,
   animations: MutableMap<Position, Pair<Position, Piece>>,
   squareSize: Dp,
-  isXP: Boolean,
-  stringForDebug: String = ""
+  isXP: Boolean
 ) {
-  stringForDebug
   val pieces = board.allPieces
   pieces.forEach { (position, piece) ->
     if(piece.id != "") {
