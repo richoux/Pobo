@@ -1,6 +1,7 @@
 package fr.richoux.pobo.screens
 
 import android.content.pm.ActivityInfo
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,11 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import fr.richoux.pobo.R
 import fr.richoux.pobo.ui.LockScreenOrientation
 
@@ -70,9 +74,15 @@ fun  HowToPlayView() {
           color = MaterialTheme.colors.onPrimary
         )
         Image(
-          painter = painterResource(id = R.drawable.board_push1),
+          painter = rememberDrawablePainter(
+            drawable = getDrawable(
+              LocalContext.current,
+              R.drawable.pobo_push_01
+            )
+          ),
           modifier = Modifier.size(190.dp),
-          contentDescription = "Push 1"
+          contentDescription = "Push 1",
+          contentScale = ContentScale.FillWidth
         )
       }
       Spacer(modifier = Modifier.height(16.dp))
@@ -89,9 +99,15 @@ fun  HowToPlayView() {
           color = MaterialTheme.colors.onPrimary
         )
         Image(
-          painter = painterResource(id = R.drawable.board_push2),
+          painter = rememberDrawablePainter(
+            drawable = getDrawable(
+              LocalContext.current,
+              R.drawable.pobo_push_02
+            )
+          ),
           modifier = Modifier.size(190.dp),
-          contentDescription = "Push 2"
+          contentDescription = "Push 2",
+          contentScale = ContentScale.FillWidth
         )
       }
       Spacer(modifier = Modifier.height(16.dp))
