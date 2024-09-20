@@ -25,7 +25,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -58,7 +59,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.0-RC1"
     implementation 'androidx.core:core-ktx:1.13.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation ('com.google.android.material:material:1.11.0')
+    implementation 'com.google.android.material:material:1.11.0'
     implementation "androidx.compose.ui:ui:1.6.6"
     implementation "androidx.compose.material:material:1.6.6"
     implementation "androidx.compose.ui:ui-tooling:1.6.6"
@@ -67,6 +68,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-compose:2.8.0-alpha07'
     implementation "androidx.activity:activity-compose:1.9.0"
     implementation 'com.google.accompanist:accompanist-navigation-animation:0.34.0'
+    implementation 'com.google.accompanist:accompanist-drawablepainter:0.35.0-alpha'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

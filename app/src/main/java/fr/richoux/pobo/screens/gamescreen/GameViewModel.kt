@@ -45,8 +45,7 @@ class GameViewModel : ViewModel() {
     val lastMovePosition: Position?,
     val promotables: List<List<Position>>,
     val promotionList: List<Position>,
-    val tapAction: (Position) -> Unit,
-    val stringForDebug: String = ""
+    val tapAction: (Position) -> Unit
   )
 
   data class PoolViewState(
@@ -61,17 +60,6 @@ class GameViewModel : ViewModel() {
     val victory: Boolean
   )
 
-//  private val _boardViewState = mutableStateOf(
-//    BoardViewState(
-//      _game.board,
-//      null,
-//      listOf(),
-//      listOf(),
-//      { _ -> }
-//    )
-//  )
-//  val boardViewState: State<BoardViewState> get() = _boardViewState
-
   private val _boardViewState = MutableStateFlow(
     BoardViewState(
       _game.board,
@@ -82,20 +70,6 @@ class GameViewModel : ViewModel() {
     )
   )
   val boardViewState: StateFlow<BoardViewState> = _boardViewState.asStateFlow()
-
-//  private val _poolViewState = mutableStateOf(
-//    PoolViewState(
-//      -1,
-//      Color.Blue,
-//      null,
-//      false,
-//      8,
-//      0,
-//      8,
-//      0
-//    )
-//  )
-//  val poolViewState: State<PoolViewState> get() = _poolViewState
 
   private val _poolViewState = MutableStateFlow(
     PoolViewState(
@@ -139,9 +113,6 @@ class GameViewModel : ViewModel() {
     private set
 
   /*** Member functions ***/
-  fun aiP1(): String = aiP1.toString()
-  fun aiP2(): String = aiP2.toString()
-
   val tapToPlay: (Position) -> Unit = {
     if(
       canPlayAt(it)
@@ -442,15 +413,14 @@ class GameViewModel : ViewModel() {
     var newBoard = _game.board.playAt(move)
     newBoard = _game.doPush(newBoard, move)
 
-    _game.checkVictoryFor(newBoard, _game.currentPlayer)
+//    _game.checkVictoryFor(newBoard, _game.currentPlayer)
     _game.board = newBoard
 
     _boardViewState.update { currentState ->
       currentState.copy(
         board = _game.board,
         lastMovePosition = movePosition,
-        tapAction = { _ -> },
-        stringForDebug = "playAt_before_check"
+        tapAction = { _ -> }
       )
     }
 
@@ -500,8 +470,7 @@ class GameViewModel : ViewModel() {
 
           _boardViewState.update { currentState ->
             currentState.copy(
-              tapAction = tapToPlay,
-              stringForDebug = "playAt_after_check_if_no_promo"
+              tapAction = tapToPlay
             )
           }
           if(twoTypesInPool()) {
@@ -525,37 +494,42 @@ class GameViewModel : ViewModel() {
           }
         }
       }
-//      1 -> {
-//        autopromotions()
+      1 -> {
+        GlobalScope.launch(Dispatchers.Default) {
+          delay(500)
+          autopromotions()
+        }
 //        if( IsAIToPLay() ) {
-//          makeAIMove()
+//          GlobalScope.launch(Dispatchers.Default) {
+//            makeAIMove()
+//          }
 //        }
-//      }
+      }
       else -> {
         canGoBack.tryEmit(false)
         canGoForward.tryEmit(false)
         if(IsAIToPLay()) {
-          if(p1IsAI && _poolViewState.value.currentPlayer == Color.Blue) {
-            _boardViewState.update { currentState ->
-              currentState.copy(
-                promotionList = aiP1.select_promotion(_game),
-                stringForDebug = "playAt_after_check_if_multi_promo_and_AI_Blue"
-              )
+          GlobalScope.launch(Dispatchers.Default) {
+            delay(500)
+            if(p1IsAI && _poolViewState.value.currentPlayer == Color.Blue) {
+              _boardViewState.update { currentState ->
+                currentState.copy(
+                  promotionList = aiP1.select_promotion(_game)
+                )
+              }
+            } else {
+              _boardViewState.update { currentState ->
+                currentState.copy(
+                  promotionList = aiP2.select_promotion(_game)
+                )
+              }
             }
-          } else {
-            _boardViewState.update { currentState ->
-              currentState.copy(
-                promotionList = aiP2.select_promotion(_game),
-                stringForDebug = "playAt_after_check_if_multi_promo_and_AI_Red"
-              )
-            }
+            validatePromotionsSelection()
           }
-          validatePromotionsSelection()
         } else {
           _boardViewState.update { currentState ->
             currentState.copy(
-              tapAction = tapToPromote,
-              stringForDebug = "playAt_after_check_if_multi_promo"
+              tapAction = tapToPromote
             )
           }
           _poolViewState.update { currentState ->
@@ -591,13 +565,13 @@ class GameViewModel : ViewModel() {
 
     _boardViewState.update { currentState ->
       currentState.copy(
-        promotables = groups,
-        stringForDebug = "check"
+        promotables = groups
       )
     }
   }
 
   fun autopromotions() {
+    animations.clear()
     val promotable = _boardViewState.value.promotables //_game.getPossiblePromotions(_game.board)
     if(promotable.size == 1 && promotionType != PromotionType.NONE) {
       promotable[0].forEach {
@@ -611,8 +585,7 @@ class GameViewModel : ViewModel() {
       currentState.copy(
         board = _game.board,
         promotables = listOf(),
-        tapAction = tapToPlay,
-        stringForDebug = "auto"
+        tapAction = tapToPlay
       )
     }
     _poolViewState.update { currentState ->
@@ -626,12 +599,13 @@ class GameViewModel : ViewModel() {
     }
 
     if( IsAIToPLay() ) {
-      makeAIMove()
+      GlobalScope.launch(Dispatchers.Default) {
+        makeAIMove()
+      }
     } else {
       _boardViewState.update { currentState ->
         currentState.copy(
-          tapAction = tapToPlay,
-          stringForDebug = "auto_2"
+          tapAction = tapToPlay
         )
       }
     }
@@ -640,39 +614,22 @@ class GameViewModel : ViewModel() {
   fun selectForPromotionOrCancel(position: Position) {
     val promotable = _boardViewState.value.promotables
     val piecesToPromote = _boardViewState.value.promotionList.toMutableList()
-//    Log.d(TAG, "===> CALL selectForPromotionOrCancel")
-//    Log.d(TAG, "piecesToPromote: ")
-//    for(it in piecesToPromote) { Log.d(TAG, "${it} ") }
-//    Log.d(TAG, "_promotionListIndex: ")
-//    for(it in _promotionListIndex) { Log.d(TAG, "${it} ") }
-//    Log.d(TAG, "_promotionListMask: ")
-//    for(it in _promotionListMask) { Log.d(TAG, "${it} ") }
-//    Log.d(TAG, "_piecesToPromoteIndex: ")
-//    for(it in _piecesToPromoteIndex) { Log.d(TAG, "${it} ") }
 
     if(promotionType != PromotionType.NONE) {
       // if the player taps a selected piece, unselect it
-//      Log.d(TAG, "promotionType != PromotionType.NONE")
       if(piecesToPromote.contains(position)) {
-//        Log.d(TAG, "Removing stuff")
-//        Log.d(TAG, "About to remove ${position} from promotion")
         piecesToPromote.remove(position)
-//        Log.d(TAG, "Remove done")
         _piecesToPromoteIndex[position] = mutableListOf()
         _promotionListIndex.clear()
         if(piecesToPromote.isEmpty()) {
-//          Log.d(TAG, "Promotion list empty")
           _promotionListMask.clear()
         } else {
-//          Log.d(TAG, "Update mark")
           // Rescan all group indexes in which a piece selected for promotion belongs to
           _promotionListMask = MutableList(promotable.size) { false }
           for(piece in piecesToPromote) {
-//            Log.d(TAG, "For piece ${piece}")
             _piecesToPromoteIndex[piece] = mutableListOf()
             for((index, list) in promotable.withIndex())
               if(list.contains(piece)) {
-//                Log.d(TAG, "Add promotable list ${index} since it contains ${piece}")
                 _promotionListMask[index] = true
                 if(!_promotionListIndex.contains(index))
                   _promotionListIndex.add(index)
@@ -682,18 +639,10 @@ class GameViewModel : ViewModel() {
           // Remove group indexes that are not shared by all pieces selected for promotion
           val toRemove: MutableList<Int> = mutableListOf()
           for(indexValue in _promotionListIndex) {
-//            Log.d(TAG, "Looking at list ${indexValue}")
             for(piece in piecesToPromote) {
-//              Log.d(TAG, "Looking at piece ${piece}")
               if(_piecesToPromoteIndex.containsKey(piece) && _piecesToPromoteIndex[piece]?.contains(indexValue) != true) {
-//                Log.d(
-//                  TAG,
-//                  "_piecesToPromoteIndex[${piece}]=${_piecesToPromoteIndex[piece]} does not contain ${indexValue}"
-//                )
-//                Log.d(TAG, "About to remove ${indexValue} from promotionList")
                 toRemove.add(indexValue)
                 _promotionListMask[indexValue] = false
-//                Log.d(TAG, "Remove done")
               }
             }
           }
@@ -706,19 +655,15 @@ class GameViewModel : ViewModel() {
           if(list.isEmpty())
             toRemove.add(key)
         for(removePiece in toRemove) {
-//          Log.d(TAG, "About to remove ${removePiece} from promoteIndex")
           _piecesToPromoteIndex.remove(removePiece)
-//          Log.d(TAG, "Remove done")
         }
       } else {
         // _promotionListIndexes is a tedious way to check if a selected piece (in particular the 1st one)
         // belongs to different promotable groups, to make sure we don't select pieces from different groups
         if(_promotionListIndex.isEmpty()) {
-//          Log.d(TAG, "Still nothing in the promotion list")
           _promotionListMask = MutableList(promotable.size) { false }
           for((index, list) in promotable.withIndex()) {
             if(list.contains(position)) {
-//              Log.d(TAG, "Mask and add promotable list ${index}")
               _promotionListMask[index] = true
               _promotionListIndex.add(index)
               if(!_piecesToPromoteIndex.containsKey(position))
@@ -729,10 +674,8 @@ class GameViewModel : ViewModel() {
           if(!_promotionListIndex.isEmpty())
             piecesToPromote.add(position)
         } else {
-//          Log.d(TAG, "There is something in the promotion list already.")
           for((index, list) in promotable.withIndex()) {
             if(list.contains(position)) {
-//              Log.d(TAG, "Mark ${index} for promotion")
               if(_promotionListMask[index]) {
                 if(!piecesToPromote.contains(position))
                   piecesToPromote.add(position)
@@ -747,34 +690,20 @@ class GameViewModel : ViewModel() {
           for(indexValue in _promotionListIndex)
             for(piece in piecesToPromote)
               if(_piecesToPromoteIndex[piece]?.contains(indexValue) != true) {
-//                Log.d(TAG, "_piecesToPromoteIndex[${piece}]=${_piecesToPromoteIndex[piece]} does not contain ${indexValue}")
                 toRemove.add(indexValue)
                 _promotionListMask[indexValue] = false
                 for((key, list) in _piecesToPromoteIndex) {
                   if(list.isNotEmpty()) {
-//                    Log.d(TAG, "Shrinking the promotion list by removing ${indexValue} from _piecesToPromoteIndex[${key}]=${list}")
                     list.remove(indexValue)
-//                    Log.d(TAG, "Remove done")
                   }
                 }
               }
           for(indexValue in toRemove) {
-//            Log.d(TAG, "Shrinking the index list by removing ${indexValue} from _promotionListIndex")
             _promotionListIndex.remove(indexValue)
-//            Log.d(TAG, "Remove done")
           }
         }
       }
     }
-
-//    Log.d(TAG, "piecesToPromote: ")
-//    for(it in piecesToPromote) { Log.d(TAG, "${it} ") }
-//    Log.d(TAG, "_promotionListIndex: ")
-//    for(it in _promotionListIndex) { Log.d(TAG, "${it} ") }
-//    Log.d(TAG, "_promotionListMask: ")
-//    for(it in _promotionListMask) { Log.d(TAG, "${it} ") }
-//    Log.d(TAG, "_piecesToPromoteIndex: ")
-//    for(it in _piecesToPromoteIndex) { Log.d(TAG, "${it} ") }
 
     val completeSelectionForRemoval =
       ((promotionType == PromotionType.SELECT3 || promotionType == PromotionType.SELECT1OR3) && piecesToPromote.size == 3)
@@ -782,8 +711,7 @@ class GameViewModel : ViewModel() {
 
     _boardViewState.update { currentState ->
       currentState.copy(
-        promotionList = piecesToPromote.toList(),
-        stringForDebug = "select"
+        promotionList = piecesToPromote.toList()
       )
     }
 
@@ -820,8 +748,7 @@ class GameViewModel : ViewModel() {
       currentState.copy(
         board = _game.board,
         promotables = listOf(),
-        promotionList = listOf(),
-        stringForDebug = "validate"
+        promotionList = listOf()
       )
     }
       _poolViewState.update { currentState ->
@@ -840,8 +767,7 @@ class GameViewModel : ViewModel() {
     } else {
       _boardViewState.update { currentState ->
         currentState.copy(
-          tapAction = tapToPlay,
-          stringForDebug = "validate_2"
+          tapAction = tapToPlay
         )
       }
 
