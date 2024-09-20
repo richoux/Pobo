@@ -38,7 +38,8 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
     )
     Spacer(modifier = Modifier.height(32.dp))
     GameButton(
-      onClick = { resume(navController, gameViewModel) },
+//      onClick = { resume(navController, gameViewModel) },
+      onClick = { resume(navController) },
       enabled = gameViewModel.hasStarted,
       text = stringResource(id = R.string.resume)
     )
@@ -67,7 +68,7 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
       modifier = Modifier.weight(1f)
     )
     Text(
-      "v0.7.3",
+      "v1.0.0",
       color = MaterialTheme.colors.onPrimary,
       modifier = Modifier.align(Alignment.CenterHorizontally)
     )
@@ -235,9 +236,9 @@ private fun newGame(
 
 private fun resume(
   navController: NavController,
-  gameViewModel: GameViewModel
+//  gameViewModel: GameViewModel
 ) {
-  gameViewModel.resume()
+//  gameViewModel.resume()
   navController.navigate(Screen.Game.route)
 }
 

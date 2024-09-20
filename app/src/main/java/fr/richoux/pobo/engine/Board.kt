@@ -15,6 +15,14 @@ sealed class PieceType(val value: Byte) {
   }
 }
 
+//fun getPieceTypeFromByte(byte: Byte): PieceType? {
+//  return when(byte) {
+//    1.toByte() -> PieceType.Po
+//    2.toByte() -> PieceType.Bo
+//    else -> null
+//  }
+//}
+
 sealed class Color(val value: Byte) {
   object Blue : Color(-1)
   object Red : Color(1)
@@ -199,8 +207,12 @@ data class Position(val x: Int, val y: Int) {
   }
 }
 
+// TODO Need coordinates all around the board, for pushing out animation
 fun getIndexFrom(position: Position): Int {
   return position.y * 6 + position.x
+}
+fun getCoordinatesFrom(index: Int): Position {
+  return Position(index % 6, index / 6)
 }
 
 data class Board(
