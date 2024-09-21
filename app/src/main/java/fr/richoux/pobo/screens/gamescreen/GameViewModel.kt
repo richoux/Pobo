@@ -603,6 +603,8 @@ class GameViewModel : ViewModel() {
         makeAIMove()
       }
     } else {
+      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
+      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
       _boardViewState.update { currentState ->
         currentState.copy(
           tapAction = tapToPlay
