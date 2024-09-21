@@ -448,6 +448,10 @@ class GameViewModel : ViewModel() {
   }
 
   fun nextStep() {
+    GlobalScope.launch(Dispatchers.Default) {
+      delay(200)
+      animations.clear()
+    }
     when(_boardViewState.value.promotables.size) {
       0 -> {
         _game.changePlayer()
@@ -456,7 +460,6 @@ class GameViewModel : ViewModel() {
             currentPlayer = _game.currentPlayer,
           )
         }
-
         if(IsAIToPLay()) {
           canGoBack.tryEmit(false)
           canGoForward.tryEmit(false)
@@ -467,7 +470,6 @@ class GameViewModel : ViewModel() {
         } else {
           canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
           canGoForward.tryEmit(_forwardHistory.isNotEmpty())
-
           _boardViewState.update { currentState ->
             currentState.copy(
               tapAction = tapToPlay
@@ -497,13 +499,9 @@ class GameViewModel : ViewModel() {
       1 -> {
         GlobalScope.launch(Dispatchers.Default) {
           delay(500)
+//          animations.clear()
           autopromotions()
         }
-//        if( IsAIToPLay() ) {
-//          GlobalScope.launch(Dispatchers.Default) {
-//            makeAIMove()
-//          }
-//        }
       }
       else -> {
         canGoBack.tryEmit(false)
@@ -511,6 +509,7 @@ class GameViewModel : ViewModel() {
         if(IsAIToPLay()) {
           GlobalScope.launch(Dispatchers.Default) {
             delay(500)
+//            animations.clear()
             if(p1IsAI && _poolViewState.value.currentPlayer == Color.Blue) {
               _boardViewState.update { currentState ->
                 currentState.copy(
@@ -571,7 +570,6 @@ class GameViewModel : ViewModel() {
   }
 
   fun autopromotions() {
-    animations.clear()
     val promotable = _boardViewState.value.promotables //_game.getPossiblePromotions(_game.board)
     if(promotable.size == 1 && promotionType != PromotionType.NONE) {
       promotable[0].forEach {
@@ -733,7 +731,7 @@ class GameViewModel : ViewModel() {
     _promotionListIndex = mutableListOf()
     _promotionListMask = mutableListOf()
     _piecesToPromoteIndex = hashMapOf()
-    animations.clear()
+//    animations.clear()
     _game.promoteOrRemovePieces(_boardViewState.value.promotionList)
     _game.checkVictory() //ToDo when do we check victory now?
 //    _promotionListIndex.clear()
