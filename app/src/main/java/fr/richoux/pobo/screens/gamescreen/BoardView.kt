@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
 import kotlinx.coroutines.Dispatchers
@@ -49,10 +50,10 @@ fun BoardView(
     )
 
     BoardLayout(
+      viewModel = viewModel,
       board = boardViewState.board,
       animations = viewModel.animations,
-      squareSize = squareSize,
-      isXP = viewModel.xp
+      squareSize = squareSize
     )
   }
 }
@@ -88,7 +89,7 @@ fun BoardBackground(
       }
       Box(
         modifier = Modifier
-          .size( squareSize )
+          .size(squareSize)
           .offset(
             Dp(x * squareSize.value),
             Dp(y * squareSize.value)
@@ -119,12 +120,13 @@ fun BoardBackground(
 
 @Composable
 private fun BoardLayout(
+  viewModel: GameViewModel,
   board: Board,
   animations: MutableMap<Position, Pair<Position, Piece>>,
-  squareSize: Dp,
-  isXP: Boolean
+  squareSize: Dp
 ) {
   val pieces = board.allPieces
+  var numberAnimationsFinished = remember { 0 }
   pieces.forEach { (position, piece) ->
     if(piece.id != "") {
       var willBeAnimated = false
@@ -140,7 +142,9 @@ private fun BoardLayout(
 
         PieceView(
           piece = piece,
-          modifier = Modifier.layoutId(piece.id).offset(offsetX, offsetY),
+          modifier = Modifier
+            .layoutId(piece.id)
+            .offset(offsetX, offsetY),
           squareSize
         )
       }
@@ -164,11 +168,24 @@ private fun BoardLayout(
     }
 
     LaunchedEffect(targetOffset) {
-        if(!isXP)
-          offset.animateTo(targetOffset, tween(200, easing = LinearOutSlowInEasing))
-        else
-          offset.snapTo(targetOffset)
-      }
+      if(!viewModel.xp)
+        offset.animateTo(targetOffset, tween(200, easing = LinearOutSlowInEasing))
+      else
+        offset.snapTo(targetOffset)
+    }
+
+    // One animation finished
+    if(!offset.isRunning
+      && offset.value != currentOffset
+      && offset.value == targetOffset) {
+      ++numberAnimationsFinished
+    }
+
+    if( numberAnimationsFinished == animations.size )
+    {
+      viewModel.clearAnimations()
+      numberAnimationsFinished = 0
+    }
 
     PieceView(
       piece = target.second,
@@ -187,7 +204,7 @@ fun PieceView(
   Image(
     painter = painterResource(id = piece.imageResource()),
     modifier = modifier
-      .size( squareSize )
+      .size(squareSize)
       .padding(4.dp),
     contentDescription = piece.id
   )

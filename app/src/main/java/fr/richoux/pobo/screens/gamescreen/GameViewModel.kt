@@ -45,7 +45,8 @@ class GameViewModel : ViewModel() {
     val lastMovePosition: Position?,
     val promotables: List<List<Position>>,
     val promotionList: List<Position>,
-    val tapAction: (Position) -> Unit
+    val tapAction: (Position) -> Unit,
+    val forceRefresh: Boolean
   )
 
   data class PoolViewState(
@@ -66,7 +67,8 @@ class GameViewModel : ViewModel() {
       null,
       listOf(),
       listOf(),
-      { _ -> }
+      { _ -> },
+      false
     )
   )
   val boardViewState: StateFlow<BoardViewState> = _boardViewState.asStateFlow()
@@ -200,7 +202,8 @@ class GameViewModel : ViewModel() {
       null,
       listOf(),
       listOf(),
-      if(!p1IsAI) tapToPlay else { _ -> }
+      if(!p1IsAI) tapToPlay else { _ -> },
+      false
     )
     _poolViewState.value = PoolViewState(
       -1,
@@ -448,10 +451,6 @@ class GameViewModel : ViewModel() {
   }
 
   fun nextStep() {
-    GlobalScope.launch(Dispatchers.Default) {
-      delay(200)
-      animations.clear()
-    }
     when(_boardViewState.value.promotables.size) {
       0 -> {
         _game.changePlayer()
@@ -499,7 +498,6 @@ class GameViewModel : ViewModel() {
       1 -> {
         GlobalScope.launch(Dispatchers.Default) {
           delay(500)
-//          animations.clear()
           autopromotions()
         }
       }
@@ -509,7 +507,6 @@ class GameViewModel : ViewModel() {
         if(IsAIToPLay()) {
           GlobalScope.launch(Dispatchers.Default) {
             delay(500)
-//            animations.clear()
             if(p1IsAI && _poolViewState.value.currentPlayer == Color.Blue) {
               _boardViewState.update { currentState ->
                 currentState.copy(
@@ -720,27 +717,14 @@ class GameViewModel : ViewModel() {
         canValidatePromotion = completeSelectionForRemoval
       )
     }
-
-    // no more than 1 or 3 selections, regarding the situation
-//    if(piecesToPromote.size == 3 || (promotionType == PromotionType.SELECT1 && piecesToPromote.size == 1)) {
-//      validatePromotionsSelection()
-//    }
   }
 
   fun validatePromotionsSelection() {
     _promotionListIndex = mutableListOf()
     _promotionListMask = mutableListOf()
     _piecesToPromoteIndex = hashMapOf()
-//    animations.clear()
     _game.promoteOrRemovePieces(_boardViewState.value.promotionList)
     _game.checkVictory() //ToDo when do we check victory now?
-//    _promotionListIndex.clear()
-//    if(!xp) {
-//      piecesToPromote.forEach {
-//        Log.d(TAG, "[${it}]")
-//      }
-//    }
-//    piecesToPromote.clear()
     promotionType = PromotionType.NONE
     _game.changePlayer()
 
@@ -805,6 +789,15 @@ class GameViewModel : ViewModel() {
 
   fun twoTypesInPool(): Boolean = _game.board.hasTwoTypesInPool(_game.currentPlayer)
   fun hasPromotables(): Boolean = !_boardViewState.value.promotables.isEmpty()
+  fun clearAnimations() {
+    animations.clear()
+    _boardViewState.update { currentState ->
+      currentState.copy(
+        forceRefresh = _boardViewState.value.forceRefresh.not()
+      )
+    }
+
+  }
 
   fun canBePushed(victim: Position, it: Direction): Boolean {
     return _game.canBePushed(_game.board, computePieceTypeToPlay(), victim, it)
