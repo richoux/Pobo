@@ -441,7 +441,7 @@ class GameViewModel : ViewModel() {
       checkPromotions()
       nextStep()
     } else {
-      animations.clear()
+//      animations.clear()
       _poolViewState.update { currentState ->
         currentState.copy(
           victory = true
