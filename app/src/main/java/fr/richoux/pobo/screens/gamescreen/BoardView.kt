@@ -26,9 +26,7 @@ import fr.richoux.pobo.ui.BoardColors
 private const val TAG = "pobotag BoardView"
 
 @Composable
-fun BoardView(
-  viewModel: GameViewModel,
-) {
+fun BoardView(viewModel: GameViewModel) {
   val boardViewState by viewModel.boardViewState.collectAsStateWithLifecycle()
   BoxWithConstraints(
     modifier = Modifier

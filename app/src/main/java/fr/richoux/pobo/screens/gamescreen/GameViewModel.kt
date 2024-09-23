@@ -46,6 +46,18 @@ class GameViewModel : ViewModel() {
     val forceRefresh: Boolean
   )
 
+  private val _boardViewState = MutableStateFlow(
+    BoardViewState(
+      board = _game.board,
+      lastMovePosition = null,
+      promotables = listOf(),
+      promotionList = listOf(),
+      tapAction = { _ -> },
+      forceRefresh = false
+    )
+  )
+  val boardViewState: StateFlow<BoardViewState> = _boardViewState.asStateFlow()
+
   data class PoolViewState(
     val messageID: Int,
     val currentPlayer: Color,
@@ -58,32 +70,23 @@ class GameViewModel : ViewModel() {
     val victory: Boolean
   )
 
-  private val _boardViewState = MutableStateFlow(
-    BoardViewState(
-      _game.board,
-      null,
-      listOf(),
-      listOf(),
-      { _ -> },
-      false
-    )
-  )
-  val boardViewState: StateFlow<BoardViewState> = _boardViewState.asStateFlow()
-
   private val _poolViewState = MutableStateFlow(
     PoolViewState(
-      -1,
-      Color.Blue,
-      null,
-      false,
-      8,
-      0,
-      8,
-      0,
-      false
+      messageID = -1,
+      currentPlayer = Color.Blue,
+      selectedPieceType = null,
+      canValidatePromotion = false,
+      numberBluePo = 8,
+      numberBlueBo = 0,
+      numberRedPo = 8,
+      numberRedBo = 0,
+      victory = false
     )
   )
   val poolViewState: StateFlow<PoolViewState> = _poolViewState.asStateFlow()
+
+  private val _openAlertDialog = MutableStateFlow<Boolean>(true)
+  val openAlertDialog = _openAlertDialog.asStateFlow()
 
   /*** Game History ***/
   private val _history: MutableList<History> = mutableListOf()
@@ -142,6 +145,7 @@ class GameViewModel : ViewModel() {
     _promotionListIndex = mutableListOf()
     _promotionListMask = mutableListOf()
     _piecesToPromoteIndex = hashMapOf()
+    _openAlertDialog.value = false
     if(IsAIToPLay()) {
       canGoBack.tryEmit(false)
       canGoForward.tryEmit(false)
@@ -264,6 +268,7 @@ class GameViewModel : ViewModel() {
         numberBlueBo = _game.board.getNumberOfBoInPool(Color.Blue),
         numberRedPo = _game.board.getNumberOfPoInPool(Color.Red),
         numberRedBo = _game.board.getNumberOfBoInPool(Color.Red),
+        victory = false
       )
     }
 
@@ -338,6 +343,11 @@ class GameViewModel : ViewModel() {
 
     moveNumber = last.moveNumber
     reset()
+
+    _game.checkVictory()
+    if(_game.victory) {
+      endGame()
+    }
   }
 
   fun selectPo() {
@@ -412,8 +422,6 @@ class GameViewModel : ViewModel() {
     moveNumber++
     var newBoard = _game.board.playAt(move)
     newBoard = _game.doPush(newBoard, move)
-
-//    _game.checkVictoryFor(newBoard, _game.currentPlayer)
     _game.board = newBoard
 
     _boardViewState.update { currentState ->
@@ -438,12 +446,7 @@ class GameViewModel : ViewModel() {
       checkPromotions()
       nextStep()
     } else {
-//      animations.clear()
-      _poolViewState.update { currentState ->
-        currentState.copy(
-          victory = true
-        )
-      }
+      endGame()
     }
   }
 
@@ -459,15 +462,10 @@ class GameViewModel : ViewModel() {
           )
         }
         if(IsAIToPLay()) {
-//          canGoBack.tryEmit(false)
-//          canGoForward.tryEmit(false)
-
           GlobalScope.launch(Dispatchers.Default){
             makeAIMove()
           }
         } else {
-//          canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
-//          canGoForward.tryEmit(_forwardHistory.isNotEmpty())
           _boardViewState.update { currentState ->
             currentState.copy(
               tapAction = tapToPlay
@@ -501,8 +499,6 @@ class GameViewModel : ViewModel() {
         }
       }
       else -> {
-//        canGoBack.tryEmit(false)
-//        canGoForward.tryEmit(false)
         if(IsAIToPLay()) {
           GlobalScope.launch(Dispatchers.Default) {
             delay(500)
@@ -597,9 +593,7 @@ class GameViewModel : ViewModel() {
         makeAIMove()
       }
     } else {
-//      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
-//      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
-      _boardViewState.update { currentState ->
+     _boardViewState.update { currentState ->
         currentState.copy(
           tapAction = tapToPlay
         )
@@ -753,9 +747,6 @@ class GameViewModel : ViewModel() {
           tapAction = tapToPlay
         )
       }
-
-//      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
-//      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
     }
   }
 
@@ -813,6 +804,29 @@ class GameViewModel : ViewModel() {
         animations[moveFrom] = Pair(moveTo, piece!!)
       }
     }
+  }
+
+  private fun endGame() {
+    _poolViewState.update { currentState ->
+      currentState.copy(
+        victory = true
+      )
+    }
+    _boardViewState.update { currentState ->
+      currentState.copy(
+        tapAction = { _ -> }
+      )
+    }
+    if(xp && countNumberGames < 100) {
+      _openAlertDialog.value = false
+      newGame(navController, p1IsAI, p2IsAI, true)
+    } else {
+      _openAlertDialog.value = true
+    }
+  }
+
+  fun closeAlertDialog() {
+    _openAlertDialog.value = false
   }
 }
 

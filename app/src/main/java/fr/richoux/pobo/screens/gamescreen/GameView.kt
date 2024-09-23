@@ -64,18 +64,14 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
 
 @Composable
 fun GameView(
-  viewModel: GameViewModel,
-//  stringForDebug: String = ""
+  viewModel: GameViewModel
 ) {
   LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   Column(
     Modifier.fillMaxHeight(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
-      BoardView(
-        viewModel,
-//      stringForDebug = stringForDebug
-      )
+      BoardView(viewModel)
       Spacer(modifier = Modifier.height(8.dp))
       BelowBoardView(viewModel)
     }
@@ -89,7 +85,10 @@ fun GameView(
       fontWeight = FontWeight.Bold,
       fontStyle = MaterialTheme.typography.body1.fontStyle
     )
-    EndOfGameDialog(gameViewState.currentPlayer, style, viewModel)
+    EndOfGameDialog(
+      player = gameViewState.currentPlayer,
+      style = style,
+      viewModel = viewModel )
   }
 }
 
@@ -110,75 +109,68 @@ fun EndOfGameDialog(
   style: TextStyle,
   viewModel: GameViewModel
 ) {
-  val openAlertDialog = remember { mutableStateOf(true) }
-  if(viewModel.xp && viewModel.countNumberGames < 100) {
-    openAlertDialog.value = false
-    viewModel.newGame(viewModel.navController, viewModel.p1IsAI, viewModel.p2IsAI, true)
-  }
-  else {
-    when {
-      openAlertDialog.value -> {
-        AlertDialog(
-          modifier = Modifier
-            .customDialogModifier()
-            .background(CColor.Transparent)
-            .padding(8.dp),
-          onDismissRequest = { openAlertDialog.value = false },
-          title = {
-            Column(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalAlignment = Alignment.CenterHorizontally
+  val openAlertDialog by viewModel.openAlertDialog.collectAsStateWithLifecycle()
+  when {
+    openAlertDialog -> {
+      AlertDialog(
+        modifier = Modifier
+          .customDialogModifier()
+          .background(CColor.Transparent)
+          .padding(8.dp),
+        onDismissRequest = { viewModel.closeAlertDialog() },
+        title = {
+          Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            Text(
+              text = stringResource(
+                id = R.string.win, when(player) {
+                  EColor.Red -> stringResource(id = R.string.red)
+                  else -> stringResource(id = R.string.blue)
+                }
+              ),
+              style = style
+            )
+          }
+        },
+        text = {
+          Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            Text(
+              text = stringResource(id = R.string.newgame),
+              style = MaterialTheme.typography.h6
+            )
+          }
+        },
+        buttons = {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+          ) {
+            Button(
+              {
+                viewModel.closeAlertDialog()
+                viewModel.newGame(viewModel.navController, viewModel.p1IsAI, viewModel.p2IsAI, false)
+              },
+              modifier = Modifier.padding(bottom = 12.dp)
             ) {
-              Text(
-                text = stringResource(
-                  id = R.string.win, when(player) {
-                    EColor.Red -> stringResource(id = R.string.red)
-                    else -> stringResource(id = R.string.blue)
-                  }
-                ),
-                style = style
-              )
+              Text(text = stringResource(id = R.string.sure))
             }
-          },
-          text = {
-            Column(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalAlignment = Alignment.CenterHorizontally
+            Button(
+              {
+                viewModel.closeAlertDialog()
+//                  viewModel.navController.popBackStack()
+              },
+              modifier = Modifier.padding(bottom = 12.dp)
             ) {
-              Text(
-                text = stringResource(id = R.string.newgame),
-                style = MaterialTheme.typography.h6
-              )
-            }
-          },
-          buttons = {
-            Row(
-              modifier = Modifier.fillMaxWidth(),
-              horizontalArrangement = Arrangement.SpaceAround
-            ) {
-              Button(
-                {
-                  openAlertDialog.value = false
-                  viewModel.newGame(viewModel.navController, viewModel.p1IsAI, viewModel.p2IsAI, false)
-                },
-                modifier = Modifier.padding(bottom = 12.dp)
-              ) {
-                Text(text = stringResource(id = R.string.sure))
-              }
-              Button(
-                {
-                  openAlertDialog.value = false
-                  viewModel.navController.popBackStack()
-//                  viewModel.navController.navigate(Screen.Title.route)
-                },
-                modifier = Modifier.padding(bottom = 12.dp)
-              ) {
-                Text(text = stringResource(id = R.string.next_time))
-              }
+              Text(text = stringResource(id = R.string.next_time))
             }
           }
-        )
-      }
+        }
+      )
     }
   }
 }
