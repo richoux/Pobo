@@ -330,21 +330,30 @@ class GameViewModel : ViewModel() {
       )
     }
 
+    _game.checkVictory()
     if(twoTypesInPool()) {
       mustSelectPiece()
     } else {
-      if(_game.board.getPlayerPool(_game.currentPlayer)
-          .first() == 1.toByte()
-      ) // only Po in the pool
-        selectPo()
-      else
-        selectBo()
+      if(!_game.victory) {
+        if(_game.board.getPlayerPool(_game.currentPlayer)
+            .first() == 1.toByte()
+        ) // only Po in the pool
+          selectPo()
+        else
+          selectBo()
+      } else {
+        _poolViewState.update { currentState ->
+          currentState.copy(
+            messageID = -1,
+            selectedPieceType = null
+          )
+        }
+      }
     }
 
     moveNumber = last.moveNumber
     reset()
 
-    _game.checkVictory()
     if(_game.victory) {
       endGame()
     }
