@@ -1,9 +1,6 @@
 package fr.richoux.pobo.screens.gamescreen
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import fr.richoux.pobo.R
@@ -451,6 +448,8 @@ class GameViewModel : ViewModel() {
   }
 
   fun nextStep() {
+    canGoBack.tryEmit(false)
+    canGoForward.tryEmit(false)
     when(_boardViewState.value.promotables.size) {
       0 -> {
         _game.changePlayer()
@@ -460,15 +459,15 @@ class GameViewModel : ViewModel() {
           )
         }
         if(IsAIToPLay()) {
-          canGoBack.tryEmit(false)
-          canGoForward.tryEmit(false)
+//          canGoBack.tryEmit(false)
+//          canGoForward.tryEmit(false)
 
           GlobalScope.launch(Dispatchers.Default){
             makeAIMove()
           }
         } else {
-          canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
-          canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+//          canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
+//          canGoForward.tryEmit(_forwardHistory.isNotEmpty())
           _boardViewState.update { currentState ->
             currentState.copy(
               tapAction = tapToPlay
@@ -502,8 +501,8 @@ class GameViewModel : ViewModel() {
         }
       }
       else -> {
-        canGoBack.tryEmit(false)
-        canGoForward.tryEmit(false)
+//        canGoBack.tryEmit(false)
+//        canGoForward.tryEmit(false)
         if(IsAIToPLay()) {
           GlobalScope.launch(Dispatchers.Default) {
             delay(500)
@@ -598,8 +597,8 @@ class GameViewModel : ViewModel() {
         makeAIMove()
       }
     } else {
-      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
-      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+//      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
+//      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
       _boardViewState.update { currentState ->
         currentState.copy(
           tapAction = tapToPlay
@@ -755,8 +754,8 @@ class GameViewModel : ViewModel() {
         )
       }
 
-      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
-      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+//      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
+//      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
     }
   }
 
@@ -789,14 +788,15 @@ class GameViewModel : ViewModel() {
 
   fun twoTypesInPool(): Boolean = _game.board.hasTwoTypesInPool(_game.currentPlayer)
   fun hasPromotables(): Boolean = !_boardViewState.value.promotables.isEmpty()
-  fun clearAnimations() {
+  fun allAnimationsDone() {
     animations.clear()
     _boardViewState.update { currentState ->
       currentState.copy(
         forceRefresh = _boardViewState.value.forceRefresh.not()
       )
     }
-
+    canGoBack.tryEmit(if(p2IsAI) _history.size > 1 else _history.isNotEmpty())
+    canGoForward.tryEmit(_forwardHistory.isNotEmpty())
   }
 
   fun canBePushed(victim: Position, it: Direction): Boolean {

@@ -20,11 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.BoardColors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 private const val TAG = "pobotag BoardView"
 
@@ -181,17 +178,16 @@ private fun BoardLayout(
       ++numberAnimationsFinished
     }
 
-    if( numberAnimationsFinished == animations.size )
-    {
-      viewModel.clearAnimations()
-      numberAnimationsFinished = 0
-    }
-
     PieceView(
       piece = target.second,
       modifier = Modifier.offset(Dp(offset.value.x), Dp(offset.value.y)),
       squareSize
     )
+  }
+  if( numberAnimationsFinished == animations.size )
+  {
+    viewModel.allAnimationsDone()
+    numberAnimationsFinished = 0
   }
 }
 
