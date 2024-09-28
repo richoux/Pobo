@@ -22,6 +22,7 @@
     <string name="blue">Μπλε</string>
     <string name="red">Κόκκινο</string>
     <string name="random">Τυχαίο</string>
+    <string name="ai_level">επίπεδο AI</string>
 
     <!--    Game screen-->
     <string name="turn">Σειρά παίκτη:</string>

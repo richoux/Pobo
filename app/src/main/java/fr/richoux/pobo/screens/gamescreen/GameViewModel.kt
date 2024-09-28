@@ -31,11 +31,20 @@ class GameViewModel : ViewModel() {
   private var aiP2: AI = RandomPlay(Color.Red)
   var xp = false
     private set
+  var aiLevel = -1
+    private set
   var countNumberGames = 0
     private set
 
   /*** States ***/
   private var _game: Game = Game()
+
+  data class SoloGame(
+    val playAs: Int,
+    val aiLevel: Int
+  )
+  private val _soloGame = MutableStateFlow( SoloGame(-1, -1) )
+  val soloGame = _soloGame.asStateFlow()
 
   data class BoardViewState(
     val board: Board,
@@ -95,7 +104,7 @@ class GameViewModel : ViewModel() {
   private val _forwardMoveHistory: MutableList<Move> = mutableListOf()
   var moveNumber: Int = 0
     private set
-  var canGoBack = MutableStateFlow<Boolean>(if(p2IsAI) _history.size > 1 else _history.isNotEmpty())
+  var canGoBack = MutableStateFlow<Boolean>(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
   var canGoForward = MutableStateFlow<Boolean>(_forwardHistory.isNotEmpty())
 
   /*** Piece Promotions ***/
@@ -150,16 +159,17 @@ class GameViewModel : ViewModel() {
       canGoBack.tryEmit(false)
       canGoForward.tryEmit(false)
     } else {
-      canGoBack.tryEmit(if(p2IsAI) _history.size > 1 else _history.isNotEmpty())
+      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
       canGoForward.tryEmit(_forwardHistory.isNotEmpty())
     }
   }
 
-  fun newGame(navController: NavController, p1IsAI: Boolean, p2IsAI: Boolean, xp: Boolean) {
+  fun newGame(navController: NavController, p1IsAI: Boolean, p2IsAI: Boolean, xp: Boolean, aiLevel: Int) {
     this.navController = navController
     this.p1IsAI = p1IsAI
     this.p2IsAI = p2IsAI
     this.xp = xp
+    this.aiLevel = aiLevel
     countNumberGames++
 
     if(p1IsAI) {
@@ -170,7 +180,7 @@ class GameViewModel : ViewModel() {
 //      aiP1 = MCTS_GHOST(Color.Blue, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection + Expansion
 //      aiP1 = MCTS_GHOST(Color.Blue, expansions_with_GHOST = false) // MCTS + Selection + Playout
 //      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0) // MCTS + Expansion + Playout
-      aiP1 = MCTS_GHOST(Color.Blue) // full-GHOSTed MCTS
+      aiP1 = MCTS_GHOST(Color.Blue, aiLevel) // full-GHOSTed MCTS
 //      aiP1 = PureHeuristics(Color.Blue)
       if(!xp || countNumberGames == 1)
         Log.d(TAG, "Blue: ${aiP1.toString()}")
@@ -183,7 +193,7 @@ class GameViewModel : ViewModel() {
 //      aiP2 = MCTS_GHOST(Color.Red, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection + Expansion
 //      aiP2 = MCTS_GHOST(Color.Red, expansions_with_GHOST = false) // MCTS + Selection + Playout
 //      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0) // MCTS + Expansion + Playout
-      aiP2 = MCTS_GHOST(Color.Red) // full-GHOSTed MCTS
+      aiP2 = MCTS_GHOST(Color.Red, aiLevel) // full-GHOSTed MCTS
 //      aiP2 = PureHeuristics(Color.Red)
       if(!xp || countNumberGames == 1)
         Log.d(TAG, "Red: ${aiP2.toString()}")
@@ -235,7 +245,9 @@ class GameViewModel : ViewModel() {
     _forwardMoveHistory.add(lastMove)
     Log.d(TAG, "Cancel move ${lastMove}")
 
-    if(p1IsAI || p2IsAI) {
+    // The test on last.player is necessary uniquely in the case where the game
+    // finished and the player closed the end game dialog window to review the game
+    if( (p1IsAI && last.player == Color.Blue) || (p2IsAI && last.player == Color.Red) ) {
       _forwardHistory.add(last)
       last = _history.removeLast()
       lastMove = _moveHistory.removeLast()
@@ -294,7 +306,9 @@ class GameViewModel : ViewModel() {
     _moveHistory.add(lastMove)
     Log.d(TAG, "Redo move ${lastMove}")
 
-    if(p1IsAI || p2IsAI) {
+    // The test on last.player is necessary uniquely in the case where the game
+    // finished and the player closed the end game dialog window to review the game
+    if((p1IsAI && last.player == Color.Blue) || (p2IsAI && last.player == Color.Red)) {
       _history.add(last)
       last = _forwardHistory.removeLast()
       lastMove = _forwardMoveHistory.removeLast()
@@ -726,7 +740,7 @@ class GameViewModel : ViewModel() {
     _promotionListMask = mutableListOf()
     _piecesToPromoteIndex = hashMapOf()
     _game.promoteOrRemovePieces(_boardViewState.value.promotionList)
-    _game.checkVictory() //ToDo when do we check victory now?
+    _game.checkVictory()
     promotionType = PromotionType.NONE
     _game.changePlayer()
 
@@ -795,8 +809,13 @@ class GameViewModel : ViewModel() {
         forceRefresh = _boardViewState.value.forceRefresh.not()
       )
     }
-    canGoBack.tryEmit(if(p2IsAI) _history.size > 1 else _history.isNotEmpty())
-    canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+    if(IsAIToPLay() && !_game.victory) {
+      canGoBack.tryEmit(false)
+      canGoForward.tryEmit(false)
+    } else {
+      canGoBack.tryEmit(if(p1IsAI || p2IsAI) _history.size > 1 else _history.isNotEmpty())
+      canGoForward.tryEmit(_forwardHistory.isNotEmpty())
+    }
   }
 
   fun canBePushed(victim: Position, it: Direction): Boolean {
@@ -828,7 +847,7 @@ class GameViewModel : ViewModel() {
     }
     if(xp && countNumberGames < 100) {
       _openAlertDialog.value = false
-      newGame(navController, p1IsAI, p2IsAI, true)
+      newGame(navController, p1IsAI, p2IsAI, true, aiLevel)
     } else {
       _openAlertDialog.value = true
     }
@@ -837,5 +856,54 @@ class GameViewModel : ViewModel() {
   fun closeAlertDialog() {
     _openAlertDialog.value = false
   }
+
+  fun playAsBlue() {
+    _soloGame.update { currentState ->
+      currentState.copy(
+        playAs = 0
+      )
+    }
+  }
+
+  fun playAsRed() {
+    _soloGame.update { currentState ->
+      currentState.copy(
+        playAs = 1
+      )
+    }
+  }
+
+  fun playAsRandom() {
+    _soloGame.update { currentState ->
+      currentState.copy(
+        playAs = 2
+      )
+    }
+  }
+
+  fun ai_easy() {
+    _soloGame.update { currentState ->
+      currentState.copy(
+        aiLevel = 2
+      )
+    }
+  }
+
+  fun ai_medium() {
+    _soloGame.update { currentState ->
+      currentState.copy(
+        aiLevel = 1
+      )
+    }
+  }
+
+  fun ai_hard() {
+    _soloGame.update { currentState ->
+      currentState.copy(
+        aiLevel = 0
+      )
+    }
+  }
+
 }
 

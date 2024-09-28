@@ -22,6 +22,7 @@
     <string name="blue">Azul</string>
     <string name="red">Rojo</string>
     <string name="random">Aleatorio</string>
+    <string name="ai_level">Nivel de IA</string>
 
     <!--    Game screen-->
     <string name="turn">Turno del jugador:</string>

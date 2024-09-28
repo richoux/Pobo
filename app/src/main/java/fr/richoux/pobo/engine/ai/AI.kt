@@ -5,7 +5,7 @@ import fr.richoux.pobo.engine.Move
 import fr.richoux.pobo.engine.Color
 import fr.richoux.pobo.engine.Position
 
-abstract class AI(val color: Color) {
+abstract class AI(val color: Color, val aiLevel:Int  = 0) {
   abstract fun select_move(
     game: Game,
     lastOpponentMove: Move?,

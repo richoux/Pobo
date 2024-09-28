@@ -4,6 +4,7 @@ import android.content.pm.ActivityInfo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,9 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import fr.richoux.pobo.Screen
 import fr.richoux.pobo.screens.gamescreen.GameViewModel
@@ -68,7 +71,7 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
       modifier = Modifier.weight(1f)
     )
     Text(
-      "v1.0.1",
+      "v1.1.0",
       color = MaterialTheme.colors.onPrimary,
       modifier = Modifier.align(Alignment.CenterHorizontally)
     )
@@ -114,9 +117,11 @@ private fun GameButtonWithIcon(onClick: () -> Unit, text: String, icon: Int, ena
 @Composable
 private fun DropMenuButton(
   navController: NavController,
-  gameViewModel: GameViewModel,
+  viewModel: GameViewModel,
   text: String
 ) {
+  val soloGame by viewModel.soloGame.collectAsStateWithLifecycle()
+
   var expanded by remember { mutableStateOf(false) }
   Box {
     GameButtonWithIcon(
@@ -142,69 +147,226 @@ private fun DropMenuButton(
           style = MaterialTheme.typography.h4,
           color = MaterialTheme.colors.onPrimary
         )
-        Button(
-          onClick = { newGame(navController, gameViewModel, p1IsAI = false, p2IsAI = true) },
-          enabled = expanded,
-          modifier = Modifier.padding(4.dp)
-        ) {
-          Row(modifier = Modifier.fillMaxWidth()) {
-            Image(
-              painter = painterResource(id = R.drawable.blue_bo),
+          Row(
+            horizontalArrangement = Arrangement.Center
+          ) {
+            val items = listOf(0,1,2) // Blue, Red, Random
+            Row(
               modifier = Modifier
-                .padding(4.dp)
-                .size(42.dp),
-              contentDescription = "Blue"
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            Text(
-              text = stringResource(id = R.string.blue),
-              style = MaterialTheme.typography.h4,
-              color = Color(0xFFa8c8ff)
-            )
+                .padding(8.dp)
+                .fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+              items.forEach { item ->
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier
+                    .selectable(
+                      selected = (soloGame.playAs == item),
+                      onClick = {
+                        when(item) {
+                          0 -> viewModel.playAsBlue()
+                          1 -> viewModel.playAsRed()
+                          2 -> viewModel.playAsRandom()
+                        }
+                      },
+                      role = Role.RadioButton
+                    )
+                    .padding(8.dp)
+                ) {
+                  IconToggleButton(
+                    checked = (soloGame.playAs == item),
+                    onCheckedChange = {
+                      when(item) {
+                        0 -> viewModel.playAsBlue()
+                        1 -> viewModel.playAsRed()
+                        2 -> viewModel.playAsRandom()
+                      }
+                    },
+                    modifier = Modifier.size(24.dp)
+                  ) {
+                    Icon(
+                      painter = painterResource(
+                        if(soloGame.playAs == item) {
+                          R.drawable.ic_baseline_check_circle_24
+                        } else {
+                          R.drawable.ic_baseline_circle_24
+                        }
+                      ),
+                      contentDescription = null,
+                      tint = MaterialTheme.colors.primary
+                    )
+                  }
+                  Image(
+                    painter = painterResource(
+                      id = when(item) {
+                        0 -> R.drawable.blue_bo
+                        1 -> R.drawable.red_bo
+                        else -> R.drawable.random
+                      }
+                    ),
+                    contentDescription = "",
+                    modifier = Modifier.size(92.dp)
+                  )
+                }
+              }
+            }
           }
-        }
-        Button(
-          onClick = { newGame(navController, gameViewModel, p1IsAI = true, p2IsAI = false) },
-          enabled = expanded,
-          modifier = Modifier.padding(4.dp)
-        ) {
-          Row(modifier = Modifier.fillMaxWidth()) {
-            Image(
-              painter = painterResource(id = R.drawable.red_bo),
+        Text(
+          text = stringResource(id = R.string.ai_level),
+          style = MaterialTheme.typography.h4,
+          color = MaterialTheme.colors.onPrimary
+        )
+        Row(
+            horizontalArrangement = Arrangement.Center
+          ) {
+            val items = listOf(2,1,0) // easy, medium, hard
+            Row(
               modifier = Modifier
-                .padding(4.dp)
-                .size(42.dp),
-              contentDescription = "Red"
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            Text(
-              text = stringResource(id = R.string.red),
-              style = MaterialTheme.typography.h4,
-              color = Color.Red
-            )
+                .padding(8.dp)
+                .fillMaxWidth(),
+              horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+              items.forEach { item ->
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier
+                    .selectable(
+                      selected = (soloGame.aiLevel == item),
+                      onClick = {
+                        when(item) {
+                          2 -> viewModel.ai_easy()
+                          1 -> viewModel.ai_medium()
+                          0 -> viewModel.ai_hard()
+                        }
+                      },
+                      role = Role.RadioButton
+                    )
+                    .padding(8.dp)
+                ) {
+                  IconToggleButton(
+                    checked = (soloGame.aiLevel == item),
+                    onCheckedChange = {
+                      when(item) {
+                        2 -> viewModel.ai_easy()
+                        1 -> viewModel.ai_medium()
+                        0 -> viewModel.ai_hard()
+                      }
+                    },
+                    modifier = Modifier.size(24.dp)
+                  ) {
+                    Icon(
+                      painter = painterResource(
+                        if(soloGame.aiLevel == item) {
+                          R.drawable.ic_baseline_check_circle_24
+                        } else {
+                          R.drawable.ic_baseline_circle_24
+                        }
+                      ),
+                      contentDescription = null,
+                      tint = MaterialTheme.colors.primary
+                    )
+                  }
+                  Image(
+                    painter = painterResource(
+                      id = when(item) {
+                        2 -> R.drawable.ai_easy
+                        1 -> R.drawable.ai_medium
+                        else -> R.drawable.ai_hard
+                      }
+                    ),
+                    contentDescription = "",
+                    modifier = Modifier.size(92.dp)
+                  )
+                }
+              }
+            }
           }
-        }
-        Button(
-          onClick = { newGame( navController, gameViewModel, p1IsAI = false, p2IsAI = false, random = true ) },
-          enabled = expanded,
-          modifier = Modifier.padding(4.dp)
-        ) {
-          Row(modifier = Modifier.fillMaxWidth()) {
-            Image(
-              painter = painterResource(id = R.drawable.random),
-              modifier = Modifier
-                .padding(4.dp)
-                .size(42.dp),
-              contentDescription = "Random"
-            )
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            Text(
-              text = stringResource(id = R.string.random),
-              style = MaterialTheme.typography.h4,
-              color = Color.White
-            )
+          Button(
+            onClick = {
+              when(soloGame.playAs) {
+                0 -> newGame(navController, viewModel, p1IsAI = false, p2IsAI = true, aiLevel = soloGame.aiLevel) //play as Blue
+                1 -> newGame(navController, viewModel, p1IsAI = true, p2IsAI = false, aiLevel = soloGame.aiLevel) //play as Red
+                2 -> newGame( navController, viewModel, p1IsAI = false, p2IsAI = false, random = true, aiLevel = soloGame.aiLevel) //play Random
+                else -> {}
+              }
+            },
+            enabled = (soloGame.playAs >= 0 && soloGame.aiLevel >= 0),
+            modifier = Modifier.padding(4.dp)
+          ) {
+            Row() {
+              Text(
+                text = "Play!",
+                style = MaterialTheme.typography.h4
+              )
+            }
+
           }
-        }
+
+
+//        Button(
+//          onClick = { newGame(navController, viewModel, p1IsAI = false, p2IsAI = true) },
+//          enabled = expanded,
+//          modifier = Modifier.padding(4.dp)
+//        ) {
+//          Row(modifier = Modifier.fillMaxWidth()) {
+//            Image(
+//              painter = painterResource(id = R.drawable.blue_bo),
+//              modifier = Modifier
+//                .padding(4.dp)
+//                .size(42.dp),
+//              contentDescription = "Blue"
+//            )
+//            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+//            Text(
+//              text = stringResource(id = R.string.blue),
+//              style = MaterialTheme.typography.h4,
+//              color = Color(0xFFa8c8ff)
+//            )
+//          }
+//        }
+//        Button(
+//          onClick = { newGame(navController, viewModel, p1IsAI = true, p2IsAI = false) },
+//          enabled = expanded,
+//          modifier = Modifier.padding(4.dp)
+//        ) {
+//          Row(modifier = Modifier.fillMaxWidth()) {
+//            Image(
+//              painter = painterResource(id = R.drawable.red_bo),
+//              modifier = Modifier
+//                .padding(4.dp)
+//                .size(42.dp),
+//              contentDescription = "Red"
+//            )
+//            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+//            Text(
+//              text = stringResource(id = R.string.red),
+//              style = MaterialTheme.typography.h4,
+//              color = Color.Red
+//            )
+//          }
+//        }
+//        Button(
+//          onClick = { newGame( navController, viewModel, p1IsAI = false, p2IsAI = false, random = true ) },
+//          enabled = expanded,
+//          modifier = Modifier.padding(4.dp)
+//        ) {
+//          Row(modifier = Modifier.fillMaxWidth()) {
+//            Image(
+//              painter = painterResource(id = R.drawable.random),
+//              modifier = Modifier
+//                .padding(4.dp)
+//                .size(42.dp),
+//              contentDescription = "Random"
+//            )
+//            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+//            Text(
+//              text = stringResource(id = R.string.random),
+//              style = MaterialTheme.typography.h4,
+//              color = Color.White
+//            )
+//          }
+//        }
       }
     }
   }
@@ -216,7 +378,8 @@ private fun newGame(
   p1IsAI: Boolean,
   p2IsAI: Boolean,
   xp: Boolean = false,
-  random: Boolean = false
+  random: Boolean = false,
+  aiLevel: Int = -1
 ) {
   var p1IsAI_copy = p1IsAI
   var p2IsAI_copy = p2IsAI
@@ -230,7 +393,7 @@ private fun newGame(
       p2IsAI_copy = true
     }
   }
-  gameViewModel.newGame(navController, p1IsAI_copy, p2IsAI_copy, xp)
+  gameViewModel.newGame(navController, p1IsAI_copy, p2IsAI_copy, xp, aiLevel)
   navController.navigate(Screen.Game.route)
 }
 

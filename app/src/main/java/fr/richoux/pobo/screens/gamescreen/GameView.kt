@@ -153,7 +153,7 @@ fun EndOfGameDialog(
             Button(
               {
                 viewModel.closeAlertDialog()
-                viewModel.newGame(viewModel.navController, viewModel.p1IsAI, viewModel.p2IsAI, false)
+                viewModel.newGame(viewModel.navController, viewModel.p1IsAI, viewModel.p2IsAI, false, viewModel.aiLevel)
               },
               modifier = Modifier.padding(bottom = 12.dp)
             ) {

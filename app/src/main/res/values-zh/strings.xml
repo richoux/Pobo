@@ -22,6 +22,7 @@
     <string name="blue">蓝色</string>
     <string name="red">红色</string>
     <string name="random">随机</string>
+    <string name="ai_level">人工智能水平</string>
 
     <!--    Game screen-->
     <string name="turn">玩家回合：</string>

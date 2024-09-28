@@ -7,6 +7,7 @@ import java.lang.StrictMath.abs
 import kotlin.math.ln
 import kotlin.math.pow
 
+
 private const val TAG = "pobotag MCTS"
 
 data class Node(
@@ -36,6 +37,7 @@ data class Node(
 // - full-GHOSTed MCTS ()
 class MCTS_GHOST(
   color: Color,
+  aiLevel:Int,
   var lastMove: Move? = null,
   var currentGame: Game = Game(),
   var root: Node = Node(
@@ -58,7 +60,7 @@ class MCTS_GHOST(
   val playout_depth: Int = 21,
   val action_masking_time: Int = 6,
   val discount_score: Double = 0.9
-) : AI(color) {
+) : AI(color, aiLevel) {
   companion object {
     init {
       System.loadLibrary("pobo")
@@ -470,7 +472,8 @@ class MCTS_GHOST(
 
 //        Log.d(TAG,"MCTS timeout")
 
-    val potentialChildrenID = mutableListOf<Int>()
+//    val potentialChildrenID = mutableListOf<Int>()
+    val mapChildrenID = mutableMapOf<Double, MutableList<Int>>()
 
     // Visit
     var mostSelected = 0
@@ -509,14 +512,21 @@ class MCTS_GHOST(
 
       //Best ratio
       val currentRatio = nodes[childID].score.toDouble() / nodes[childID].visits
+//      if(currentRatio > bestRatio) {
+//        bestRatio = currentRatio
+//        potentialChildrenID.clear()
+//        potentialChildrenID.add(childID)
+//      } else
+//        if(currentRatio == bestRatio) {
+//          potentialChildrenID.add(childID)
+//        }
       if(currentRatio > bestRatio) {
         bestRatio = currentRatio
-        potentialChildrenID.clear()
-        potentialChildrenID.add(childID)
-      } else
-        if(currentRatio == bestRatio) {
-          potentialChildrenID.add(childID)
-        }
+      }
+      if(!mapChildrenID.contains(currentRatio)) {
+        mapChildrenID[currentRatio] = mutableListOf()
+      }
+      mapChildrenID[currentRatio]!!.add(childID)
 
       // Most visited
 //            if (nodes[childID].visits > mostSelected) {
@@ -536,8 +546,17 @@ class MCTS_GHOST(
 //            }
     }
 
-    val bestChildID = potentialChildrenID.random()
-    bestRatio = nodes[bestChildID].score.toDouble() / nodes[bestChildID].visits
+    val potentialChildrenID = mapChildrenID.toSortedMap(Comparator.reverseOrder())
+    val keys = potentialChildrenID.keys.asSequence().toList()
+    val level = if(keys!!.size <= aiLevel) {
+      keys.size - 1
+    } else {
+      aiLevel
+    }
+
+    val bestChildID = potentialChildrenID[keys[level]]!!.random()
+
+//    bestRatio = nodes[bestChildID].score.toDouble() / nodes[bestChildID].visits
 //        Log.d(TAG,"Best child ID (new current node): ${bestChildID} ${nodes[bestChildID].move}, visits=${nodes[bestChildID].visits}, ratio=${bestRatio}, score=${nodes[bestChildID].score}")
 //        Log.d(TAG, "Tree size: ${nodes.size} nodes, number of playouts: ${numberPlayouts}, solver calls: ${numberSolverCalls}, solver failures: ${numberSolverFailures}")
 

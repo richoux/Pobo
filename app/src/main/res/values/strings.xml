@@ -22,6 +22,7 @@
     <string name="blue">Blue</string>
     <string name="red">Red</string>
     <string name="random">Random</string>
+    <string name="ai_level">AI level</string>
 
     <!--    Game screen-->
     <string name="turn">Player\'s turn:</string>

@@ -22,6 +22,7 @@
     <string name="blue">Niebieski</string>
     <string name="red">Czerwony</string>
     <string name="random">Losowy</string>
+    <string name="ai_level">Poziom AI</string>
 
     <!--    Game screen-->
     <string name="turn">Tura gracza:</string>

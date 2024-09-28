@@ -22,6 +22,7 @@
     <string name="blue">青</string>
     <string name="red">赤</string>
     <string name="random">ランダム</string>
+    <string name="ai_level">AIレベル</string>
 
     <!--    Game screen-->
     <string name="turn">プレーヤーのターン：</string>
