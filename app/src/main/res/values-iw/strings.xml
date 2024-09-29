@@ -23,6 +23,7 @@
     <string name="red">אדום</string>
     <string name="random">אקראי</string>
     <string name="ai_level">רמת AI</string>
+    <string name="launch_solo_game">לְשַׂחֵק!</string>
 
     <!--    Game screen-->
     <string name="turn">תור השחקן:</string>

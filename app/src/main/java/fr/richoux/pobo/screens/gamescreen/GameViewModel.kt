@@ -603,6 +603,7 @@ class GameViewModel : ViewModel() {
     }
     _poolViewState.update { currentState ->
       currentState.copy(
+        messageID = if(twoTypesInPool()) R.string.select_piece else -1,
         currentPlayer = _game.currentPlayer,
         numberBluePo = _game.board.getNumberOfPoInPool(Color.Blue),
         numberBlueBo = _game.board.getNumberOfBoInPool(Color.Blue),
@@ -730,6 +731,7 @@ class GameViewModel : ViewModel() {
 
     _poolViewState.update { currentState ->
       currentState.copy(
+        messageID = if(twoTypesInPool()) R.string.select_piece else -1,
         canValidatePromotion = completeSelectionForRemoval
       )
     }

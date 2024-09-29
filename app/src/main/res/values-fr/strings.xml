@@ -23,6 +23,7 @@
     <string name="red">Rouge</string>
     <string name="random">Aléatoire</string>
     <string name="ai_level">Niveau de l\'IA</string>
+    <string name="launch_solo_game">Jouer !</string>
 
     <!--    Game screen-->
     <string name="turn">C\'est au tour de :</string>
@@ -55,6 +56,6 @@
     <string name="about_5">Certaines icônes viennent https://icons8.com sous licence Universal Multimedia.</string>
 
     <!--    Puzzles-->
-    <string name="select_puzzle">Select a puzzle</string>
-    <string name="victory_condition_1">Win in %s moves!</string>
+    <string name="select_puzzle">Choisissez un puzzle</string>
+    <string name="victory_condition_1">Gagnez en %s coups !</string>
 </resources>

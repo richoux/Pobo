@@ -23,6 +23,7 @@
     <string name="red">紅色</string>
     <string name="random">隨機</string>
     <string name="ai_level">人工智慧水平</string>
+    <string name="launch_solo_game">玩！</string>
 
     <!--    Game screen-->
     <string name="turn">玩家回合：</string>

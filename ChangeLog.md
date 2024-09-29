@@ -1,5 +1,8 @@
 # ChangeLog
 
+## [1.1.1] - 2024-09-29
+- Improve icons size and dirplay, regarding sceen sizes
+
 ## [1.1.0] - 2024-09-28
 - AI levels
 

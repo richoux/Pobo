@@ -6,6 +6,8 @@ val teal200 = Color(0xFF03DAC5)
 val blue800 = Color(0xFF1565c0)
 val blueVariant = Color(0xFF003b8e)
 val blue300 = Color(0xFF64b5f6)
+val lightgreen = Color(0xFF7efb58)
+val darkgreen = Color(0xFF0EAb58)
 
 object BoardColors {
   val lastMoveLight = Color(0xFFc1c1d6).copy(alpha = 0.8f)

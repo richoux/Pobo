@@ -23,6 +23,7 @@
     <string name="red">Màu đỏ</string>
     <string name="random">Ngẫu nhiên</string>
     <string name="ai_level">Mức độ AI</string>
+    <string name="launch_solo_game">Chơi!</string>
 
     <!--    Game screen-->
     <string name="turn">Lượt của người chơi:</string>

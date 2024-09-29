@@ -23,6 +23,7 @@
     <string name="red">Rot</string>
     <string name="random">Zufällig</string>
     <string name="ai_level">KI-Niveau</string>
+    <string name="launch_solo_game">Spielen!</string>
 
     <!--    Game screen-->
     <string name="turn">Spieler am Zug:</string>

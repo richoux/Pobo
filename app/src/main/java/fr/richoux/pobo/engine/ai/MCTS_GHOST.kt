@@ -554,6 +554,8 @@ class MCTS_GHOST(
       aiLevel
     }
 
+    //TODO Sometimes, there is only one correct move (blocking a 3-in-a-row for instance)
+    // this should be taken into account
     val bestChildID = potentialChildrenID[keys[level]]!!.random()
 
 //    bestRatio = nodes[bestChildID].score.toDouble() / nodes[bestChildID].visits

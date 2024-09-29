@@ -23,6 +23,7 @@
     <string name="red">Červené</string>
     <string name="random">Náhodný</string>
     <string name="ai_level">úroveň AI</string>
+    <string name="launch_solo_game">Hrát!</string>
 
     <!--    Game screen-->
     <string name="turn">Tah hráče:</string>

@@ -23,6 +23,7 @@
     <string name="red">Rojo</string>
     <string name="random">Aleatorio</string>
     <string name="ai_level">Nivel de IA</string>
+    <string name="launch_solo_game">¡Jugar!</string>
 
     <!--    Game screen-->
     <string name="turn">Turno del jugador:</string>

@@ -23,6 +23,7 @@
     <string name="red">赤</string>
     <string name="random">ランダム</string>
     <string name="ai_level">AIレベル</string>
+    <string name="launch_solo_game">プレイ！</string>
 
     <!--    Game screen-->
     <string name="turn">プレーヤーのターン：</string>

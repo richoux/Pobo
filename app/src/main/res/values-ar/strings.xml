@@ -23,6 +23,7 @@
     <string name="red">أحمر</string>
     <string name="random">عشوائي</string>
     <string name="ai_level">مستوى الذكاء الاصطناعي</string>
+    <string name="launch_solo_game">يلعب!</string>
 
     <!--    Game screen-->
     <string name="turn">دور اللاعب:</string>

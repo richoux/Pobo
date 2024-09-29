@@ -23,6 +23,7 @@
     <string name="red">Κόκκινο</string>
     <string name="random">Τυχαίο</string>
     <string name="ai_level">επίπεδο AI</string>
+    <string name="launch_solo_game">Παιχνίδι!</string>
 
     <!--    Game screen-->
     <string name="turn">Σειρά παίκτη:</string>
