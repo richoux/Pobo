@@ -33,7 +33,8 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
     modifier = Modifier
       .fillMaxSize()
       .background(MaterialTheme.colors.primaryVariant)
-      .padding(16.dp),
+      .padding(16.dp)
+      .disableSplitMotionEvents(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
     Text(
@@ -73,7 +74,7 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
       modifier = Modifier.weight(1f)
     )
     Text(
-      "v1.1.1",
+      text = "v1.1.2",
       color = MaterialTheme.colors.onPrimary,
       modifier = Modifier.align(Alignment.CenterHorizontally)
     )

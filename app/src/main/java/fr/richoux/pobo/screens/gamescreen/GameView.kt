@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as CColor
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -23,8 +22,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import fr.richoux.pobo.R
 import fr.richoux.pobo.engine.*
 import fr.richoux.pobo.ui.LockScreenOrientation
-import kotlinx.coroutines.coroutineScope
 import fr.richoux.pobo.engine.Color as EColor
+import fr.richoux.pobo.screens.customDialogModifier
+import fr.richoux.pobo.screens.disableSplitMotionEvents
 
 private const val TAG = "pobotag GameView"
 
@@ -34,12 +34,14 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
   val canGoForward by viewModel.canGoForward.collectAsState()
   if( LocalLayoutDirection.current == LayoutDirection.Rtl ) {
     IconButton(
+      modifier = Modifier.disableSplitMotionEvents(),
       onClick = { viewModel.goBackMove() },
       enabled = canGoBack
     ) {
       Icon(Icons.Filled.ArrowForward, contentDescription = "Undo Move")
     }
     IconButton(
+      modifier = Modifier.disableSplitMotionEvents(),
       onClick = { viewModel.goForwardMove() },
       enabled = canGoForward
     ) {
@@ -48,12 +50,14 @@ fun GameActions(viewModel: GameViewModel = viewModel()) {
   }
   else {
     IconButton(
+      modifier = Modifier.disableSplitMotionEvents(),
       onClick = { viewModel.goBackMove() },
       enabled = canGoBack
     ) {
       Icon(Icons.Filled.ArrowBack, contentDescription = "Undo Move")
     }
     IconButton(
+      modifier = Modifier.disableSplitMotionEvents(),
       onClick = { viewModel.goForwardMove() },
       enabled = canGoForward
     ) {
@@ -68,7 +72,9 @@ fun GameView(
 ) {
   LockScreenOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
   Column(
-    Modifier.fillMaxHeight(),
+    Modifier
+      .fillMaxHeight()
+      .disableSplitMotionEvents(),
     horizontalAlignment = Alignment.CenterHorizontally
   ) {
       BoardView(viewModel)
@@ -92,17 +98,6 @@ fun GameView(
   }
 }
 
-fun Modifier.customDialogModifier() = layout { measurable, constraints ->
-  val placeable = measurable.measure(constraints);
-  layout(constraints.maxWidth, constraints.maxHeight) {
-    placeable.place(
-      (constraints.maxWidth - placeable.width) / 2,
-      9 * (constraints.maxHeight - placeable.height) / 10,
-      10f
-    )
-  }
-}
-
 @Composable
 fun EndOfGameDialog(
   player: EColor,
@@ -114,6 +109,7 @@ fun EndOfGameDialog(
     openAlertDialog -> {
       AlertDialog(
         modifier = Modifier
+          .disableSplitMotionEvents()
           .customDialogModifier()
           .background(CColor.Transparent)
           .padding(8.dp),

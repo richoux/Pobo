@@ -1,5 +1,8 @@
 # ChangeLog
 
+## [1.1.2] - 2024-10-04
+- Prevent simultaneous tappings
+
 ## [1.1.1] - 2024-09-29
 - Improve icons size and dirplay, regarding sceen sizes
 
