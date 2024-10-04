@@ -2,6 +2,8 @@
 
 ## [1.1.2] - 2024-10-04
 - Prevent simultaneous tappings
+- Repeat a random game make the player's color random again.
+- Re-enable Arabic.
 
 ## [1.1.1] - 2024-09-29
 - Improve icons size and dirplay, regarding sceen sizes

@@ -305,19 +305,7 @@ private fun newGame(
   random: Boolean = false,
   aiLevel: Int = -1
 ) {
-  var p1IsAI_copy = p1IsAI
-  var p2IsAI_copy = p2IsAI
-  if( random ) {
-    if( Random.nextBoolean() ) {
-      p1IsAI_copy = true
-      p2IsAI_copy = false
-    }
-    else {
-      p1IsAI_copy = false
-      p2IsAI_copy = true
-    }
-  }
-  gameViewModel.newGame(navController, p1IsAI_copy, p2IsAI_copy, xp, aiLevel)
+  gameViewModel.newGame(navController, p1IsAI, p2IsAI, xp, random, aiLevel)
   navController.navigate(Screen.Game.route)
 }
 

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 private const val TAG = "pobotag GameViewModel"
 
@@ -30,6 +31,8 @@ class GameViewModel : ViewModel() {
   private var aiP1: AI = RandomPlay(Color.Blue)
   private var aiP2: AI = RandomPlay(Color.Red)
   var xp = false
+    private set
+  var random = false
     private set
   var aiLevel = -1
     private set
@@ -164,15 +167,34 @@ class GameViewModel : ViewModel() {
     }
   }
 
-  fun newGame(navController: NavController, p1IsAI: Boolean, p2IsAI: Boolean, xp: Boolean, aiLevel: Int) {
+  fun newGame(
+    navController: NavController,
+    p1IsAI: Boolean,
+    p2IsAI: Boolean,
+    xp: Boolean,
+    random: Boolean,
+    aiLevel: Int) {
     this.navController = navController
-    this.p1IsAI = p1IsAI
-    this.p2IsAI = p2IsAI
     this.xp = xp
+    this.random = random
     this.aiLevel = aiLevel
     countNumberGames++
 
-    if(p1IsAI) {
+    if( random ) {
+      if( Random.nextBoolean() ) {
+        this.p1IsAI = true
+        this.p2IsAI = false
+      }
+      else {
+        this.p1IsAI = false
+        this.p2IsAI = true
+      }
+    } else {
+      this.p1IsAI = p1IsAI
+      this.p2IsAI = p2IsAI
+    }
+
+    if(this.p1IsAI) {
 //      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
 //      aiP1 = MCTS_GHOST(Color.Blue, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection
 //      aiP1 = MCTS_GHOST(Color.Blue, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // MCTS + Expansion
@@ -185,7 +207,7 @@ class GameViewModel : ViewModel() {
       if(!xp || countNumberGames == 1)
         Log.d(TAG, "Blue: ${aiP1.toString()}")
     }
-    if(p2IsAI) {
+    if(this.p2IsAI) {
 //      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // Vanilla-MCTS
 //      aiP2 = MCTS_GHOST(Color.Red, expansions_with_GHOST = false, first_n_strategy = 0, playout_depth = 0) // MCTS + Selection
 //      aiP2 = MCTS_GHOST(Color.Red, number_preselected_actions = 0, first_n_strategy = 0, playout_depth = 0) // MCTS + Expansion
@@ -213,7 +235,7 @@ class GameViewModel : ViewModel() {
       null,
       listOf(),
       listOf(),
-      if(!p1IsAI) tapToPlay else { _ -> },
+      if(!this.p1IsAI) tapToPlay else { _ -> },
       false
     )
     _poolViewState.value = PoolViewState(
@@ -228,7 +250,7 @@ class GameViewModel : ViewModel() {
       false
     )
 
-    if(p1IsAI)
+    if(this.p1IsAI)
       makeP1AIMove()
   }
 
@@ -849,7 +871,7 @@ class GameViewModel : ViewModel() {
     }
     if(xp && countNumberGames < 100) {
       _openAlertDialog.value = false
-      newGame(navController, p1IsAI, p2IsAI, true, aiLevel)
+      newGame(navController, p1IsAI, p2IsAI, true, false, aiLevel)
     } else {
       _openAlertDialog.value = true
     }
