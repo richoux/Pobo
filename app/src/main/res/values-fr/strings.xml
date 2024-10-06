@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">Comment jouer</string>
+    <string name="about">À propos</string>
+    <string name="language">Langue</string>
+    <string name="cancel">Annuler</string>
+    <string name="buy_me_a_coffee">Vous aimez ?\nOffrez-moi un café !</string>
+    <string name="rate_it">Vous aimez ?\nNotez pobo !</string>
+    <string name="github">Code sur GitHub</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">Reprendre la partie</string>
+    <string name="ai_game">Un joueur</string>
+    <string name="human_game">Deux joueurs</string>
+    <string name="ai_vs_ai_game">IA contre IA</string>
+    <string name="puzzle">Puzzles</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">Jouer en tant que</string>
+    <string name="blue">Bleu</string>
+    <string name="red">Rouge</string>
+    <string name="random">Aléatoire</string>
+    <string name="ai_level">Niveau de l\'IA</string>
+    <string name="launch_solo_game">Jouer !</string>
+
+    <!--    Game screen-->
+    <string name="turn">C\'est au tour de :</string>
+    <string name="promotion">Promotion</string>
+    <string name="select_piece">Sélectionnez votre pièce :</string>
+    <string name="select_promotion">Sélectionnez votre ou vos promotions</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">Victoire de %s !</string>
+    <string name="newgame">Nouvelle partie ?</string>
+    <string name="sure">Volontiers !</string>
+    <string name="next_time">Une prochaine fois</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">Le jeu commence avec un plateau vide. Les joueurs ont un pool de 8 petites pièces et placent une pièce alternativement.</string>
+    <string name="how_to_play_2">Quand une pièce est placée, elle repousse toutes les pièces adjacentes d\'une case, sauf si une pièce est bloquée par une autre pièce.</string>
+    <string name="how_to_play_3">Les grandes pièces peuvent repousser n\'importe quelle autre pièce, mais les petites ne peuvent pas repousser les grandes pièces.</string>
+    <string name="how_to_play_4">Quand une pièce est repoussée hors du plateau, elle retourne dans le pool de son joueur.</string>
+    <string name="how_to_play_5">Quand 3 de vos pièces sont alignées, elles sont retirées du plateau à la fin de votre tour et retournent dans votre pool. Les petites pièces retirées de cette manière sont promues en grandes pièces. Si plus de 3 pièces sont alignées, vous choisissez 3 pièces adjacentes à retirer. Si vous placez vos 8 pièces sur le plateau, vous devez choisir une pièce à retirer du plateau. Au cas où cette pièce serait une petite pièce, elle est promue en grande pièce.</string>
+    <string name="how_to_play_6">Il y a 2 conditions de victoire :</string>
+    <string name="how_to_play_7">Vous avez 3 grandes pièces alignées à la fin de votre tour.</string>
+    <string name="how_to_play_8">Vous placez votre 8ème grande pièce sur le plateau.</string>
+    <string name="how_to_play_9">C\'est tout ! Amusez-vous bien !</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo est un implémentation de boop. / Gekitai² pour Android, écrite avec Jetpack Compose.</string>
+    <string name="about_2">L\'application est gratuite, sans publicité et open source sous la licence GNU GPL v3. Le code est un fork modifié d\'une application d\'échecs (https://github.com/bentrengrove/chess) de Ben Trengrove, sous licence MIT.</string>
+    <string name="about_3">boop. et Gekitai² sont des jeux de Scott Brady. boop. est distribué par Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Les illustrations originales utilisées dans pobo sont de bcogwene (https://pixabay.com/users/bcogwene-1114581/) et sont sous licence CC0.</string>
+    <string name="about_5">Certaines icônes viennent https://icons8.com sous licence Universal Multimedia.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Choisissez un puzzle</string>
+    <string name="victory_condition_1">Gagnez en %s coups !</string>
+</resources>

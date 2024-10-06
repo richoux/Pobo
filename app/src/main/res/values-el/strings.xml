@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="app_name">pobo</string>
+    <string name="how_to_play">Πώς να παίξετε</string>
+    <string name="about">Σχετικά</string>
+    <string name="language">Γλώσσα</string>
+    <string name="cancel">Ακύρωση</string>
+    <string name="buy_me_a_coffee">Σας αρέσει;\nΚεράστε με έναν καφέ!</string>
+    <string name="rate_it">Σας αρέσει;\nΒαθμολογήστε το!</string>
+    <string name="github">Κώδικας στο GitHub</string>
+
+    <!--    Title screen-->
+    <string name="resume">Συνέχιση παιχνιδιού</string>
+    <string name="ai_game">Ένας παίκτης</string>
+    <string name="human_game">Δύο παίκτες</string>
+    <string name="ai_vs_ai_game">Υπολογιστής εναντίον Υπολογιστή</string>
+    <string name="puzzle">Γρίφοι</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">Παίξτε ως</string>
+    <string name="blue">Μπλε</string>
+    <string name="red">Κόκκινο</string>
+    <string name="random">Τυχαίο</string>
+    <string name="ai_level">επίπεδο AI</string>
+    <string name="launch_solo_game">Παιχνίδι!</string>
+
+    <!--    Game screen-->
+    <string name="turn">Σειρά παίκτη:</string>
+    <string name="promotion">Προαγωγή</string>
+    <string name="select_piece">Επιλέξτε το κομμάτι σας:</string>
+    <string name="select_promotion">Επιλέξτε την προαγωγή σας</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">Ο %s κερδίζει!</string>
+    <string name="newgame">Νέο παιχνίδι;</string>
+    <string name="sure">Σίγουρα!</string>
+    <string name="next_time">Άλλη φορά</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">Το παιχνίδι ξεκινά με ένα κενό ταμπλό. Οι παίκτες έχουν ένα σύνολο (απόθεμα) 8 μικρών κομματιών και τοποθετούν από ένα κομμάτι εναλλάξ.</string>
+    <string name="how_to_play_2">Όταν τοποθετείται ένα κομμάτι, αυτό απομακρύνει όλα τα γειτονικά του κομμάτια κατά ένα τετράγωνο, εκτός αν κάποιο γειτονικό κομμάτι εμποδίζεται από ένα άλλο κομμάτι πίσω του.</string>
+    <string name="how_to_play_3">Τα μεγάλα κομμάτια μπορούν να απομακρύνουν οποιαδήποτε άλλα κομμάτια, αλλά τα μικρά δεν μπορούν να απομακρύνουν τα μεγάλα κομμάτια.</string>
+    <string name="how_to_play_4">Όταν ένα κομμάτι απομακρύνεται έξω από το ταμπλό, επιστρέφει στο απόθεμα του παίκτη του.</string>
+    <string name="how_to_play_5">Όταν τρία από τα κομμάτια σας είναι ευθυγραμμισμένα στο τέλος του γύρου σας (αφού κάνετε την κίνησή σας), απομακρύνονται από το ταμπλό και επιστρέφουν στο απόθεμά σας. Τα μικρά κομμάτια που απομακρύνονται με αυτόν τον τρόπο, προάγονται σε μεγάλα. Αν είναι ευθυγραμμισμένα περισσότερα από 3 κομμάτια, επιλέγετε ποια 3-άδα γειτονικών κομματιων θα απομακρύνετε. Αν τοποθετήσετε και το 8 κομμάτι σας στο ταμπλό, πρέπει να επιλέξετε ένα κομμάτι από αυτά για να το απομακρύνετε από το ταμπλό. Σε περίπτωση που αυτό το κομμάτι είναι μικρό, προάγεται σε μεγάλο κομμάτι.</string>
+    <string name="how_to_play_6">Υπάρχουν 2 συνθήκες νίκης:</string>
+    <string name="how_to_play_7">Έχετε 3 μεγάλα κομμάτια ευθυγραμμισμένα στο τέλος του γύρου σας.</string>
+    <string name="how_to_play_8">Τοποθετείτε και το 8ο μεγάλο κομμάτι σας στο ταμπλό.</string>
+    <string name="how_to_play_9">Αυτό είναι όλο! Καλή διασκέδαση!</string>
+
+    <!--    About screen-->
+    <string name="about_1">Το pobo είναι μια υλοποίηση του boop. / Gekitai² για το Android, γραμμένη με το Jetpack Compose.</string>
+    <string name="about_2">Η εφαρμογή είναι δωρεάν, χωρίς διαφημίσεις και ανοικτού κώδικα υπό την Άδεια GNU GPL v3. Ο κώδικας είναι μια τροποποίηση μιας εφαρμογής Σκακιού (https://github.com/bentrengrove/chess) από τον Ben Trengrove, υπό την Άδεια MIT.</string>
+    <string name="about_3">Το boop. και το Gekitai² είναι παιχνίδια του Scott Brady. Το boop. διανέμεται από την εταιρεία Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Οι αρχικές εικόνες που χρησιμοποιούνται στο pobo είναι από το bcogwene (https://pixabay.com/users/bcogwene-1114581/) και βρίσκονται υπό την Άδεια CC0.</string>
+    <string name="about_5">Μερικά εικονίδια είναι από τη διεύθυνση https://icons8.com υπό την Άδεια Universal Multimedia License.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Επιλέξτε ένα γρίφο</string>
+    <string name="victory_condition_1">Νίκησε σε %s κινήσεις!</string>
+</resources>

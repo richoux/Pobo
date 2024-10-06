@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">כיצד לשחק</string>
+    <string name="about">אודות</string>
+    <string name="language">שפה</string>
+    <string name="cancel">ביטול</string>
+    <string name="buy_me_a_coffee">אהבת את זה?\nקנה.י לי קפה!</string>
+    <string name="rate_it">אהבת את זה?\nדרג.י את זה!</string>
+    <string name="github">מקור ב-GitHub</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">המשך.י משחק</string>
+    <string name="ai_game">שחקן.ית יחיד.ה</string>
+    <string name="human_game">שני שחקנים</string>
+    <string name="ai_vs_ai_game">מחשב נגד מחשב</string>
+    <string name="puzzle">תשבצים</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">שחק.י כ-</string>
+    <string name="blue">כחול</string>
+    <string name="red">אדום</string>
+    <string name="random">אקראי</string>
+    <string name="ai_level">רמת AI</string>
+    <string name="launch_solo_game">לְשַׂחֵק!</string>
+
+    <!--    Game screen-->
+    <string name="turn">תור השחקן:</string>
+    <string name="promotion">קידום</string>
+    <string name="select_piece">בחר.י את הכלי שלך:</string>
+    <string name="select_promotion">" בחר.י את הקידום שלך"</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">%s ניצח!</string>
+    <string name="newgame">משחק חדש?</string>
+    <string name="sure">בהחלט!</string>
+    <string name="next_time">בפעם הבאה</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">המשחק מתחיל עם לוח ריק. השחקנים מקבלים קופה של 8 כלים קטנים ומציבים אותם על פי תור.</string>
+    <string name="how_to_play_2">כאשר כלי מוצב, הוא דוחף את כל הכלים הסמוכים מריבוע אחד, פרט למקרה בו כלי חוסם את כלי אחר.</string>
+    <string name="how_to_play_3">כלים גדולים יכולים לדחוף כלים אחרים, אך כלים קטנים לא יכולים לדחוף כלים גדולים.</string>
+    <string name="how_to_play_4">כאשר כלי נדחף מהלוח, הוא חוזר לקופת השחקן.</string>
+    <string name="how_to_play_5">כאשר 3 מהכלים שלך מיושרים, הם מוסרים מהלוח בסוף התור שלך, וחוזרים לקופתך. כלי םקטנים אשר מוסרים בדרך זו מקודמים להיות כלים גדולים. אם יותר מ-3 כלים מיושרים, בוחרים 3 כלים צמודים להסרה. אם הצבת את כל 8 הכלים שלך על הלוח, עליך לבחור כלי אחד להסרה מהלוח. במקרה וזהו כלי קטן, הוא מקודם להיות לכי גדול.</string>
+    <string name="how_to_play_6">ישנם 2 תנאי ניצחון:</string>
+    <string name="how_to_play_7">יש לך 3 כלים גדולים מיושרים בסוף התור שלך.</string>
+    <string name="how_to_play_8">הנחת את הכלי הגדול השמיני שלך על הלוח.</string>
+    <string name="how_to_play_9">זהו! תהנו!</string>
+
+    <!--    About screen-->
+    <string name="about_1">פובו הוא יישום של boop. / Gekitai² לאנדרואיד, שנכתב עם Jetpack Compose.</string>
+    <string name="about_2">" האפליקציה חינמית, ללא פרסומות, ותחת קוד פתוח ברישיון GNU GPL v3. הקוד הוא גרסה מותאמת של אפליקציית שחמט (https://github.com/bentrengrove/chess) מאת בן טרנגוב, תחת רישיון MIT."</string>
+    <string name="about_3">boop. ו-Gekitai² הם משחקים מאת סקוט בריידי. boop. מופץ על ידי Smirk &amp; Dagger Games.</string>
+    <string name="about_4">" האילוסטרציות המקוריות המשמשות ב-pobo הן מאת bcogwene (https://pixabay.com/users/bcogwene-1114581/) ונמצאות תחת רישיון CC0."</string>
+    <string name="about_5">מספר אייקונים הם מ־https://icons8.com ותחת רישיון מולטימדיה אוניברסלי.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">בחר.י תשבץ</string>
+    <string name="victory_condition_1">נצח ב־ %s מהלכים!</string>
+</resources>

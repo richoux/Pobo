@@ -1,283 +1,239 @@
 package fr.richoux.pobo.engine
 
-import kotlin.math.abs
+import java.util.*
 
-data class Move(val from: Position, val to: Position) {
-    fun contains(position: Position): Boolean {
-        return from == position || to == position
+private const val TAG = "pobotag Game"
+
+data class Move(val piece: Piece, val to: Position) {
+  override fun toString(): String {
+    return when(piece.getType()) {
+      PieceType.Po -> to.poPosition()
+      PieceType.Bo -> to.boPosition()
     }
+  }
+
+  fun isSame(other: Move?): Boolean {
+    return this === other || (this.piece.isEquivalent(other?.piece) && this.to.isSame(other?.to))
+  }
 }
 
-enum class GameState {
-    IDLE, CHECK, CHECKMATE, STALEMATE
+data class History(val board: Board, val player: Color, val moveNumber: Int) {}
+
+enum class Direction {
+  TOPLEFT, TOP, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOM, BOTTOMLEFT, LEFT
 }
 
-sealed class MoveResult {
-    data class Success(val game: Game) : MoveResult()
-    data class Promotion(val onPieceSelection: (PieceType) -> MoveResult) : MoveResult()
+val scanDirection = EnumSet.range(Direction.TOPRIGHT, Direction.BOTTOM)
+
+fun getPositionTowards(at: Position, direction: Direction): Position {
+  return at + when(direction) {
+    Direction.TOPLEFT -> Delta(-1, -1)
+    Direction.TOP -> Delta(0, -1)
+    Direction.TOPRIGHT -> Delta(1, -1)
+    Direction.RIGHT -> Delta(1, 0)
+    Direction.BOTTOMRIGHT -> Delta(1, 1)
+    Direction.BOTTOM -> Delta(0, 1)
+    Direction.BOTTOMLEFT -> Delta(-1, 1)
+    else -> Delta(-1, 0) // Direction.LEFT
+  }
 }
 
-data class Game(val board: Board = Board(), val history: List<Move> = listOf()) {
-    val gameState: GameState
-        get() {
-            val color = turn
-            val canMove = allMovesFor(color).find {
-                val newBoard = doMove(it.from, it.to)
-                (newBoard is MoveResult.Success) && !newBoard.game.kingIsInCheck(color)
-            } != null
-            if (kingIsInCheck(color)) {
-                return if (canMove) GameState.CHECK else GameState.CHECKMATE
-            }
-            return if (canMove) GameState.IDLE else GameState.STALEMATE
-        }
-
-    val displayGameState: String
-        get() {
-            val turnString = if (turn == PieceColor.White) "White's Turn" else "Black's Turn"
-            return when (gameState) {
-                GameState.IDLE -> turnString
-                GameState.CHECK -> "Check - $turnString"
-                GameState.CHECKMATE -> "Checkmate - " + if (turn == PieceColor.White) "Black Wins" else "White Wins"
-                GameState.STALEMATE -> "Draw - Stalemate"
-            }
-        }
-
-    val turn: PieceColor
-        get() = history.lastOrNull()?.let { board.pieceAt(it.to)?.color?.other() } ?: PieceColor.White
-
-    fun allMovesFor(position: Position): Sequence<Move> {
-        return board.allPositions.asSequence()
-            .map { Move(position, it) }
-            .filter { canMove(it.from, it.to) }
-    }
-
-    fun allMovesFor(color: PieceColor): Sequence<Move> {
-        return board.allPieces.asSequence().mapNotNull { (position, piece) ->
-            if (piece.color == color) position else null
-        }.flatMap { allMovesFor(it) }
-    }
-
-    fun pieceIsThreatenedAt(position: Position): Boolean {
-        return board.allPositions.find { canMove(from = it, to = position) } != null
-    }
-
-    fun kingPosition(color: PieceColor): Position? {
-        return board.firstPosition { it.type is PieceType.King && it.color == color }
-    }
-
-    fun kingIsInCheck(color: PieceColor): Boolean {
-        val kingPosition = kingPosition(color) ?: return false
-        return pieceIsThreatenedAt(kingPosition)
-    }
-
-    fun canSelect(position: Position): Boolean {
-        return board.pieceAt(position)?.color == turn
-    }
-
-    fun canMove(from: Position, to: Position): Boolean {
-        val piece = board.pieceAt(from) ?: return false
-
-        val delta = to - from
-        val other = board.pieceAt(to)
-        if (other != null) {
-            if (other.color == piece.color) {
-                return false
-            }
-            if (piece.type is PieceType.Pawn) {
-                return pawnCanTake(from, delta)
-            }
-        }
-
-        when (piece.type) {
-            is PieceType.Pawn -> {
-                if (enPassantTakePermitted(from, to)) {
-                    return true
-                }
-                if (delta.x != 0) {
-                    return false
-                }
-                return when (piece.color) {
-                    is PieceColor.White -> {
-                        if (from.y == 6) {
-                            listOf(-1, -2).contains(delta.y) &&
-                                !board.piecesExist(from, to)
-                        } else {
-                            delta.y == -1
-                        }
-                    }
-                    is PieceColor.Black -> {
-                        if (from.y == 1) {
-                            listOf(1, 2).contains(delta.y) &&
-                                !board.piecesExist(from, to)
-                        } else {
-                            delta.y == 1
-                        }
-                    }
-                }
-            }
-//            is PieceType.Rook -> {
-//                return (delta.x == 0 || delta.y == 0) && !board.piecesExist(from, to)
-//            }
-            is PieceType.Bishop -> {
-                return abs(delta.x) == abs(delta.y) && !board.piecesExist(from, to)
-            }
-            is PieceType.Queen -> {
-                return (delta.x == 0 || delta.y == 0 || abs(delta.x) == abs(delta.y)) && !board.piecesExist(from, to)
-            }
-            is PieceType.King -> {
-                if (abs(delta.x) <= 1 && abs(delta.y) <= 1) return true
-                return castlingPermitted(from, to)
-            }
-            is PieceType.Knight -> {
-                return listOf(
-                    Delta(x = 1, y = 2),
-                    Delta(x = -1, y = 2),
-                    Delta(x = 2, y = 1),
-                    Delta(x = -2, y = 1),
-                    Delta(x = 1, y = -2),
-                    Delta(x = -1, y = -2),
-                    Delta(x = 2, y = -1),
-                    Delta(x = -2, y = -1)
-                ).contains(delta)
-            }
-        }
-    }
-
-    fun doMove(from: Position, to: Position): MoveResult {
-        val oldGame = this.copy()
-        val newGame = move(from, to)
-        val wasInCheck = newGame.kingIsInCheck(oldGame.turn)
-
-        if (wasInCheck) {
-            return MoveResult.Success(oldGame)
-        }
-
-        val wasPromoted = newGame.canPromotePieceAt(to)
-
-        if (wasPromoted) {
-            return MoveResult.Promotion { promoteTo ->
-                MoveResult.Success(newGame.promotePieceAt(to, promoteTo))
-            }
-        }
-
-        return MoveResult.Success(newGame)
-    }
-
-    private fun move(from: Position, to: Position): Game {
-        val intermediateBoard = if (board.pieceAt(from)?.type == PieceType.King && abs(to.x - from.x) > 1) {
-            val kingSide = (to.x == 6)
-            val rookPosition = Position(if (kingSide) 7 else 0, to.y)
-            val rookDestination = Position(if (kingSide) 5 else 3, to.y)
-            board.movePiece(rookPosition, rookDestination)
-        } else if (board.pieceAt(from)?.type == PieceType.Pawn && enPassantTakePermitted(from, to)) {
-            board.removePiece(Position(to.x, to.y - (to.y - from.y)))
-        } else {
-            board
-        }
-        return Game(board = intermediateBoard.movePiece(from, to), history = history + listOf(Move(from, to)))
-    }
-
-    fun movesForPieceAt(position: Position?): List<Position> {
-        if (position == null) return emptyList()
-        return board.allPositions.filter { canMove(position, it) }
-    }
-
-    fun pawnCanTake(from: Position, withDelta: Delta): Boolean {
-        val pawn = board.pieceAt(from) ?: return false
-        if (abs(withDelta.x) != 1 || pawn.type != PieceType.Pawn) {
-            return false
-        }
-
-        return if (pawn.color is PieceColor.White) {
-            withDelta.y == -1
-        } else {
-            withDelta.y == 1
-        }
-    }
-
-    fun canPromotePieceAt(position: Position): Boolean {
-        val pawn = board.pieceAt(position)
-        if (pawn?.type !is PieceType.Pawn) return false
-        return (pawn.color == PieceColor.White && position.y == 0) || (pawn.color == PieceColor.Black && position.y == 7)
-    }
-
-    fun promotePieceAt(position: Position, to: PieceType): Game {
-        return Game(board.promotePiece(position, to), this.history)
-    }
-
-    fun pieceHasMoved(at: Position): Boolean {
-        return history.find { it.from == at } != null
-    }
-
-    fun positionIsThreatened(position: Position, by: PieceColor): Boolean {
-        return board.allPieces.find { (from, piece) ->
-            if (piece.color != by) return@find false
-            if (piece.type == PieceType.Pawn) return@find pawnCanTake(from, position - from)
-            return canMove(from, position)
-        } != null
-    }
-
-    fun castlingPermitted(from: Position, to: Position): Boolean {
-        val piece = board.pieceAt(from) ?: return false
-        if (piece.type != PieceType.King) return false
-        val kingsRow = if (piece.color == PieceColor.Black) 0 else 7
-        if (!(from.y == kingsRow && to.y == kingsRow && from.x == 4 && listOf(2, 6).contains(to.x))) return false
-
-        val kingPosition = Position(4, kingsRow)
-        if (pieceHasMoved(kingPosition)) return false
-
-        val isKingSide = to.x == 6
-        val rookPosition = Position(if (isKingSide) 7 else 0, kingsRow)
-        if (pieceHasMoved(rookPosition)) return false
-
-        return ((if (isKingSide) 5..6 else 1..3).map { board.pieceAt(Position(it, kingsRow)) }.find { it != null } == null) &&
-            ((if (isKingSide) 4..6 else 2..4).map { positionIsThreatened(Position(it, kingsRow), by = this.turn.other()) }.find { it == true } == null)
-    }
-
-    fun enPassantTakePermitted(from: Position, to: Position): Boolean {
-        board.pieceAt(from) ?: return false
-        if (!pawnCanTake(from, to - from)) return false
-
-        val lastMove = history.lastOrNull() ?: return false
-        if (lastMove.to.x != to.x) return false
-
-        val lastPiece = board.pieceAt(lastMove.to) ?: return false
-        if (lastPiece.type != PieceType.Pawn || lastPiece.color == turn) return false
-
-        return when (lastPiece.color) {
-            is PieceColor.White -> {
-                lastMove.from.y == to.y + 1 && lastMove.to.y == to.y - 1
-            }
-            is PieceColor.Black -> {
-                lastMove.from.y == to.y - 1 && lastMove.to.y == to.y + 1
-            }
-        }
-    }
-
-    fun valueFor(color: PieceColor): Int {
-        return board.allPieces.filter { it.second.color == color }.map { it.second.type.value }.sum()
-    }
-
-    fun capturedPiecesFor(color: PieceColor): List<Piece> {
-        val startingPieces = STARTING_PIECES.filter { it.color == color }.map { it.id }.toSet()
-        val currentPieces = board.allPieces.map { it.second }.filter { it.color == color }.map { it.id }.toSet()
-        val capturedPieces = startingPieces - currentPieces
-        return capturedPieces.map { Piece.pieceFromString(it) }
-    }
+fun isPositionOnTheBoard(at: Position): Boolean {
+  return at.x in 0..5 && at.y in 0..5
 }
 
-private fun Board.piecesExist(between: Position, and: Position): Boolean {
-    val step = Delta(
-        x = if (between.x > and.x) -1 else if (between.x < and.x) 1 else 0,
-        y = if (between.y > and.y) -1 else if (between.y < and.y) 1 else 0
+data class Game(
+  var board: Board = Board(),
+  var currentPlayer: Color = Color.Blue,
+  var victory: Boolean = false,
+  val isPlayout: Boolean = false, // true if the game is a simulation for decision-making
+  var moveNumber: Int = 0
+) {
+  fun signature(): String {
+    var signature = ""
+    for(i in 0..35) {
+      var p = board.grid[i].toInt()
+      if(p < 0)
+        p += 10;
+      signature += p.toString()
+    }
+    signature += when(currentPlayer) {
+      Color.Blue -> "B"
+      Color.Red -> "R"
+    }
+    signature += board.getNumberOfBoInPool(Color.Blue).toString()
+    signature += board.getNumberOfPoInPool(Color.Blue).toString()
+    signature += board.getNumberOfBoInPool(Color.Red).toString()
+    signature += board.getNumberOfPoInPool(Color.Red).toString()
+
+    return signature
+  }
+
+  fun canPlayAt(to: Position): Boolean = board.pieceAt(to) == null
+
+  fun canPlay(move: Move): Boolean = board.hasPieceInPool(move.piece) && canPlayAt(move.to)
+
+  fun canBePushed(
+    board: Board,
+    pusher: PieceType,
+    myPosition: Position,
+    direction: Direction
+  ): Boolean {
+    // if myPosition is empty, there is nothing to push
+    val myPiece = board.pieceAt(myPosition) ?: return false
+
+    // if I am a Bo, and pusher is a Po, I don't move
+    if(myPiece.getType() > pusher) return false
+
+    // if the cell in the pushing direction is not empty, I don't move
+    if(board.pieceAt(getPositionTowards(myPosition, direction)) != null) return false
+
+    return true
+  }
+
+  fun copyForPlayout(): Game {
+    return Game(
+      this.board.copy(),
+      this.currentPlayer,
+      this.victory,
+      isPlayout = true,
+      this.moveNumber
     )
-    var position = between
-    position += step
-    while (position != and) {
-        if (pieceAt(position) != null) {
-            return true
-        }
-        position += step
+  }
+
+  fun doPush(board: Board, move: Move): Board {
+    var newBoard = board
+    enumValues<Direction>().forEach {
+      val victim = getPositionTowards(move.to, it)
+      if(canBePushed(newBoard, move.piece.getType(), victim, it)) {
+        val target = getPositionTowards(victim, it)
+        newBoard = newBoard.slideFromTo(victim, target)
+      }
     }
-    return false
+    moveNumber++
+    return newBoard
+  }
+
+  fun changePlayer() {
+    currentPlayer = currentPlayer.other()
+  }
+
+  fun getAlignedPositionsInDirection(
+    board: Board,
+    player: Color,
+    position: Position,
+    direction: Direction
+  ): List<Position> {
+    val alignedPieces: MutableList<Position> = mutableListOf()
+
+    val currentPiece = board.pieceAt(position)
+    if(currentPiece?.getColor() == player)
+      alignedPieces.add(position)
+
+    val nextPosition = getPositionTowards(position, direction)
+    val nextPiece = board.pieceAt(nextPosition)
+    if(nextPiece?.getColor() == player)
+      alignedPieces.add(nextPosition)
+
+    val nextNextPosition = getPositionTowards(nextPosition, direction)
+    val nextNextPiece = board.pieceAt(getPositionTowards(nextPosition, direction))
+    if(nextNextPiece?.getColor() == player)
+      alignedPieces.add(nextNextPosition)
+
+    return alignedPieces.toList()
+  }
+
+  fun isValidAlignedPositions(positions: List<Position>): Boolean = positions.size == 3
+
+  fun countBoInAlignment(board: Board, positions: List<Position>): Int {
+    var countBo = 0
+    positions.forEach {
+      if(board.pieceAt(it)?.getType() == PieceType.Bo)
+        countBo++
+    }
+    return countBo
+  }
+
+  fun containsBoOnly(board: Board, positions: List<Position>): Boolean =
+    countBoInAlignment(board, positions) == 3
+
+  fun getPossiblePromotions(board: Board): List<List<Position>> {
+    val promotable: MutableList<List<Position>> = mutableListOf()
+    val hasAllPiecesOnTheBoard = board.isPoolEmpty(currentPlayer)
+
+    (0 until 6).map { y ->
+      (0 until 6).map { x ->
+        val position = Position(x, y)
+        val piece = board.pieceAt(position)
+        if(piece?.getColor() == currentPlayer) {
+          // check if we have 8 pieces on the board
+          if(hasAllPiecesOnTheBoard)
+            promotable.add(listOf(position))
+
+          // check 3-in-a-row
+          scanDirection.forEach {
+            val alignment = getAlignedPositionsInDirection(
+              board,
+              currentPlayer,
+              position,
+              it
+            )
+            if(isValidAlignedPositions(alignment))
+              promotable.add(alignment)
+          }
+        }
+      }
+    }
+    return promotable.toList()
+  }
+
+  fun getPossiblePromotions(): List<List<Position>> {
+    return getPossiblePromotions(board)
+  }
+
+  fun promoteOrRemovePieces(toPromote: List<Position>) {
+    var newBoard: Board = board
+    for(position in toPromote) {
+      newBoard = newBoard.removePieceAndPromoteIt(position)
+    }
+    board = newBoard
+  }
+
+  fun checkVictoryFor(board: Board, player: Color): Boolean {
+    victory = false
+    if(board.isPoolEmpty(player) && board.getPlayerNumberBo(player) == 8) {
+      victory = true
+    } else { // check if current player has at least 3 Bo in line
+      (0 until 6).map { y ->
+        (0 until 6).map { x ->
+          val position = Position(x, y)
+          val piece = board.pieceAt(position)
+          if(piece?.getColor() == player && piece.getType() == PieceType.Bo) {
+            scanDirection.forEach {
+              val alignment = getAlignedPositionsInDirection(
+                board,
+                player,
+                position,
+                it
+              )
+              if(isValidAlignedPositions(alignment) && containsBoOnly(board, alignment)) {
+                victory = true
+                return true
+              }
+            }
+          }
+        }
+      }
+    }
+    return victory
+  }
+
+  fun checkVictory(): Boolean = checkVictoryFor(board, currentPlayer)
+
+  fun changeWithHistory(history: History) {
+    board = history.board
+    moveNumber = history.moveNumber
+    currentPlayer = history.player
+    checkVictory()
+  }
 }

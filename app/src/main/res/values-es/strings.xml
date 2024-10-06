@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">Cómo jugar</string>
+    <string name="about">Acerca de</string>
+    <string name="language">Idioma</string>
+    <string name="cancel">Cancelar</string>
+    <string name="buy_me_a_coffee">¿Te gusta?\n¡Invítame a un café!</string>
+    <string name="rate_it">¿Te gusta?\n¡Valóralo!</string>
+    <string name="github">Código fuente en GitHub</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">Continuar partida</string>
+    <string name="ai_game">Un jugador</string>
+    <string name="human_game">Dos jugadores</string>
+    <string name="ai_vs_ai_game">Ordenador vs Ordenador</string>
+    <string name="puzzle">Puzzles</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">Jugar como</string>
+    <string name="blue">Azul</string>
+    <string name="red">Rojo</string>
+    <string name="random">Aleatorio</string>
+    <string name="ai_level">Nivel de IA</string>
+    <string name="launch_solo_game">¡Jugar!</string>
+
+    <!--    Game screen-->
+    <string name="turn">Turno del jugador:</string>
+    <string name="promotion">Promoción</string>
+    <string name="select_piece">Selecciona tu pieza:</string>
+    <string name="select_promotion">Selecciona tu(s) promoción(es)</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">¡%s gana!</string>
+    <string name="newgame">¿Nuevo juego?</string>
+    <string name="sure">¡Por supuesto!</string>
+    <string name="next_time">La próxima vez</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">El juego comienza con un tablero vacío. Los jugadores tienen un conjunto de 8 piezas pequeñas y colocan una pieza alternativamente.</string>
+    <string name="how_to_play_2">Cuando se coloca una pieza, esta empuja todas las piezas adyacentes desde una casilla, excepto si una pieza está bloqueada por otra.</string>
+    <string name="how_to_play_3">Las piezas pequeñas no pueden empujar las grandes, pero las grandes pueden empujar cualquier pieza.</string>
+    <string name="how_to_play_4">Cuando una pieza es empujada fuera del tablero, vuelve a la reserva del jugador.</string>
+    <string name="how_to_play_5">Cuando 3 de tus piezas están alineadas, se eliminan del tablero al final de tu turno y vuelven a tu reserva. Las piezas pequeñas eliminadas de esta manera se convierten en piezas grandes. Si hay más de 3 piezas alineadas, puedes elegir las 3 piezas adyacentes a eliminar. Si colocas tus 8 piezas en el tablero, debes elegir una pieza a eliminar. En caso de que esta pieza sea pequeña, se convierte en una pieza grande.</string>
+    <string name="how_to_play_6">Hay 2 condiciones de victoria:</string>
+    <string name="how_to_play_7">Tienes 3 piezas grandes alineadas al final de tu turno.</string>
+    <string name="how_to_play_8">Has colocado tu octava pieza grande en el tablero.</string>
+    <string name="how_to_play_9">¡Eso es! ¡A divertirse!</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo es una implementación de boop. / Gekitai² para Android, escrita con Jetpack Compose.</string>
+    <string name="about_2">La aplicación es gratuita, sin publicidad y de código abierto bajo la Licencia GNU GPL v3. El código es un fork modificado de la aplicación de ajedrez (https://github.com/bentrengrove/chess) de Ben Trengrove, bajo Licencia MIT.</string>
+    <string name="about_3">boop. y Gekitai² son juegos de Scott Brady. boop. está distribuido por Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Las ilustraciones originales utilizadas en pobo son propiedad de bcogwene (https://pixabay.com/users/bcogwene-1114581/) y están bajo la Licencia CC0.</string>
+    <string name="about_5">Algunos iconos son de https://icons8.com bajo la Licencia Universal Multimedia.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Selecciona un puzzle</string>
+    <string name="victory_condition_1">¡Gana en %s movimientos!</string>
+</resources>

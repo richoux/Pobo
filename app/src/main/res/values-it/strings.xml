@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">Come giocare</string>
+    <string name="about">Informazioni</string>
+    <string name="language">Lingua</string>
+    <string name="cancel">Annulla</string>
+    <string name="buy_me_a_coffee">Ti piace?\nOffrimi un caffè!</string>
+    <string name="rate_it">Ti piace?\nRate it!</string>
+    <string name="github">Code su GitHub</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">Riprendi la partita</string>
+    <string name="ai_game">Un giocatore</string>
+    <string name="human_game">Due giocatori</string>
+    <string name="ai_vs_ai_game">Computer contro Computer</string>
+    <string name="puzzle">Puzzle</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">Gioca come</string>
+    <string name="blue">Blu</string>
+    <string name="red">Rosso</string>
+    <string name="random">Casuale</string>
+    <string name="ai_level">Livello AI</string>
+    <string name="launch_solo_game">Giocare!</string>
+
+    <!--    Game screen-->
+    <string name="turn">Turno del giocatore:</string>
+    <string name="promotion">Promozione</string>
+    <string name="select_piece">Seleziona il tuo pedine:</string>
+    <string name="select_promotion">Seleziona le tue promozioni</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">%s vince!</string>
+    <string name="newgame">Nuova partita?</string>
+    <string name="sure">Certamente!</string>
+    <string name="next_time">La prossima volta</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">Il gioco inizia con una scacchiera vuota. I giocatori hanno una riserva di 8 pedine e ne piazzano una dopo l’altra  alternativamente.</string>
+    <string name="how_to_play_2">Quando un pedine viene piazzato, fa muovere tutti i pedini adiacenti da un quadrato, tranne se un pedine è bloccato da un altro pedina.</string>
+    <string name="how_to_play_3">I pezzi grandi possono respingere tutti gli altri pezzi, ma quelli piccoli non possono respingere i pezzi grandi.</string>
+    <string name="how_to_play_4">Quando un pedine viene spinto fuori dalla scacchiera, ritorna nella riserva del suo giocatore.</string>
+    <string name="how_to_play_5">Quando 3 dei tuoi pedine sono allineati, vengono rimossi dalla scacchiera alla fine del tuo turno e ritornano nella tua riserva. I pedine piccoli rimossi in questo modo vengono promossi come pedini grandi. Se più di 3 pedine sono allineati, scegli 3 pedini adiacenti da rimuovere. Se metti i tuoi 8 pedini sulla scacchiera, devi scegliere un pedine da rimuovere dalla scacchiera. In caso questo pedine sia piccolo, viene promosso come pedine grande.</string>
+    <string name="how_to_play_6">Ci sono 2 condizioni di vittoria:</string>
+    <string name="how_to_play_7">Hai 3 pedini grandi allineati alla fine del tuo turno.</string>
+    <string name="how_to_play_8">Metti il tuo ottavo pedine grande sulla scacchiera.</string>
+    <string name="how_to_play_9">È tutto! Buon divertimento!</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo è un\'implementazione di boop. / Gekitai² per Android, scritta con Jetpack Compose.</string>
+    <string name="about_2">L\'applicazione è gratuita, senza pubblicità e open source sotto licenza GNU GPL v3. Il codice è un fork modificato di un\'applicazione scacchiera (https://github.com/bentrengrove/chess) di Ben Trengrove, sotto licenza MIT.</string>
+    <string name="about_3">boop. e Gekitai² sono giochi di Scott Brady. boop. è distribuito da Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Le illustrazioni originali utilizzate in pobo sono di bcogwene (https://pixabay.com/users/bcogwene-1114581/) e sono sotto licenza CC0.</string>
+    <string name="about_5">Alcune icone provengono da https://icons8.com sotto la licenza Universal Multimedia.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Seleziona un puzzle</string>
+    <string name="victory_condition_1">Vinci in %s mosse!</string>
+</resources>

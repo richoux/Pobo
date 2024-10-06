@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">プレイ方法</string>
+    <string name="about">情報</string>
+    <string name="language">言語</string>
+    <string name="cancel">キャンセル</string>
+    <string name="buy_me_a_coffee">気に入りましたか？\n制作者にコーヒーをご馳走します！</string>
+    <string name="rate_it">気に入りましたか？\n評価してください！</string>
+    <string name="github">GitHubでソースコードを見る</string>
+
+    <!--    Title screen-->
+    <string name="app_name">ポボ</string>
+    <string name="resume">ゲームを再開</string>
+    <string name="ai_game">一人プレー</string>
+    <string name="human_game">二人プレー</string>
+    <string name="ai_vs_ai_game">AI対AI</string>
+    <string name="puzzle">パズル</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">プレイヤー色</string>
+    <string name="blue">青</string>
+    <string name="red">赤</string>
+    <string name="random">ランダム</string>
+    <string name="ai_level">AIレベル</string>
+    <string name="launch_solo_game">プレイ！</string>
+
+    <!--    Game screen-->
+    <string name="turn">プレーヤーのターン：</string>
+    <string name="promotion">昇格</string>
+    <string name="select_piece">駒を選択：</string>
+    <string name="select_promotion">昇格を選択</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">%sの勝利！</string>
+    <string name="newgame">新しいゲーム？</string>
+    <string name="sure">もちろん!</string>
+    <string name="next_time">次回</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">ゲームは空の盤面から始まります。プレイヤーは最初、8つの小さな駒を持ち、交互に駒を配置します。</string>
+    <string name="how_to_play_2">駒を配置すると、隣接するすべての駒が1マス押し出されます。ただし、別の駒によってブロックされている場合を除きます。</string>
+    <string name="how_to_play_3">大きな駒はどの駒も押し出せますが、小さい駒は大きな駒を押し出すことはできません。</string>
+    <string name="how_to_play_4">駒が盤面の外に押し出されると、その駒はプレーヤーのプールに戻ります。</string>
+    <string name="how_to_play_5">自分の駒が3つ並んだ場合、その駒はターンの終わりに盤面から取り除かれ、自分のプールに戻ります。この方法で取り除かれた小さな駒は大きな駒に昇格します。4つ以上の駒が並んだ場合、もしくは3つの駒の列が複数ある場合は、隣接する3つの駒を選択し取り除きます。8つの駒を盤面に配置すると、盤面から1つの駒を取り除かなければなりません。この駒が小さな駒の場合、大きな駒に昇格します。</string>
+    <string name="how_to_play_6">勝利条件は2つです。</string>
+    <string name="how_to_play_7">①自分のターンの終わりに3つの大きな駒が並んだら勝ちです。</string>
+    <string name="how_to_play_8">②盤面に8つ目の大きな駒を配置したら勝ちです。</string>
+    <string name="how_to_play_9">以上です！楽しんでください！</string>
+
+    <!--    About screen-->
+    <string name="about_1">poboは、Jetpack Composeを使用してAndroid向けに書かれたboop. / Gekitai²の実装です。</string>
+    <string name="about_2">このアプリは、GNU GPL v3ライセンスの下で無料で広告のないオープンソースです。コードは、MITライセンスの下でBen Trengroveによるチェスアプリ（https://github.com/bentrengrove/chess）の修正されたフォークです。</string>
+    <string name="about_3">boop.とGekitai²は、Scott Bradyのゲームです。boop.はSmirk &amp; Dagger Gamesによって配信されています。</string>
+    <string name="about_4">poboで使用されているオリジナルのイラストは、bcogwene（https://pixabay.com/users/bcogwene-1114581/）から提供されており、CC0ライセンスの下で利用できます。</string>
+    <string name="about_5">一部のアイコンは、ユニバーサル マルチメディア ライセンスに基づいて https://icons8.com からのものです。</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">パズルを選択してください</string>
+    <string name="victory_condition_1">%s手で勝利！</string>
+</resources>

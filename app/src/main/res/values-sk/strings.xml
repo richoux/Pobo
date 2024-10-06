@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    Burger menu-->
+    <string name="how_to_play">Ako hrať</string>
+    <string name="about">O aplikácii</string>
+    <string name="language">Jazyk</string>
+    <string name="cancel">Zrušiť</string>
+    <string name="buy_me_a_coffee">Páči sa ti to?\nKúpte mi kávu!</string>
+    <string name="rate_it">Páči sa ti to?\nOhodnoťte to!</string>
+    <string name="github">Zdroj na GitHube</string>
+
+    <!--    Title screen-->
+    <string name="app_name">pobo</string>
+    <string name="resume">Pokračovať v hre</string>
+    <string name="ai_game">Jeden hráč</string>
+    <string name="human_game">Dvaja hráči</string>
+    <string name="ai_vs_ai_game">Počítač proti počítaču</string>
+    <string name="puzzle">Hlavolamy</string>
+
+    <!--    Title screen drop menu-->
+    <string name="select_first_player">Hrať ako</string>
+    <string name="blue">Modré</string>
+    <string name="red">Červené</string>
+    <string name="random">Náhodné</string>
+    <string name="ai_level">úroveň AI</string>
+    <string name="launch_solo_game">Hrajte!</string>
+
+    <!--    Game screen-->
+    <string name="turn">Hráčov ťah:</string>
+    <string name="promotion">Povýšenie</string>
+    <string name="select_piece">Vyberte svoj kúsok:</string>
+    <string name="select_promotion">Vyberte svoje povýšenia:</string>
+
+    <!--    Game screen Alert dialog-->
+    <string name="win">"%s vyhralo! "</string>
+    <string name="newgame">Nová hra?</string>
+    <string name="sure">Určite!</string>
+    <string name="next_time">Inokedy</string>
+
+    <!--    How to play screen-->
+    <string name="how_to_play_1">Hra začína na prázdnej doske. Hráči majú k dispozícii 8 malých figuriek a umiestňujú ich striedavo.</string>
+    <string name="how_to_play_2">Keď je figurka umiestnená, odstráni všetky susedné figurky z jedného štvorca, okrem prípadu, keď je figurka blokovaná inou figurkou.</string>
+    <string name="how_to_play_3">Veľké figurky môžu odstrániť ľubovoľné iné figurky, ale malé figurky nemôžu odstrániť veľké figurky.</string>
+    <string name="how_to_play_4">Keď je figurka vytlačená z dosky von, vráti sa do poolu svojho hráča.</string>
+    <string name="how_to_play_5">Keď sú 3 z vašich figuriek zarovnané do radu, na konci vášho ťahu sa odstránia z dosky a vrátia sa do vášho poolu. Malé figurky odstránené týmto spôsobom sú povýšené na veľké figurky. Ak sú zarovnané viac ako 3 figurky, vyberiete 3 susedné figurky na odstránenie. Ak umiestnite svojich 8 figuriek na dosku, musíte vybrať jednu figurku na odstránenie z dosky. V prípade, že ide o malú figurku, povýši sa na veľkú figurku.</string>
+    <string name="how_to_play_6">Existujú 2 víťazné podmienky:</string>
+    <string name="how_to_play_7">Na konci vášho ťahu máte zarovnané v rade 3 veľké figurky.</string>
+    <string name="how_to_play_8">Umiestnite svoju 8. veľkú figurku na dosku.</string>
+    <string name="how_to_play_9">To je všetko! Zábavte sa!</string>
+
+    <!--    About screen-->
+    <string name="about_1">pobo je implementácia boop. / Gekitai² pre Android, napísaná pomocou Jetpack Compose.</string>
+    <string name="about_2">Aplikácia je bezplatná, bez reklamná a open source pod licenciou GNU GPL v3. Kód je upravená vetva aplikácie šachu (https://github.com/bentrengrove/chess) od Bena Trengroveho, pod licenciou MIT.</string>
+    <string name="about_3">boop. a Gekitai² sú hry od Scotta Bradyho. boop. je distribuovaný spoločnosťou Smirk &amp; Dagger Games.</string>
+    <string name="about_4">Originálne ilustrácie použité v pobo sú od bcogwene (https://pixabay.com/users/bcogwene-1114581/) a sú pod licenciou CC0.</string>
+    <string name="about_5">Niektoré ikony pochádzajú z https://icons8.com pod Universal Multimedia License.</string>
+
+    <!--    Puzzles-->
+    <string name="select_puzzle">Vyberte hádanku</string>
+    <string name="victory_condition_1">Vyhrajte po %s ťahoch!</string>
+</resources>

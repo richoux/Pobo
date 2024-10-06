@@ -1,0 +1,11 @@
+full: MCTS + CO-selection + CO-expansion + CO-playout
+selection: MCTS + CO-selection
+.
+.
+.
+vanilla: MCTS
+heuristics: heuristics only, no MCTS, no CO
+
+equivalent move: 10  games full vs heuristics, counting  the number of
+moves  selected randomly  by the  full agent  among the  pool of  best
+moves, according to the objective function.
