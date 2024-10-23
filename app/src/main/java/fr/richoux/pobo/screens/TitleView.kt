@@ -74,7 +74,7 @@ fun TitleView(navController: NavController, gameViewModel: GameViewModel) {
       modifier = Modifier.weight(1f)
     )
     Text(
-      text = "v1.1.2",
+      text = "v1.1.3",
       color = MaterialTheme.colors.onPrimary,
       modifier = Modifier.align(Alignment.CenterHorizontally)
     )
