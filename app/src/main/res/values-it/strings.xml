@@ -38,15 +38,15 @@
     <string name="next_time">La prossima volta</string>
 
     <!--    How to play screen-->
-    <string name="how_to_play_1">Il gioco inizia con una scacchiera vuota. I giocatori hanno una riserva di 8 pedine e ne piazzano una dopo l’altra  alternativamente.</string>
-    <string name="how_to_play_2">Quando un pedine viene piazzato, fa muovere tutti i pedini adiacenti da un quadrato, tranne se un pedine è bloccato da un altro pedina.</string>
-    <string name="how_to_play_3">I pezzi grandi possono respingere tutti gli altri pezzi, ma quelli piccoli non possono respingere i pezzi grandi.</string>
-    <string name="how_to_play_4">Quando un pedine viene spinto fuori dalla scacchiera, ritorna nella riserva del suo giocatore.</string>
-    <string name="how_to_play_5">Quando 3 dei tuoi pedine sono allineati, vengono rimossi dalla scacchiera alla fine del tuo turno e ritornano nella tua riserva. I pedine piccoli rimossi in questo modo vengono promossi come pedini grandi. Se più di 3 pedine sono allineati, scegli 3 pedini adiacenti da rimuovere. Se metti i tuoi 8 pedini sulla scacchiera, devi scegliere un pedine da rimuovere dalla scacchiera. In caso questo pedine sia piccolo, viene promosso come pedine grande.</string>
-    <string name="how_to_play_6">Ci sono 2 condizioni di vittoria:</string>
-    <string name="how_to_play_7">Hai 3 pedini grandi allineati alla fine del tuo turno.</string>
-    <string name="how_to_play_8">Metti il tuo ottavo pedine grande sulla scacchiera.</string>
-    <string name="how_to_play_9">È tutto! Buon divertimento!</string>
+    <string name="how_to_play_1">Il gioco inizia con una scacchiera vuota. I giocatori hanno una riserva di 8 pedine e ne piazzano una dopo l\'altra alternativamente.</string>
+    <string name="how_to_play_2">Quando una pedina viene piazzata, le pedine adiacenti vengono mosse di una casella, tranne se sono bloccate, su qualsiasi dei 4 lati, da altrettante pedine (avversarie o meno).</string>
+    <string name="how_to_play_3">Le pedine più grandi (pedoni) possono respingere tutte le altre, mentre quelle più piccole non possono respingere i pedoni.</string>
+    <string name="how_to_play_4">Quando una pedina fuoriesce dalla scacchiera, essa ritorna nella riserva del proprio giocatore, che può riutilizzarla.</string>
+    <string name="how_to_play_5">Quando una pedina fuoriesce dalla scacchiera, essa ritorna nella riserva del proprio giocatore, che può riutilizzarla. Quanto 3 delle tue pedine sono allineate, vengono rimosse dalla scacchiera e ritornano nella tua riserva. Le pedine piccole rimosse in questo modo vengono promosse a pedoni.  Se più di 3 pedine sono allineate, scegli altre 3 pedine da rimuovere. Se posizioni tutte le 8 pedine sulla scacchiera, devi scegliere una pedina da eliminare da essa. Nel caso che questa sia una pedina piccola, viene promossa a pedone.</string>
+    <string name="how_to_play_6">Ci sono due condizioni di vincita:</string>
+    <string name="how_to_play_7">Alla fine del turno hai 3 pedoni allineati.</string>
+    <string name="how_to_play_8">Riesci a mettere 8 pedoni (dopo aver promosso tutte le pedine) sulla scacchiera.</string>
+    <string name="how_to_play_9">È tutto, buon divertimento!</string>
 
     <!--    About screen-->
     <string name="about_1">pobo è un\'implementazione di boop. / Gekitai² per Android, scritta con Jetpack Compose.</string>
