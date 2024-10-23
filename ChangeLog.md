@@ -1,5 +1,8 @@
 # ChangeLog
 
+## [1.1.3] - 2024-10-24
+- Improve Italian 'how to play' screen
+
 ## [1.1.2] - 2024-10-04
 - Prevent simultaneous tappings
 - Repeat a random game make the player's color random again.
